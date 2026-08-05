@@ -11,11 +11,14 @@ export default defineConfig({
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
             refresh: true,
-            fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
-                }),
-            ],
+            // Skip font plugin on Vercel to avoid "No such file" build errors
+            fonts: process.env.VERCEL
+                ? []
+                : [
+                      bunny('Instrument Sans', {
+                          weights: [400, 500, 600],
+                      }),
+                  ],
         }),
         inertia(),
         react({
@@ -24,7 +27,7 @@ export default defineConfig({
             },
         }),
         tailwindcss(),
-        // Only load Wayfinder locally where PHP is available
+        // Skip Wayfinder on Vercel since PHP is not present in Node environment
         !process.env.VERCEL &&
             wayfinder({
                 formVariants: true,
