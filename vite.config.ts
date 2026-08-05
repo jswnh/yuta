@@ -24,8 +24,10 @@ export default defineConfig({
             },
         }),
         tailwindcss(),
-        wayfinder({
-            formVariants: true,
-        }),
-    ],
+        // Only load Wayfinder locally where PHP is available
+        !process.env.VERCEL &&
+            wayfinder({
+                formVariants: true,
+            }),
+    ].filter(Boolean),
 });
