@@ -1,6 +1,9 @@
 export type User = {
-    id: number;
-    name: string;
+    user_id: string;
+    first_name: string;
+    middle_name?: string | null;
+    last_name: string;
+    contact_number: string;
     email: string;
     avatar?: string;
     email_verified_at: string | null;
