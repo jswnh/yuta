@@ -1,0 +1,192 @@
+[
+  {
+    "listing_id": "9b1deb4d-3b7d-4b1e-b8d9-2c6e1e8a9001",
+    "seller_id": "8f2a1b3c-4d5e-6f7a-8b9c-0d1e2f3a4b5c",
+    "seller_type": "owner",
+    "title": "Pristine Sunset Crest Residential Parcel",
+    "slug": "pristine-sunset-crest-residential-parcel",
+    "description": "Exclusive 1,500 sq m residential corner lot featuring flat buildable terrain, verified soil compaction tests, and 100% clean title status. Ideal for modern luxury residence or eco-resort development.",
+    "price": 247500.00,
+    "currency": "PHP",
+    "is_negotiable": true,
+    "price_per_unit": 165.00,
+    "area": 1500.00,
+    "area_unit": "sqm",
+    "land_type": "residential",
+    "topography": "flat",
+    "title_status": "clean_title",
+    "parcel_number": "LOT-8842-CA",
+    "is_verified": true,
+    "address_line": "104 Highland Ridge Way",
+    "barangay": "San Mateo",
+    "city_municipality": "Antipolo",
+    "province": "Rizal",
+    "region": "CALABARZON",
+    "zip_code": "1870",
+    "latitude": 14.6254,
+    "longitude": 121.1258,
+    "boundary_coordinates": [
+      { "lat": 14.6258, "lng": 121.1254 },
+      { "lat": 14.6258, "lng": 121.1262 },
+      { "lat": 14.6250, "lng": 121.1262 },
+      { "lat": 14.6250, "lng": 121.1254 }
+    ],
+    "status": "active",
+    "is_featured": true,
+    "view_count": 1420,
+    "published_at": "2026-08-01T10:00:00.000000Z",
+    "sold_at": null,
+    "created_at": "2026-08-01T09:30:00.000000Z",
+    "updated_at": "2026-08-06T12:00:00.000000Z",
+    "images": [
+      {
+        "image_id": "img-001-a",
+        "listing_id": "9b1deb4d-3b7d-4b1e-b8d9-2c6e1e8a9001",
+        "file_path": "/images/aerial_land_plot.jpg",
+        "caption": "Aerial Property Topo View",
+        "sort_order": 1,
+        "is_primary": true
+      },
+      {
+        "image_id": "img-001-b",
+        "listing_id": "9b1deb4d-3b7d-4b1e-b8d9-2c6e1e8a9001",
+        "file_path": "/images/valley_farm_plot.jpg",
+        "caption": "North Boundary Terrain",
+        "sort_order": 2,
+        "is_primary": false
+      },
+      {
+        "image_id": "img-001-c",
+        "listing_id": "9b1deb4d-3b7d-4b1e-b8d9-2c6e1e8a9001",
+        "file_path": "/images/commercial_land_plot.jpg",
+        "caption": "Road Access Corridor",
+        "sort_order": 3,
+        "is_primary": false
+      }
+    ]
+  },
+  {
+    "listing_id": "9b1deb4d-3b7d-4b1e-b8d9-2c6e1e8a9002",
+    "seller_id": "7e1a0b2c-3d4e-5f6a-7b8c-9d0e1f2a3b4c",
+    "seller_type": "broker",
+    "title": "Verdant Valley Organic Farm Estate",
+    "slug": "verdant-valley-organic-farm-estate",
+    "description": "Expansive 2.5-hectare fertile agricultural land with rich Grade A clay-loam soil, natural irrigation spring access, and gentle contour topography suited for high-yield crops or retreat lodge.",
+    "price": 850000.00,
+    "currency": "PHP",
+    "is_negotiable": false,
+    "price_per_unit": 34.00,
+    "area": 25000.00,
+    "area_unit": "sqm",
+    "land_type": "agricultural",
+    "topography": "sloped",
+    "title_status": "clean_title",
+    "parcel_number": "PAR-9120-VALLEY",
+    "is_verified": true,
+    "address_line": "Km 18 Valley Spring Road",
+    "barangay": "Puguis",
+    "city_municipality": "La Trinidad",
+    "province": "Benguet",
+    "region": "CAR",
+    "zip_code": "2601",
+    "latitude": 16.4580,
+    "longitude": 120.5890,
+    "boundary_coordinates": [
+      { "lat": 16.4590, "lng": 120.5880 },
+      { "lat": 16.4590, "lng": 120.5900 },
+      { "lat": 16.4570, "lng": 120.5900 },
+      { "lat": 16.4570, "lng": 120.5880 }
+    ],
+    "status": "active",
+    "is_featured": true,
+    "view_count": 980,
+    "published_at": "2026-08-02T14:20:00.000000Z",
+    "sold_at": null,
+    "created_at": "2026-08-02T14:00:00.000000Z",
+    "updated_at": "2026-08-06T15:10:00.000000Z",
+    "images": [
+      {
+        "image_id": "img-002-a",
+        "listing_id": "9b1deb4d-3b7d-4b1e-b8d9-2c6e1e8a9002",
+        "file_path": "/images/valley_farm_plot.jpg",
+        "caption": "Agricultural Terrain Overview",
+        "sort_order": 1,
+        "is_primary": true
+      },
+      {
+        "image_id": "img-002-b",
+        "listing_id": "9b1deb4d-3b7d-4b1e-b8d9-2c6e1e8a9002",
+        "file_path": "/images/aerial_land_plot.jpg",
+        "caption": "Elevation Slope Survey",
+        "sort_order": 2,
+        "is_primary": false
+      }
+    ]
+  },
+  {
+    "listing_id": "9b1deb4d-3b7d-4b1e-b8d9-2c6e1e8a9003",
+    "seller_id": "6d0a9b8c-7d6e-5f4a-3b2c-1d0e9f8a7b6c",
+    "seller_type": "agent",
+    "title": "Prime Highway Commercial Land Plot",
+    "slug": "prime-highway-commercial-land-plot",
+    "description": "Strategic 4,100 sq m commercial lot positioned directly along major express route. 100% flat topography with multi-story foundation capability, ideal for logistics or retail complex.",
+    "price": 1250000.00,
+    "currency": "PHP",
+    "is_negotiable": true,
+    "price_per_unit": 304.88,
+    "area": 4100.00,
+    "area_unit": "sqm",
+    "land_type": "commercial",
+    "topography": "flat",
+    "title_status": "clean_title",
+    "parcel_number": "COM-4100-HWY",
+    "is_verified": true,
+    "address_line": "National Highway Junction",
+    "barangay": "Balibago",
+    "city_municipality": "Santa Rosa",
+    "province": "Laguna",
+    "region": "CALABARZON",
+    "zip_code": "4026",
+    "latitude": 14.2833,
+    "longitude": 121.1167,
+    "boundary_coordinates": [
+      { "lat": 14.2840, "lng": 121.1160 },
+      { "lat": 14.2840, "lng": 121.1174 },
+      { "lat": 14.2826, "lng": 121.1174 },
+      { "lat": 14.2826, "lng": 121.1160 }
+    ],
+    "status": "active",
+    "is_featured": false,
+    "view_count": 2150,
+    "published_at": "2026-08-03T11:15:00.000000Z",
+    "sold_at": null,
+    "created_at": "2026-08-03T10:45:00.000000Z",
+    "updated_at": "2026-08-05T18:30:00.000000Z",
+    "images": [
+      {
+        "image_id": "img-003-a",
+        "listing_id": "9b1deb4d-3b7d-4b1e-b8d9-2c6e1e8a9003",
+        "file_path": "/images/commercial_land_plot.jpg",
+        "caption": "Commercial Corridor View",
+        "sort_order": 1,
+        "is_primary": true
+      },
+      {
+        "image_id": "img-003-b",
+        "listing_id": "9b1deb4d-3b7d-4b1e-b8d9-2c6e1e8a9003",
+        "file_path": "/images/aerial_land_plot.jpg",
+        "caption": "Cadastre Boundary Map",
+        "sort_order": 2,
+        "is_primary": false
+      },
+      {
+        "image_id": "img-003-c",
+        "listing_id": "9b1deb4d-3b7d-4b1e-b8d9-2c6e1e8a9003",
+        "file_path": "/images/valley_farm_plot.jpg",
+        "caption": "Surrounding Development",
+        "sort_order": 3,
+        "is_primary": false
+      }
+    ]
+  }
+]
