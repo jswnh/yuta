@@ -131,7 +131,7 @@ export default function ListingCard({ listing, isSelected, onHover }: ListingCar
                             {listing.city_municipality}, {listing.province}
                         </span>
                         <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-[11px]">
-                            {listing.parcel_number || listing.slug}
+                            {(listing.parcel_number || listing.slug).replace('PAR-', 'LOT-').replace('-parcel', '-lot')}
                         </span>
                     </div>
 

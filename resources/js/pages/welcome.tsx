@@ -5,6 +5,7 @@ import { useAppearance } from '@/hooks/use-appearance';
 import mockListings from '@/data/mock-listings';
 import ListingCard from '@/components/listing-card';
 import ListingMap from '@/components/map/listing-map';
+import welcomeContent from '@/data/welcome-content.json';
 import { 
     Sun,
     Moon,
@@ -16,34 +17,22 @@ import {
     ArrowUpRight, 
     Plus, 
     CheckCircle2, 
-    AlertTriangle, 
-    FileText, 
+    FileCheck, 
     MapPin, 
     Search, 
     Menu, 
     X,
     Sparkles,
     ChevronRight,
-    Eye,
     Globe,
     Flame,
-    Map as MapIcon
+    Map as MapIcon,
+    Zap,
+    Tag,
+    Building2,
+    Home as HomeIcon,
+    TreePine
 } from 'lucide-react';
-
-interface PlotMetric {
-    id: string;
-    title: string;
-    lotArea: string;
-    dimensions: string;
-    priceTrend: string;
-    pricePerSqM: string;
-    soilStability: string;
-    soilType: string;
-    elevation: string;
-    slope: string;
-    coordinates: string;
-    status: string;
-}
 
 export default function Welcome() {
     const { auth } = usePage().props as { auth?: { user?: any } };
@@ -51,67 +40,27 @@ export default function Welcome() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'Home' | 'About' | 'Listings' | 'Pricing' | 'Contact'>('Home');
     const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
     // Sort mock listings by view_count descending to show Most Visited Items first
     const mostVisitedListings = [...mockListings].sort((a, b) => b.view_count - a.view_count);
 
-    const [selectedPlot, setSelectedPlot] = useState<PlotMetric>({
-        id: 'YUTA-8842',
-        title: 'Highland Ridge Parcel 04',
-        lotArea: '1,500 sq m',
-        dimensions: '30m × 50m',
-        priceTrend: '+14.8% YoY',
-        pricePerSqM: '$165 / sq m',
-        soilStability: '98.4%',
-        soilType: 'Grade A Clay-Loam',
-        elevation: '240m ASL',
-        slope: '2.1° Contour Gradient',
-        coordinates: '36.8421° N, 119.7820° W',
-        status: '100% Verified & Buildable'
+    // Filter listings based on category selection (Land & Lots vs House & Lot vs Farm vs Commercial)
+    const filteredListings = mostVisitedListings.filter((listing) => {
+        if (selectedCategory === 'all') return true;
+        if (selectedCategory === 'land_lots') return listing.land_type === 'residential' || listing.land_type === 'raw_land';
+        if (selectedCategory === 'house_and_lot') return listing.land_type === 'residential';
+        if (selectedCategory === 'farm') return listing.land_type === 'agricultural';
+        if (selectedCategory === 'commercial') return listing.land_type === 'commercial';
+        return true;
     });
+
     const [activeHudBadge, setActiveHudBadge] = useState<string | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [emailSubmitted, setEmailSubmitted] = useState(false);
     const [email, setEmail] = useState('');
 
-    const challenges = [
-        {
-            icon: AlertTriangle,
-            badge: 'Market Valuation',
-            title: 'Opaque Land Pricing & Valuations',
-            description: 'Land appraisal reports often lag behind actual market movements, causing buyers to overpay or sellers to misprice property parcels.',
-            solution: 'Real-Time Spatial Pricing',
-            solutionText: 'Automated valuation model (AVM) cross-references recent land sales, zoning permits, and local infrastructure developments for fair pricing.',
-            tagColor: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
-        },
-        {
-            icon: Layers,
-            badge: 'Geotechnical Safety',
-            title: 'Unverified Soil & Geological Risks',
-            description: 'Sub-surface soil instability or flood-prone terrain cannot be detected without costly manual soil testing and physical site visits.',
-            solution: 'Geospatial Soil & Terrain Analytics',
-            solutionText: 'Geospatial soil layer mapping assesses soil structural integrity, compaction ratings, and drainage capability with 98.4% accuracy.',
-            tagColor: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-        },
-        {
-            icon: FileText,
-            badge: 'Legal & Boundaries',
-            title: 'Uncertain Title & Property Boundaries',
-            description: 'Unclear boundary markers, unrecorded easements, or property disputes delay transactions and create legal complications.',
-            solution: 'Automated Title Verification',
-            solutionText: 'Instant verification of land titles, public cadastre records, easement rights, and municipal zoning compliance before closing negotiations.',
-            tagColor: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
-        },
-        {
-            icon: Search,
-            badge: 'Transaction Speed',
-            title: 'Slow Manual Due Diligence',
-            description: 'Coordinating land surveyors, municipal offices, and environmental inspectors can stretch due diligence over several months.',
-            solution: 'Instant Parcel Due Diligence',
-            solutionText: 'Generate a comprehensive parcel audit report with 3D elevation contours and buildability scores in under 2 minutes.',
-            tagColor: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20'
-        }
-    ];
+    const challengeIcons = [Tag, ShieldCheck, FileCheck, Zap];
 
     const handleNewsletterSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -128,7 +77,7 @@ export default function Welcome() {
 
     return (
         <>
-            <Head title="Yuta - Land Sales & Property Acquisition Platform" />
+            <Head title={welcomeContent.meta.pageTitle} />
 
             <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 selection:bg-emerald-500 selection:text-white font-sans antialiased overflow-x-hidden transition-colors duration-300">
                 {/* Background Ambient Glow */}
@@ -137,7 +86,7 @@ export default function Welcome() {
                 {/* HEADER SECTION */}
                 <header className="sticky top-0 z-50 w-full px-4 sm:px-6 lg:px-8 py-4 backdrop-blur-md bg-[#FAF9F6]/80 dark:bg-[#0B0F17]/80 border-b border-slate-200/50 dark:border-slate-800/80 transition-colors duration-300">
                     <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-                        {/* Logo: AppLogoIcon + "Yuta" (No description, No background) */}
+                        {/* Logo: AppLogoIcon + "Yuta" */}
                         <Link href="/" className="flex items-center gap-2.5 group">
                             <AppLogoIcon className="h-8 w-auto object-contain transition-transform duration-200 group-hover:scale-105" />
                             <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">
@@ -146,14 +95,14 @@ export default function Welcome() {
                         </Link>
 
                         {/* Pill Navigation Links */}
-                        <nav className="hidden md:flex items-center bg-white/90 dark:bg-slate-900/90 shadow-sm border border-slate-200/80 dark:border-slate-800 rounded-full px-4 py-1.5 gap-1 backdrop-blur-sm">
-                            {(['Home', 'About', 'Listings', 'Pricing', 'Contact'] as const).map((item) => (
+                        <nav className="hidden md:flex items-center bg-white/90 dark:bg-slate-900/90 shadow-xs border border-slate-200/80 dark:border-slate-800 rounded-full px-4 py-1.5 gap-1 backdrop-blur-sm">
+                            {(welcomeContent.header.navLinks as Array<'Home' | 'About' | 'Listings' | 'Pricing' | 'Contact'>).map((item) => (
                                 <button
                                     key={item}
                                     onClick={() => setActiveTab(item)}
                                     className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
                                         activeTab === item
-                                            ? 'bg-slate-900 text-white dark:bg-emerald-500 dark:text-slate-950 shadow-sm font-semibold'
+                                            ? 'bg-slate-900 text-white dark:bg-emerald-500 dark:text-slate-950 shadow-xs font-semibold'
                                             : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/60'
                                     }`}
                                 >
@@ -162,7 +111,7 @@ export default function Welcome() {
                             ))}
                         </nav>
 
-                        {/* Right Header Action: Theme Toggle & Dark Pill Button */}
+                        {/* Right Header Actions */}
                         <div className="flex items-center gap-3">
                             {/* Theme Switcher Button */}
                             <button
@@ -183,16 +132,16 @@ export default function Welcome() {
                                     href="/dashboard"
                                     className="hidden sm:inline-flex items-center px-4 py-2 rounded-full text-sm font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                                 >
-                                    Dashboard
+                                    {welcomeContent.header.dashboardButton}
                                 </Link>
                             ) : null}
 
-                            {/* Dark Pill Button 'Browse Plots ↗' */}
+                            {/* Prominent Action Button */}
                             <button 
                                 onClick={() => setModalOpen(true)}
                                 className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-emerald-500 dark:hover:bg-emerald-400 dark:text-slate-950 text-sm font-medium px-5 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-1.5 group cursor-pointer"
                             >
-                                <span>Browse Plots</span>
+                                <span>{welcomeContent.header.browseButton}</span>
                                 <ArrowUpRight className="w-4 h-4 text-emerald-400 dark:text-slate-950 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                             </button>
 
@@ -210,7 +159,7 @@ export default function Welcome() {
                     {/* Mobile Dropdown Nav */}
                     {mobileMenuOpen && (
                         <div className="md:hidden mt-3 pt-3 pb-2 border-t border-slate-200/60 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg rounded-2xl p-4 shadow-xl flex flex-col gap-2 animate-in fade-in slide-in-from-top-2">
-                            {(['Home', 'About', 'Listings', 'Pricing', 'Contact'] as const).map((item) => (
+                            {(welcomeContent.header.navLinks as Array<'Home' | 'About' | 'Listings' | 'Pricing' | 'Contact'>).map((item) => (
                                 <button
                                     key={item}
                                     onClick={() => {
@@ -235,30 +184,30 @@ export default function Welcome() {
                     {/* Top Pill Announcement */}
                     <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 text-xs sm:text-sm font-semibold mb-6 shadow-xs">
                         <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400 animate-pulse" />
-                        <span>AI-Driven Land Sales & Parcel Intelligence</span>
+                        <span>{welcomeContent.hero.badge}</span>
                         <ChevronRight className="w-3.5 h-3.5 text-emerald-500" />
                     </div>
 
                     {/* Bold Main Headline */}
                     <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.1] max-w-5xl mx-auto mb-6">
-                        AI-Powered Precision in <br className="hidden sm:inline" />
+                        {welcomeContent.hero.headlineMain} <br className="hidden sm:inline" />
                         <span className="bg-gradient-to-r from-slate-900 via-emerald-800 to-teal-700 dark:from-white dark:via-emerald-300 dark:to-teal-400 bg-clip-text text-transparent">
-                            Land & Property Acquisition
+                            {welcomeContent.hero.headlineHighlight}
                         </span>
                     </h1>
 
                     {/* Subtext */}
                     <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed mb-8">
-                        Explore, evaluate, and negotiate verified land plots with interactive map locations, high-resolution property photos, parcel terrain details, and direct seller inquiries.
+                        {welcomeContent.hero.subtext}
                     </p>
 
                     {/* Quick Search Bar */}
-                    <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 p-2 rounded-full shadow-xl border border-slate-200/80 dark:border-slate-800 flex items-center gap-2 mb-10 transition-colors">
+                    <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 p-2 rounded-full shadow-xl border border-slate-200/80 dark:border-slate-800 flex items-center gap-2 mb-6 transition-colors">
                         <div className="pl-4 text-slate-400 flex items-center gap-2 flex-1">
                             <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                             <input 
                                 type="text"
-                                placeholder="Search by location, region, or plot acreage..."
+                                placeholder={welcomeContent.hero.searchPlaceholder}
                                 className="w-full bg-transparent text-slate-800 dark:text-slate-100 text-sm focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
                             />
                         </div>
@@ -267,28 +216,35 @@ export default function Welcome() {
                             className="bg-slate-900 hover:bg-emerald-600 text-white dark:bg-emerald-500 dark:hover:bg-emerald-400 dark:text-slate-950 font-medium px-6 py-3 rounded-full text-sm transition-all duration-300 flex items-center gap-2 shadow-md shrink-0 cursor-pointer"
                         >
                             <Search className="w-4 h-4" />
-                            <span>Search Plots</span>
+                            <span>{welcomeContent.hero.searchButtonText}</span>
                         </button>
+                    </div>
+
+                    {/* Category Selection Filter Pills (Land & Lots vs House & Lot) */}
+                    <div className="flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto mb-10">
+                        {welcomeContent.hero.categories.map((cat) => (
+                            <button
+                                key={cat.id}
+                                onClick={() => setSelectedCategory(cat.id)}
+                                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                                    selectedCategory === cat.id
+                                        ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                                        : 'bg-white/80 dark:bg-slate-900/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                }`}
+                            >
+                                {cat.name}
+                            </button>
+                        ))}
                     </div>
 
                     {/* Key Stats Bar */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-2 pb-6 border-y border-slate-200/60 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium">
-                        <div className="flex flex-col items-center">
-                            <span className="text-2xl font-extrabold text-slate-900 dark:text-white">14,200+</span>
-                            <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acres Mapped</span>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <span className="text-2xl font-extrabold text-slate-900 dark:text-white">98.4%</span>
-                            <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Soil Accuracy</span>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <span className="text-2xl font-extrabold text-slate-900 dark:text-white">$320M+</span>
-                            <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Land Sales</span>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <span className="text-2xl font-extrabold text-slate-900 dark:text-white">&lt; 2 Mins</span>
-                            <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Audit Report</span>
-                        </div>
+                        {welcomeContent.hero.stats.map((stat, idx) => (
+                            <div key={idx} className="flex flex-col items-center">
+                                <span className="text-2xl font-extrabold text-slate-900 dark:text-white">{stat.value}</span>
+                                <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">{stat.label}</span>
+                            </div>
+                        ))}
                     </div>
                 </section>
 
@@ -300,14 +256,14 @@ export default function Welcome() {
                         <div className="absolute inset-0 z-0">
                             <img
                                 src="/images/aerial_land_plot.jpg"
-                                alt="Aerial landscape land plot"
+                                alt="Aerial landscape property view"
                                 className="w-full h-full object-cover object-center transform scale-105 group-hover:scale-100 transition-transform duration-1000 ease-out brightness-95"
                             />
-                            {/* Dark vignette gradient overlay for HUD contrast */}
+                            {/* Dark vignette gradient overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-900/35 to-slate-950/50" />
                         </div>
 
-                        {/* SOFT CLOUD OVERLAY EFFECTS */}
+                        {/* SOFT OVERLAY EFFECTS */}
                         <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
                             {/* Animated cloud layer 1 */}
                             <div 
@@ -323,7 +279,7 @@ export default function Welcome() {
                                     backgroundImage: `radial-gradient(ellipse at center, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0) 75%)`
                                 }}
                             />
-                            {/* Topographic GIS Grid Overlay */}
+                            {/* Grid Overlay */}
                             <div 
                                 className="absolute inset-0 opacity-15"
                                 style={{
@@ -338,23 +294,23 @@ export default function Welcome() {
                             <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-hud text-white text-xs sm:text-sm font-medium tracking-wide">
                                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping" />
                                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 absolute" />
-                                <span className="font-semibold text-emerald-300 ml-3">LIVE GIS CADASTRE HUD</span>
+                                <span className="font-semibold text-emerald-300 ml-3">{welcomeContent.featuredPlotHud.hudTitle}</span>
                                 <span className="text-slate-400">|</span>
-                                <span className="text-slate-200">Parcel #{selectedPlot.id}</span>
+                                <span className="text-slate-200">{welcomeContent.featuredPlotHud.propertyCode}</span>
                             </div>
 
                             <div className="hidden sm:flex items-center gap-3">
                                 <div className="px-3.5 py-1.5 rounded-full glass-hud text-xs font-mono text-emerald-300 flex items-center gap-1.5">
                                     <Globe className="w-3.5 h-3.5" />
-                                    <span>{selectedPlot.coordinates}</span>
+                                    <span>{welcomeContent.featuredPlotHud.coordinates}</span>
                                 </div>
                                 <div className="px-3 py-1.5 rounded-full glass-hud text-xs text-white font-medium">
-                                    Status: <span className="text-emerald-400 font-semibold">{selectedPlot.status}</span>
+                                    Status: <span className="text-emerald-400 font-semibold">{welcomeContent.featuredPlotHud.status}</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* INTERACTIVE PARCEL BOUNDARY PINS ON MAP */}
+                        {/* INTERACTIVE PROPERTY BOUNDARY PINS ON MAP */}
                         <div className="relative z-20 my-auto py-12 flex flex-col justify-center items-center">
                             {/* Center Target Crosshair Graphic */}
                             <div className="relative flex items-center justify-center">
@@ -367,7 +323,7 @@ export default function Welcome() {
                                 <div className="absolute -top-6 -left-12 sm:-left-20">
                                     <div className="glass-hud px-3 py-1.5 rounded-xl text-white text-xs font-semibold flex items-center gap-1.5 shadow-lg border border-emerald-400/40 animate-hud-float">
                                         <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                                        <span>NW Boundary: 30.0m</span>
+                                        <span>{welcomeContent.featuredPlotHud.pinFrontage}</span>
                                     </div>
                                 </div>
 
@@ -375,16 +331,16 @@ export default function Welcome() {
                                 <div className="absolute -bottom-6 -right-12 sm:-right-20">
                                     <div className="glass-hud px-3 py-1.5 rounded-xl text-white text-xs font-semibold flex items-center gap-1.5 shadow-lg border border-emerald-400/40 animate-hud-float-delayed">
                                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                                        <span>Clean Title Registered</span>
+                                        <span>{welcomeContent.featuredPlotHud.pinTitle}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* FLOATING FROSTED GLASS (BACKDROP-BLUR) HUD BADGES GRID */}
+                        {/* FLOATING FROSTED GLASS HUD BADGES GRID */}
                         <div className="relative z-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16 lg:mb-0">
                             
-                            {/* HUD BADGE 1: 1,500 SQ M LOT AREA */}
+                            {/* HUD BADGE 1: LOT AREA */}
                             <div 
                                 onClick={() => setActiveHudBadge('area')}
                                 className={`glass-hud rounded-2xl p-4.5 sm:p-5 text-white transition-all duration-300 cursor-pointer hover:border-emerald-400/60 hover:translate-y-[-3px] ${
@@ -394,18 +350,18 @@ export default function Welcome() {
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase flex items-center gap-1.5">
                                         <Maximize2 className="w-4 h-4 text-emerald-400" />
-                                        Lot Area
+                                        {welcomeContent.featuredPlotHud.metrics.lotArea.title}
                                     </span>
                                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono">
-                                        Buildable
+                                        {welcomeContent.featuredPlotHud.metrics.lotArea.badge}
                                     </span>
                                 </div>
                                 <div className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-1">
-                                    {selectedPlot.lotArea}
+                                    {welcomeContent.featuredPlotHud.metrics.lotArea.value}
                                 </div>
                                 <div className="text-xs text-slate-300 font-medium flex items-center justify-between">
-                                    <span>Dimensions: {selectedPlot.dimensions}</span>
-                                    <span className="text-emerald-400 font-semibold">100% Boundary</span>
+                                    <span>{welcomeContent.featuredPlotHud.metrics.lotArea.sub}</span>
+                                    <span className="text-emerald-400 font-semibold">Clean Boundary</span>
                                 </div>
                             </div>
 
@@ -419,15 +375,15 @@ export default function Welcome() {
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase flex items-center gap-1.5">
                                         <TrendingUp className="w-4 h-4 text-emerald-400" />
-                                        Price Trend
+                                        {welcomeContent.featuredPlotHud.metrics.priceTrend.title}
                                     </span>
                                     <span className="text-xs font-bold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full">
-                                        {selectedPlot.priceTrend}
+                                        {welcomeContent.featuredPlotHud.metrics.priceTrend.badge}
                                     </span>
                                 </div>
                                 <div className="flex items-baseline gap-2 mb-2">
                                     <span className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                                        {selectedPlot.pricePerSqM}
+                                        {welcomeContent.featuredPlotHud.metrics.priceTrend.value}
                                     </span>
                                 </div>
                                 {/* Micro Bar Chart SVG */}
@@ -443,7 +399,7 @@ export default function Welcome() {
                                 </div>
                             </div>
 
-                            {/* HUD BADGE 3: SOIL STABILITY */}
+                            {/* HUD BADGE 3: SOIL & GROUND QUALITY */}
                             <div 
                                 onClick={() => setActiveHudBadge('soil')}
                                 className={`glass-hud rounded-2xl p-4.5 sm:p-5 text-white transition-all duration-300 cursor-pointer hover:border-emerald-400/60 hover:translate-y-[-3px] ${
@@ -453,25 +409,25 @@ export default function Welcome() {
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase flex items-center gap-1.5">
                                         <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                                        Soil Stability
+                                        {welcomeContent.featuredPlotHud.metrics.soilQuality.title}
                                     </span>
                                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-semibold">
-                                        Core Tested
+                                        {welcomeContent.featuredPlotHud.metrics.soilQuality.badge}
                                     </span>
                                 </div>
                                 <div className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-2">
-                                    {selectedPlot.soilStability}
+                                    {welcomeContent.featuredPlotHud.metrics.soilQuality.value}
                                 </div>
                                 {/* Progress gauge bar */}
                                 <div className="w-full bg-slate-700/60 h-2 rounded-full overflow-hidden mb-1.5">
                                     <div className="bg-gradient-to-r from-teal-400 to-emerald-400 h-full rounded-full w-[98.4%]" />
                                 </div>
                                 <div className="text-xs text-slate-300 font-medium">
-                                    {selectedPlot.soilType}
+                                    {welcomeContent.featuredPlotHud.metrics.soilQuality.sub}
                                 </div>
                             </div>
 
-                            {/* HUD BADGE 4: ELEVATION */}
+                            {/* HUD BADGE 4: ELEVATION & FLOOD SAFETY */}
                             <div 
                                 onClick={() => setActiveHudBadge('elevation')}
                                 className={`glass-hud rounded-2xl p-4.5 sm:p-5 text-white transition-all duration-300 cursor-pointer hover:border-emerald-400/60 hover:translate-y-[-3px] ${
@@ -481,29 +437,29 @@ export default function Welcome() {
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase flex items-center gap-1.5">
                                         <Mountain className="w-4 h-4 text-emerald-400" />
-                                        Elevation
+                                        {welcomeContent.featuredPlotHud.metrics.elevation.title}
                                     </span>
                                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold">
-                                        Flood Safe
+                                        {welcomeContent.featuredPlotHud.metrics.elevation.badge}
                                     </span>
                                 </div>
                                 <div className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-1">
-                                    {selectedPlot.elevation}
+                                    {welcomeContent.featuredPlotHud.metrics.elevation.value}
                                 </div>
                                 <div className="text-xs text-slate-300 font-medium flex items-center justify-between">
-                                    <span>{selectedPlot.slope}</span>
-                                    <span className="text-emerald-400">Zero Risk</span>
+                                    <span>{welcomeContent.featuredPlotHud.metrics.elevation.sub}</span>
+                                    <span className="text-emerald-400 font-semibold">Zero Risk</span>
                                 </div>
                             </div>
 
                         </div>
 
-                        {/* BOTTOM-RIGHT FLOATING WHITE CTA BUTTON 'Explore Properties +' */}
+                        {/* BOTTOM-RIGHT FLOATING CTA BUTTON */}
                         <button 
                             onClick={() => setModalOpen(true)}
                             className="absolute bottom-6 right-6 lg:bottom-10 lg:right-10 z-30 rounded-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold px-6 py-3.5 shadow-2xl hover:shadow-emerald-900/20 hover:scale-105 active:scale-95 border border-white/90 dark:border-slate-700 transition-all duration-300 cursor-pointer flex items-center gap-2.5 text-sm sm:text-base group"
                         >
-                            <span>Explore Properties</span>
+                            <span>{welcomeContent.featuredPlotHud.ctaButtonText}</span>
                             <div className="w-7 h-7 rounded-full bg-slate-900 text-white dark:bg-emerald-500 dark:text-slate-950 flex items-center justify-center group-hover:bg-emerald-600 transition-colors">
                                 <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
                             </div>
@@ -511,42 +467,42 @@ export default function Welcome() {
                     </div>
                 </section>
 
-                {/* FEATURED MARKETPLACE SECTION: MOST VISITED ITEMS & INTERACTIVE LEAFLET MAP */}
+                {/* FEATURED MARKETPLACE SECTION: MOST VISITED ITEMS & INTERACTIVE MAP */}
                 <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                         <div>
                             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-wider mb-3 border border-amber-500/20">
                                 <Flame className="w-4 h-4 text-amber-500 fill-amber-500" />
-                                <span>Most Visited Land Listings</span>
+                                <span>{welcomeContent.trendingSection.badge}</span>
                             </div>
                             <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                                Top Trending Property Parcels
+                                {welcomeContent.trendingSection.title}
                             </h2>
                             <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
-                                Ranked by verified buyer view counts and interactive GIS map activity.
+                                {welcomeContent.trendingSection.subtext}
                             </p>
                         </div>
 
                         <div className="flex items-center gap-3">
                             <span className="text-xs font-mono font-semibold px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                                {mostVisitedListings.length} Active Listings
+                                {filteredListings.length} Active Listings
                             </span>
                         </div>
                     </div>
 
-                    {/* INTERACTIVE LEAFLET MAP DISPLAY */}
+                    {/* INTERACTIVE MAP DISPLAY */}
                     <div className="mb-10">
                         <div className="flex items-center justify-between mb-3">
                             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                                 <MapIcon className="w-4 h-4 text-emerald-500" />
-                                Interactive Parcel Map
+                                {welcomeContent.trendingSection.mapLabel}
                             </span>
                             <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                                Click markers to highlight property
+                                {welcomeContent.trendingSection.mapSubtext}
                             </span>
                         </div>
                         <ListingMap 
-                            listings={mostVisitedListings}
+                            listings={filteredListings}
                             selectedListingId={selectedListingId}
                             onSelectListing={(id) => setSelectedListingId(id)}
                             height="420px"
@@ -555,7 +511,7 @@ export default function Welcome() {
 
                     {/* MARKETPLACE LISTINGS GRID */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-                        {mostVisitedListings.map((listing) => (
+                        {filteredListings.map((listing) => (
                             <ListingCard 
                                 key={listing.listing_id}
                                 listing={listing}
@@ -566,29 +522,29 @@ export default function Welcome() {
                     </div>
                 </section>
 
-                {/* SECTION: KEY CHALLENGES IN REMOTE LAND INVESTMENT */}
+                {/* SECTION: WHY YUTA WORKS BETTER / KEY ADVANTAGES */}
                 <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 mb-20">
                     <div className="flex flex-col items-start gap-4 mb-12">
                         {/* Left Pill Badge */}
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100/80 dark:bg-emerald-950/80 border border-emerald-300/80 dark:border-emerald-800/80 text-emerald-800 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider shadow-xs">
                             <Layers className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                            <span>Land Acquisition</span>
+                            <span>{welcomeContent.challengesSection.badge}</span>
                         </div>
 
                         {/* Bold Heading */}
                         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
-                            Key Challenges in Remote Land Investment
+                            {welcomeContent.challengesSection.title}
                         </h2>
 
                         <p className="text-slate-600 dark:text-slate-300 text-lg max-w-3xl font-normal leading-relaxed">
-                            Buying property remotely traditional ways leads to unknown soil risks, boundary disputes, and inaccurate appraisals. Yuta replaces guess work with real-time verified data.
+                            {welcomeContent.challengesSection.subtext}
                         </p>
                     </div>
 
                     {/* Light Rounded Card Components Underneath */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-                        {challenges.map((item, idx) => {
-                            const IconComponent = item.icon;
+                        {welcomeContent.challengesSection.items.map((item, idx) => {
+                            const IconComponent = challengeIcons[idx] || Building2;
                             return (
                                 <div 
                                     key={idx}
@@ -597,7 +553,7 @@ export default function Welcome() {
                                     <div>
                                         {/* Card Top Pill Badge */}
                                         <div className="flex items-center justify-between mb-4">
-                                            <div className={`px-3 py-1 rounded-full text-xs font-bold border ${item.tagColor}`}>
+                                            <div className="px-3 py-1 rounded-full text-xs font-bold border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
                                                 {item.badge}
                                             </div>
                                             <span className="text-xs font-mono font-semibold text-slate-400 dark:text-slate-500">
@@ -623,7 +579,7 @@ export default function Welcome() {
                                     <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl p-4 group-hover:bg-emerald-50/40 dark:group-hover:bg-emerald-950/20 transition-colors">
                                         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1.5">
                                             <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                                            <span>Yuta Solution: {item.solution}</span>
+                                            <span>Yuta Advantage: {item.solution}</span>
                                         </div>
                                         <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
                                             {item.solutionText}
@@ -632,6 +588,45 @@ export default function Welcome() {
                                 </div>
                             );
                         })}
+                    </div>
+                </section>
+
+                {/* PROMOTIONAL CTA BANNER (PROMOTING BUYING & SELLING) */}
+                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
+                    <div className="relative rounded-[2.5rem] bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 border border-slate-800 p-8 sm:p-14 text-white overflow-hidden shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
+                        {/* Decorative background glow circle */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+                        
+                        <div className="relative z-10 max-w-2xl text-center md:text-left">
+                            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold uppercase tracking-wider mb-4">
+                                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                                <span>{welcomeContent.promoBanner.badge}</span>
+                            </div>
+                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4 leading-tight">
+                                {welcomeContent.promoBanner.title}
+                            </h2>
+                            <p className="text-slate-300 text-base sm:text-lg font-normal leading-relaxed">
+                                {welcomeContent.promoBanner.subtext}
+                            </p>
+                        </div>
+
+                        <div className="relative z-10 flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full md:w-auto">
+                            <button 
+                                onClick={() => setModalOpen(true)}
+                                className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-7 py-3.5 rounded-full text-base transition-all duration-300 shadow-lg hover:shadow-emerald-500/20 flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                                <Search className="w-4 h-4" />
+                                <span>{welcomeContent.promoBanner.buyButton}</span>
+                            </button>
+                            
+                            <Link 
+                                href={auth?.user ? "/dashboard" : "/login"}
+                                className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-semibold px-7 py-3.5 rounded-full text-base border border-white/20 transition-all duration-300 flex items-center justify-center gap-2"
+                            >
+                                <Building2 className="w-4 h-4 text-emerald-400" />
+                                <span>{welcomeContent.promoBanner.sellButton}</span>
+                            </Link>
+                        </div>
                     </div>
                 </section>
 
@@ -646,7 +641,7 @@ export default function Welcome() {
                                     <span className="font-bold text-2xl tracking-tight text-white">Yuta</span>
                                 </div>
                                 <p className="text-slate-400 text-sm leading-relaxed max-w-sm mb-6">
-                                    The premier land sales and property acquisition platform for buyers and land investors.
+                                    {welcomeContent.footer.brandDescription}
                                 </p>
                             </div>
 
@@ -657,9 +652,11 @@ export default function Welcome() {
 
                         {/* Quick Links */}
                         <div className="md:col-span-3">
-                            <h4 className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">Quick Links</h4>
+                            <h4 className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">
+                                {welcomeContent.footer.quickLinksTitle}
+                            </h4>
                             <ul className="space-y-2.5 text-sm">
-                                {['Browse Land Listings', 'Sell Your Property Plot', 'Geospatial Soil Analytics', 'Zoning & Title Check', 'Pricing Index'].map((link, i) => (
+                                {welcomeContent.footer.quickLinks.map((link, i) => (
                                     <li key={i}>
                                         <a href="#" className="hover:text-emerald-400 transition-colors">
                                             {link}
@@ -671,9 +668,11 @@ export default function Welcome() {
 
                         {/* Newsletter Column */}
                         <div className="md:col-span-4">
-                            <h4 className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">Land Sales Updates</h4>
+                            <h4 className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">
+                                {welcomeContent.footer.newsletterTitle}
+                            </h4>
                             <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-                                Subscribe to receive new verified land parcel listings and market price updates directly to your inbox.
+                                {welcomeContent.footer.newsletterSubtext}
                             </p>
 
                             <form onSubmit={handleNewsletterSubmit} className="flex flex-col gap-2">
@@ -682,7 +681,7 @@ export default function Welcome() {
                                         type="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="Enter your email..."
+                                        placeholder={welcomeContent.footer.newsletterPlaceholder}
                                         required
                                         className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 transition-colors placeholder:text-slate-500"
                                     />
@@ -691,12 +690,12 @@ export default function Welcome() {
                                     type="submit"
                                     className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-3 rounded-xl text-sm transition-colors cursor-pointer"
                                 >
-                                    Subscribe to Updates
+                                    {welcomeContent.footer.newsletterButton}
                                 </button>
                                 {emailSubmitted && (
                                     <p className="text-xs text-emerald-400 mt-1 font-semibold flex items-center gap-1">
                                         <CheckCircle2 className="w-3.5 h-3.5" />
-                                        Subscribed to Land Sales Updates!
+                                        {welcomeContent.footer.newsletterSuccess}
                                     </p>
                                 )}
                             </form>
@@ -710,7 +709,7 @@ export default function Welcome() {
                         <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 relative animate-in zoom-in-95">
                             <button 
                                 onClick={() => setModalOpen(false)}
-                                className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                                className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -718,13 +717,13 @@ export default function Welcome() {
                             <div className="flex items-center gap-3 mb-4">
                                 <AppLogoIcon className="h-8 w-auto object-contain" />
                                 <div>
-                                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Explore Land Plots For Sale</h3>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">Verified Property Database</p>
+                                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{welcomeContent.modal.title}</h3>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">{welcomeContent.modal.subtext}</p>
                                 </div>
                             </div>
 
-                            <div className="space-y-4 my-6">
-                                {mostVisitedListings.map((listing) => (
+                            <div className="space-y-4 my-6 max-h-[60vh] overflow-y-auto pr-1">
+                                {filteredListings.map((listing) => (
                                     <div key={listing.listing_id} className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-slate-700/80">
                                         <div className="flex items-center justify-between mb-2">
                                             <span className="font-bold text-slate-900 dark:text-white">{listing.title}</span>
@@ -739,17 +738,17 @@ export default function Welcome() {
                                                     setSelectedListingId(listing.listing_id);
                                                     setModalOpen(false);
                                                 }}
-                                                className="bg-slate-900 hover:bg-emerald-600 dark:bg-emerald-500 dark:hover:bg-emerald-400 dark:text-slate-950 text-white text-xs font-semibold px-4 py-2 rounded-full transition-colors"
+                                                className="bg-slate-900 hover:bg-emerald-600 dark:bg-emerald-500 dark:hover:bg-emerald-400 dark:text-slate-950 text-white text-xs font-semibold px-4 py-2 rounded-full transition-colors cursor-pointer"
                                             >
-                                                Highlight On Map
+                                                {welcomeContent.modal.highlightButton}
                                             </button>
                                             <button 
                                                 onClick={() => {
-                                                    alert(`Contacting ${listing.seller_type}: Direct negotiation for ${listing.title}`);
+                                                    alert(`Contacting ${listing.seller_type}: Direct inquiry for ${listing.title}`);
                                                 }}
-                                                className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 hover:bg-emerald-200 text-xs font-semibold px-4 py-2 rounded-full transition-colors"
+                                                className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 hover:bg-emerald-200 text-xs font-semibold px-4 py-2 rounded-full transition-colors cursor-pointer"
                                             >
-                                                Contact & Negotiate
+                                                {welcomeContent.modal.contactButton}
                                             </button>
                                         </div>
                                     </div>
@@ -759,9 +758,9 @@ export default function Welcome() {
                             <div className="pt-2 flex justify-end gap-3">
                                 <button 
                                     onClick={() => setModalOpen(false)}
-                                    className="px-5 py-2.5 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-sm transition-colors"
+                                    className="px-5 py-2.5 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-sm transition-colors cursor-pointer"
                                 >
-                                    Close
+                                    {welcomeContent.modal.closeButton}
                                 </button>
                             </div>
                         </div>

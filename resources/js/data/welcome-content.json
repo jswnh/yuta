@@ -1,0 +1,153 @@
+{
+  "meta": {
+    "pageTitle": "Yuta - AI-Powered Land & Property Marketplace",
+    "badge": "AI-Driven Land & Property Marketplace"
+  },
+  "header": {
+    "navLinks": ["Home", "About", "Listings", "Pricing", "Contact"],
+    "browseButton": "Browse Properties",
+    "dashboardButton": "Dashboard"
+  },
+  "hero": {
+    "badge": "AI-Powered Land & Property Marketplace",
+    "headlineMain": "AI-Powered Precision in",
+    "headlineHighlight": "Land & Property Acquisition",
+    "subtext": "Discover verified land plots, residential lots, farm land, house & lot packages, and commercial properties. View clear prices, explore exact map locations, and connect directly with trusted sellers.",
+    "searchPlaceholder": "Search by location, land type, or lot size...",
+    "searchButtonText": "AI Search Marketplace",
+    "categories": [
+      { "id": "all", "name": "All Listings" },
+      { "id": "land_lots", "name": "Land & Lots" },
+      { "id": "house_and_lot", "name": "House & Lot" },
+      { "id": "farm", "name": "Farm & Agricultural Land" },
+      { "id": "commercial", "name": "Commercial Land & Property" }
+    ],
+    "stats": [
+      {
+        "value": "14,200+",
+        "label": "Acres & Lots Listed"
+      },
+      {
+        "value": "100%",
+        "label": "Verified Titles"
+      },
+      {
+        "value": "₱320M+",
+        "label": "Successful Deals"
+      },
+      {
+        "value": "< 2 Mins",
+        "label": "AI Property Audit"
+      }
+    ]
+  },
+  "featuredPlotHud": {
+    "hudTitle": "AI LIVE PROPERTY SPOTLIGHT",
+    "propertyCode": "Lot #YUTA-8842",
+    "title": "Highland Ridge Residential Lot",
+    "propertyTypeTag": "Buildable Land Lot",
+    "coordinates": "14.6254° N, 121.1258° E",
+    "status": "100% Clean Title & AI Verified",
+    "pinFrontage": "Frontage: 30 meters wide",
+    "pinTitle": "AI Verified Clean Title",
+    "metrics": {
+      "lotArea": {
+        "title": "Lot Size",
+        "value": "1,500 sq m",
+        "sub": "Dimensions: 30m × 50m",
+        "badge": "Ready to Build"
+      },
+      "priceTrend": {
+        "title": "AI Valuation & Trend",
+        "value": "₱165 / sq m",
+        "sub": "+14.8% Market Growth",
+        "badge": "+14.8% YoY"
+      },
+      "soilQuality": {
+        "title": "AI Ground & Soil Check",
+        "value": "Solid Ground",
+        "sub": "Firm Clay-Loam Soil",
+        "badge": "98.4% Accuracy"
+      },
+      "elevation": {
+        "title": "Terrain & Flood Risk",
+        "value": "240m High",
+        "sub": "Flat & Flood-Free",
+        "badge": "Zero Risk"
+      }
+    },
+    "ctaButtonText": "Explore All Land & Properties"
+  },
+  "trendingSection": {
+    "badge": "Most Viewed Listings",
+    "title": "Top Land & Properties For Sale",
+    "subtext": "Browse top listings for land plots, residential lots, and house & property packages with AI price valuations and exact map pins.",
+    "mapLabel": "Interactive Property Map",
+    "mapSubtext": "Click pins on the map to inspect property details"
+  },
+  "challengesSection": {
+    "badge": "AI-Powered Real Estate Insights",
+    "title": "Smart AI Solutions for Land & Property Deals",
+    "subtext": "Whether you are buying land plots or selling developed property, Yuta combines artificial intelligence with verified data for fast, safe, and transparent deals.",
+    "items": [
+      {
+        "badge": "AI Valuation Model",
+        "title": "Fair Market Pricing for Land & Property",
+        "description": "Buyers often overpay and sellers underprice land plots or developed properties without clear local market price data.",
+        "solution": "AI Automated Market Valuation",
+        "solutionText": "Our AI model analyzes local land sales, recent house & lot transactions, and neighborhood trends for instant fair pricing."
+      },
+      {
+        "badge": "AI Soil & Terrain Check",
+        "title": "Ground Quality & Flood Risk Assessment",
+        "description": "Buying land without knowing ground stability or flood risks can lead to expensive building delays later.",
+        "solution": "AI Terrain & Ground Safety Assessment",
+        "solutionText": "Get AI-generated reports on ground stability, slope, and flood risks in seconds before buying land or building."
+      },
+      {
+        "badge": "AI Title Verification",
+        "title": "Clean Title & Property Line Verification",
+        "description": "Disputes over lot boundaries and missing land titles can delay property sales for months.",
+        "solution": "AI Title & Boundary Matching",
+        "solutionText": "AI cross-checks public land records and boundary coordinates to guarantee 100% clean title clearance."
+      },
+      {
+        "badge": "AI Instant Due Diligence",
+        "title": "Fast AI Matching & Direct Contact",
+        "description": "Scheduling physical site visits and dealing with middlemen takes up weeks of your time.",
+        "solution": "Instant AI Property Reports",
+        "solutionText": "Generate complete property summaries, map locations, and connect directly with verified owners or agents."
+      }
+    ]
+  },
+  "promoBanner": {
+    "badge": "AI-Powered Real Estate Platform",
+    "title": "Ready to Buy Land or Sell Your Property?",
+    "subtext": "List your land plot or house & lot property for free, or browse thousands of AI-verified listings.",
+    "buyButton": "Browse All Listings",
+    "sellButton": "List Your Property Free"
+  },
+  "footer": {
+    "brandDescription": "The simplest and most trusted AI-powered marketplace to buy, sell, and evaluate land and real estate properties.",
+    "quickLinksTitle": "Quick Links",
+    "quickLinks": [
+      "Land & Residential Lots",
+      "House & Lot Properties",
+      "Farm & Agricultural Land",
+      "Commercial Land & Property",
+      "AI Property Valuation"
+    ],
+    "newsletterTitle": "Get Land & Property Alerts",
+    "newsletterSubtext": "Subscribe to receive alerts for new land listings, house & lot properties, and price updates.",
+    "newsletterPlaceholder": "Enter your email address...",
+    "newsletterButton": "Subscribe for Free",
+    "newsletterSuccess": "Subscribed! You will receive updates on new land and property listings."
+  },
+  "modal": {
+    "title": "Explore Available Land & Properties",
+    "subtext": "Filter by Land Lots or House & Property",
+    "highlightButton": "View On Map",
+    "contactButton": "Contact Seller",
+    "closeButton": "Close"
+  }
+}
