@@ -3,13 +3,11 @@ FROM node:24-alpine AS assets
 
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY package.json ./
+RUN npm install
 
 COPY . .
-RUN pnpm run build
+RUN npm run build
 
 # ---- Stage 2: PHP application ----
 FROM php:8.5-fpm-alpine
