@@ -17,16 +17,15 @@ RUN apk add --no-cache \
         oniguruma-dev \
         postgresql-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j1 \
-        pdo \
-        pdo_pgsql \
-        pdo_mysql \
-        mbstring \
-        zip \
-        gd \
-        intl \
-        bcmath \
-        opcache
+    && docker-php-ext-install -j1 pdo \
+    && docker-php-ext-install -j1 pdo_pgsql \
+    && docker-php-ext-install -j1 pdo_mysql \
+    && docker-php-ext-install -j1 mbstring \
+    && docker-php-ext-install -j1 zip \
+    && docker-php-ext-install -j1 gd \
+    && docker-php-ext-install -j1 intl \
+    && docker-php-ext-install -j1 bcmath \
+    && docker-php-ext-install -j1 opcache
 
 # Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
