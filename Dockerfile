@@ -1,24 +1,14 @@
-# ---- Stage 1: build frontend assets (Vite) ----
-FROM node:24-alpine AS assets
-
-WORKDIR /app
-
-COPY package.json ./
-RUN npm install
-
-COPY . .
-RUN npm run build
-
-# ---- Stage 2: PHP application ----
 FROM php:8.5-fpm-alpine
 
-# System deps + PHP extensions Laravel commonly needs
+# System deps + Node.js/npm (needed at build time for Vite + wayfinder, which shells out to `php artisan`)
 RUN apk add --no-cache \
         nginx \
         supervisor \
         git \
         curl \
         bash \
+        nodejs \
+        npm \
         libpng-dev \
         libjpeg-turbo-dev \
         freetype-dev \
@@ -49,13 +39,16 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
-# Copy the rest of the app
+# Install JS deps (separate layer for caching)
+COPY package.json ./
+RUN npm install
+
+# Copy the rest of the app (now artisan + vendor are both present for wayfinder to use during build)
 COPY . .
 
-# Bring in the compiled frontend assets from the Node build stage
-COPY --from=assets /app/public/build /var/www/html/public/build
-
 RUN composer dump-autoload --optimize \
+    && npm run build \
+    && rm -rf node_modules \
     && mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache \
     && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
