@@ -1,3 +1,17 @@
+# ---- Stage 1: build frontend assets (Vite) ----
+FROM node:20-alpine AS assets
+
+WORKDIR /app
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+RUN pnpm run build
+
+# ---- Stage 2: PHP application ----
 FROM php:8.5-fpm-alpine
 
 # System deps + PHP extensions Laravel commonly needs
@@ -39,6 +53,9 @@ RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
 # Copy the rest of the app
 COPY . .
+
+# Bring in the compiled frontend assets from the Node build stage
+COPY --from=assets /app/public/build /var/www/html/public/build
 
 RUN composer dump-autoload --optimize \
     && mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache \
