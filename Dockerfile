@@ -17,7 +17,7 @@ RUN apk add --no-cache \
         oniguruma-dev \
         postgresql-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" \
+    && docker-php-ext-install -j1 \
         pdo \
         pdo_pgsql \
         pdo_mysql \
