@@ -1,6 +1,8 @@
+import Auth from './Auth'
 import Settings from './Settings'
 const Controllers = {
-    Settings: Object.assign(Settings, Settings),
+    Auth: Object.assign(Auth, Auth),
+Settings: Object.assign(Settings, Settings),
 }
 
 export default Controllers

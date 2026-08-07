@@ -17,9 +17,11 @@ return new class extends Migration
             $table->string('middle_name')->nullable();
             $table->string('last_name');
             $table->string('email')->unique();
-            $table->string('contact_number');
+            $table->string('contact_number')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
+            $table->string('google_id')->nullable()->unique();
+            $table->string('avatar')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
