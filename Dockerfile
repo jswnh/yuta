@@ -24,8 +24,9 @@ RUN apk add --no-cache \
     && docker-php-ext-install -j1 zip \
     && docker-php-ext-install -j1 gd \
     && docker-php-ext-install -j1 intl \
-    && docker-php-ext-install -j1 bcmath \
-    && docker-php-ext-install -j1 opcache
+    && docker-php-ext-install -j1 bcmath
+    # opcache omitted: currently broken on the official php:8.5-fpm-alpine image
+    # (https://github.com/docker-library/php/issues/1631) — not required for Laravel to run
 
 # Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
