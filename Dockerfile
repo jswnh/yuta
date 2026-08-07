@@ -1,5 +1,5 @@
 # ---- Stage 1: build frontend assets (Vite) ----
-FROM node:22-alpine AS assets
+FROM node:24-alpine AS assets
 
 WORKDIR /app
 
