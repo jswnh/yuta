@@ -1,15 +1,21 @@
+import { Head } from '@inertiajs/react';
 import AppLayoutTemplate from '@/layouts/app/app-sidebar-layout';
-import type { BreadcrumbItem } from '@/types';
+import type { AppLayoutProps } from '@/types';
 
 export default function AppLayout({
     breadcrumbs = [],
+    head,
     children,
-}: {
-    breadcrumbs?: BreadcrumbItem[];
-    children: React.ReactNode;
-}) {
+}: AppLayoutProps) {
     return (
         <AppLayoutTemplate breadcrumbs={breadcrumbs}>
+            {head && (
+                typeof head === 'string' ? (
+                    <Head title={head} />
+                ) : (
+                    <Head title={head.title} {...head} />
+                )
+            )}
             {children}
         </AppLayoutTemplate>
     );
