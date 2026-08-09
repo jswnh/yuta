@@ -1,0 +1,46 @@
+{
+    "sellerMonthlyPlan": {
+        "id": "seller_monthly",
+        "name": "Seller Pro Monthly",
+        "code": "seller_monthly",
+        "badge": "RECOMMENDED FOR SELLERS",
+        "price": 499.0,
+        "currency": "PHP",
+        "interval": "month",
+        "description": "Complete monthly access to list land, commercial, residential, and farm properties with interactive aerial maps and direct buyer leads.",
+        "features": [
+            "Unlimited Property & Land Listings",
+            "Verified Seller Badge & Trust Seal",
+            "Direct Buyer Lead Management & Inquiries",
+            "AI-Powered Market Valuation Insights",
+            "Priority 24/7 Seller Customer Support"
+        ]
+    },
+    "supportedPaymentMethods": [
+        "GCash",
+        "Maya",
+        "QRPH",
+        "Visa / Mastercard",
+        "ShopeePay",
+        "GrabPay",
+        "Bank Transfer"
+    ],
+    "faqs": [
+        {
+            "question": "How does the monthly seller billing work?",
+            "answer": "When you subscribe to the Seller Pro Monthly plan, you gain full access to post property listings, manage buyer leads, and display verified seller badges. Billing is processed securely via Xendit on a 30-day billing cycle."
+        },
+        {
+            "question": "Which payment methods are supported via Xendit?",
+            "answer": "Xendit supports all major Philippine payment options including GCash, Maya, QRPH, Visa/Mastercard credit & debit cards, ShopeePay, GrabPay, and Direct Bank Online Transfers."
+        },
+        {
+            "question": "When does my seller dashboard get activated?",
+            "answer": "Instant activation! As soon as your payment is completed on Xendit, your account is immediately updated to a Verified Seller and your seller dashboard will open."
+        },
+        {
+            "question": "Can I cancel my seller subscription anytime?",
+            "answer": "Yes, you can cancel your subscription at any time from this Billing page. You will retain seller access until the end of your paid 30-day period."
+        }
+    ]
+}

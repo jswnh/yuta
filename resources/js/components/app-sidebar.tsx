@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, LayoutList, Store } from 'lucide-react';
+import { CreditCard, LayoutGrid, LayoutList, Store } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -30,19 +30,18 @@ const sellerNavItems: NavItem[] = [
     },
 ];
 
-const buyerNavItems: NavItem[] = [
-    {
-        title: 'Marketplace',
-        href: '/',
-        icon: Store,
-    },
-];
+const buyerNavItems: NavItem[] = [];
 
 const footerNavItems: NavItem[] = [
     {
         title: 'Marketplace',
         href: '/',
         icon: Store,
+    },
+    {
+        title: 'Billing',
+        href: '/billing',
+        icon: CreditCard,
     },
 ];
 
@@ -66,7 +65,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={navItems} />
+                {navItems.length > 0 && <NavMain items={navItems} />}
             </SidebarContent>
 
             <SidebarFooter>

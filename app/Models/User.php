@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -72,5 +73,47 @@ class User extends Authenticatable implements MustVerifyEmail
             $this->middle_name,
             $this->last_name,
         ])));
+    }
+
+    /**
+     * Get the subscriptions for the user.
+     *
+     * @return HasMany<Subscription, $this>
+     */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get the active subscription for the user.
+     */
+    public function activeSubscription(): ?Subscription
+    {
+        /** @var Subscription|null $sub */
+        $sub = $this->subscriptions()
+            ->where('status', 'active')
+            ->where(function ($query) {
+                $query->whereNull('ends_at')
+                    ->orWhere('ends_at', '>', now());
+            })
+            ->latest('created_at')
+            ->first();
+
+        return $sub;
+    }
+
+    /**
+     * Determine if the user has an active seller subscription.
+     */
+    public function isSellerActive(): bool
+    {
+        if (! $this->is_seller) {
+            return false;
+        }
+
+        $activeSub = $this->activeSubscription();
+
+        return $activeSub !== null && $activeSub->isActive();
     }
 }

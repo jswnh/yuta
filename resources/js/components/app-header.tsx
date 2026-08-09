@@ -53,6 +53,11 @@ const rightNavItems: NavItem[] = [
         href: '/',
         icon: Store,
     },
+    {
+        title: 'Billing',
+        href: '/billing',
+        icon: CreditCard,
+    },
 ];
 
 const activeItemStyles =

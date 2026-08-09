@@ -8,19 +8,16 @@ use Illuminate\Http\Request;
 class BecomeSellerController extends Controller
 {
     /**
-     * Upgrade the authenticated user to a seller.
+     * Redirect authenticated users to the monthly seller billing page.
      */
     public function store(Request $request): RedirectResponse
     {
         $user = $request->user();
 
-        if (! $user->is_seller) {
-            $user->forceFill([
-                'is_seller' => true,
-                'seller_since' => now(),
-            ])->save();
+        if ($user->is_seller) {
+            return redirect()->route('dashboard');
         }
 
-        return redirect()->route('dashboard')->with('success', 'You are now registered as a Property Seller! Welcome to your seller dashboard.');
+        return redirect()->route('billing.index')->with('info', 'Please complete your monthly seller plan subscription to unlock your Seller Dashboard and start listing properties.');
     }
 }

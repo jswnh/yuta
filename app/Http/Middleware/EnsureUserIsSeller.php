@@ -15,12 +15,27 @@ class EnsureUserIsSeller
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() || ! $request->user()->is_seller) {
-            if ($request->expectsJson()) {
-                return response()->json(['message' => 'Unauthorized. Seller access required.'], 403);
+        $user = $request->user();
+
+        if (! $user || ! $user->isSellerActive()) {
+            if ($user) {
+                // Mark past active subscriptions in DB as 'expired'
+                $user->subscriptions()
+                    ->where('status', 'active')
+                    ->whereNotNull('ends_at')
+                    ->where('ends_at', '<=', now())
+                    ->update(['status' => 'expired']);
+
+                if ($user->is_seller) {
+                    $user->forceFill(['is_seller' => false])->save();
+                }
             }
 
-            return redirect()->route('home')->with('warning', 'You need to become a seller to access the seller dashboard.');
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthorized. Active seller subscription required.'], 403);
+            }
+
+            return redirect()->route('billing.index')->with('warning', 'Your seller subscription is inactive or has expired. Please subscribe to unlock your seller dashboard and listings.');
         }
 
         return $next($request);
