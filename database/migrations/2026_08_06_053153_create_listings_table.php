@@ -30,6 +30,10 @@ return new class extends Migration
             $table->string('currency', 3)->default('PHP');
             $table->boolean('is_negotiable')->default(false);
             $table->decimal('price_per_unit', 12, 2)->nullable();
+            $table->enum('payment_terms', ['full', 'monthly', 'yearly'])->default('full');
+            $table->decimal('down_payment', 14, 2)->nullable();
+            $table->integer('installment_count')->nullable();
+            $table->decimal('installment_amount', 12, 2)->nullable();
 
             // Physical & Size Characteristics
             $table->decimal('area', 12, 2);

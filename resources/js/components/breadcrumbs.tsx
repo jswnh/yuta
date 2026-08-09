@@ -8,6 +8,8 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { useCurrentUrl } from '@/hooks/use-current-url';
+import { toUrl } from '@/lib/utils';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
 
 export function Breadcrumbs({
@@ -15,6 +17,8 @@ export function Breadcrumbs({
 }: {
     breadcrumbs: BreadcrumbItemType[];
 }) {
+    const { isCurrentUrl } = useCurrentUrl();
+
     return (
         <>
             {breadcrumbs.length > 0 && (
@@ -22,20 +26,28 @@ export function Breadcrumbs({
                     <BreadcrumbList>
                         {breadcrumbs.map((item, index) => {
                             const isLast = index === breadcrumbs.length - 1;
+                            const isActive = isCurrentUrl(item.href);
 
                             return (
                                 <Fragment key={index}>
                                     <BreadcrumbItem>
-                                        {isLast ? (
-                                            <BreadcrumbPage>
-                                                {item.title}
-                                            </BreadcrumbPage>
-                                        ) : (
+                                        {item.href ? (
                                             <BreadcrumbLink asChild>
-                                                <Link href={item.href}>
+                                                <Link
+                                                    href={toUrl(item.href)}
+                                                    className={
+                                                        isActive
+                                                            ? 'text-foreground font-normal cursor-pointer'
+                                                            : 'text-muted-foreground hover:text-foreground transition-colors cursor-pointer'
+                                                    }
+                                                >
                                                     {item.title}
                                                 </Link>
                                             </BreadcrumbLink>
+                                        ) : (
+                                            <BreadcrumbPage>
+                                                {item.title}
+                                            </BreadcrumbPage>
                                         )}
                                     </BreadcrumbItem>
                                     {!isLast && <BreadcrumbSeparator />}

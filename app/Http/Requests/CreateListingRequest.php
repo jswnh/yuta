@@ -32,7 +32,11 @@ class CreateListingRequest extends FormRequest
             'currency' => ['nullable', 'string', 'max:3'],
             'is_negotiable' => ['boolean'],
             'price_per_unit' => ['nullable', 'numeric', 'min:0'],
-
+            // Buyer Payment Terms
+            'payment_terms' => ['required', Rule::in(['full', 'monthly', 'yearly'])],
+            'down_payment' => ['nullable', 'numeric', 'min:0', 'required_if:payment_terms,monthly,yearly', 'lt:price'],
+            'installment_count' => ['nullable', 'integer', 'min:1', 'required_if:payment_terms,monthly,yearly'],
+            'installment_amount' => ['nullable', 'numeric', 'min:0'],
             // Physical & Size
             'area' => ['required', 'numeric', 'gt:0'],
             'area_unit' => ['required', Rule::in(['sqm', 'hectare', 'sqft'])],
@@ -71,6 +75,10 @@ class CreateListingRequest extends FormRequest
             'title_status.required' => 'Select the legal title status (e.g., Clean Title, Tax Dec).',
             'city_municipality.required' => 'City or municipality is required to locate the property.',
             'province.required' => 'Province is required.',
+            'payment_terms.required' => 'Please select how the buyer can pay: full payment, monthly, or yearly installment.',
+            'down_payment.required_if' => 'Down payment is required for installment plans.',
+            'down_payment.lt' => 'Down payment must be less than the total price.',
+            'installment_count.required_if' => 'Please specify the number of payment periods.',
         ];
     }
 }
