@@ -1,5 +1,5 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, LayoutList } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { LayoutGrid, LayoutList, Store } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -17,7 +17,7 @@ import { dashboard } from '@/routes';
 import listings from '@/routes/listings';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
+const sellerNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
@@ -30,27 +30,34 @@ const mainNavItems: NavItem[] = [
     },
 ];
 
+const buyerNavItems: NavItem[] = [
+    {
+        title: 'Marketplace',
+        href: '/',
+        icon: Store,
+    },
+];
+
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
+        title: 'Marketplace',
+        href: '/',
+        icon: Store,
     },
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage().props as { auth?: { user?: any } };
+    const isSeller = Boolean(auth?.user?.is_seller);
+    const navItems = isSeller ? sellerNavItems : buyerNavItems;
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
+                            <Link href={isSeller ? dashboard() : '/'} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -59,7 +66,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={navItems} />
             </SidebarContent>
 
             <SidebarFooter>

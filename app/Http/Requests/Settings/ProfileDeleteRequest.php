@@ -17,8 +17,10 @@ class ProfileDeleteRequest extends FormRequest
      */
     public function rules(): array
     {
+        $hasPassword = ! empty($this->user()->password);
+
         return [
-            'password' => $this->currentPasswordRules(),
+            'password' => $hasPassword ? $this->currentPasswordRules() : ['nullable'],
         ];
     }
 }

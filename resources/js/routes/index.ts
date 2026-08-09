@@ -289,6 +289,61 @@ home.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     
     home.form = homeForm
 /**
+* @see \App\Http\Controllers\BecomeSellerController::becomeSeller
+ * @see app/Http/Controllers/BecomeSellerController.php:13
+ * @route '/become-seller'
+ */
+export const becomeSeller = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: becomeSeller.url(options),
+    method: 'post',
+})
+
+becomeSeller.definition = {
+    methods: ["post"],
+    url: '/become-seller',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\BecomeSellerController::becomeSeller
+ * @see app/Http/Controllers/BecomeSellerController.php:13
+ * @route '/become-seller'
+ */
+becomeSeller.url = (options?: RouteQueryOptions) => {
+    return becomeSeller.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\BecomeSellerController::becomeSeller
+ * @see app/Http/Controllers/BecomeSellerController.php:13
+ * @route '/become-seller'
+ */
+becomeSeller.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: becomeSeller.url(options),
+    method: 'post',
+})
+
+    /**
+* @see \App\Http\Controllers\BecomeSellerController::becomeSeller
+ * @see app/Http/Controllers/BecomeSellerController.php:13
+ * @route '/become-seller'
+ */
+    const becomeSellerForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: becomeSeller.url(options),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\BecomeSellerController::becomeSeller
+ * @see app/Http/Controllers/BecomeSellerController.php:13
+ * @route '/become-seller'
+ */
+        becomeSellerForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: becomeSeller.url(options),
+            method: 'post',
+        })
+    
+    becomeSeller.form = becomeSellerForm
+/**
 * @see \Inertia\Controller::__invoke
  * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
  * @route '/dashboard'

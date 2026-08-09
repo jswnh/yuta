@@ -18,9 +18,11 @@ type PageProps = {
 export default function Profile({
     mustVerifyEmail,
     status,
+    hasPassword = true,
 }: {
     mustVerifyEmail: boolean;
     status?: string;
+    hasPassword?: boolean;
 }) {
     const { auth } = usePage<PageProps>().props;
 
@@ -180,7 +182,7 @@ export default function Profile({
                 </Form>
             </div>
 
-            <DeleteUser />
+            <DeleteUser hasPassword={hasPassword} />
         </>
     );
 }

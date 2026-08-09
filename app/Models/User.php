@@ -30,12 +30,12 @@ use NotificationChannels\WebPush\HasPushSubscriptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['first_name', 'middle_name', 'last_name', 'email', 'contact_number', 'password', 'google_id', 'avatar', 'email_verified_at'])]
+#[Fillable(['first_name', 'middle_name', 'last_name', 'email', 'contact_number', 'password', 'google_id', 'avatar', 'email_verified_at', 'is_seller', 'seller_since', 'user_type'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasUuids, Notifiable, HasPushSubscriptions;
+    use HasFactory, HasPushSubscriptions, HasUuids, Notifiable;
 
     /**
      * Get the attributes that should be cast.
@@ -48,16 +48,29 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $keyType = 'string';
 
+    protected $appends = ['name'];
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_seller' => 'boolean',
+            'seller_since' => 'datetime',
         ];
     }
 
     public function getIdAttribute(): string
     {
         return $this->attributes['user_id'] ?? $this->user_id ?? '';
+    }
+
+    public function getNameAttribute(): string
+    {
+        return trim(implode(' ', array_filter([
+            $this->first_name,
+            $this->middle_name,
+            $this->last_name,
+        ])));
     }
 }

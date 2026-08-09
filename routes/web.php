@@ -1,11 +1,16 @@
 <?php
 
 use App\Http\Controllers\Auth\SocialiteController;
+use App\Http\Controllers\BecomeSellerController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('become-seller', [BecomeSellerController::class, 'store'])->name('become-seller');
+});
+
+Route::middleware(['auth', 'verified', 'seller'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
     Route::inertia('listings', 'listing/listings')->name('listings.index');
     Route::inertia('listings/new', 'listing/new')->name('listings.new');

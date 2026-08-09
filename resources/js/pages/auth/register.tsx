@@ -166,7 +166,6 @@ export default function Register({ passwordRules }: Props) {
                                 />
                                 <InputError message={errors.password} />
                             </div>
-
                             <div className="grid gap-2">
                                 <Label htmlFor="password_confirmation">
                                     Confirm password

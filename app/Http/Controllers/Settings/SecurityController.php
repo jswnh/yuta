@@ -19,6 +19,7 @@ class SecurityController extends Controller
     {
         $props = [
             'passwordRules' => Password::defaults()->toPasswordRulesString(),
+            'hasPassword' => ! empty($request->user()->password),
         ];
 
         return Inertia::render('settings/security', $props);
@@ -29,11 +30,17 @@ class SecurityController extends Controller
      */
     public function update(PasswordUpdateRequest $request): RedirectResponse
     {
+        $hadPassword = ! empty($request->user()->password);
+
         $request->user()->update([
             'password' => $request->password,
         ]);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);
+        $message = $hadPassword
+            ? __('Password updated successfully.')
+            : __('Password created successfully! You can now log in using either Google or your email & password.');
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => $message]);
 
         return back();
     }

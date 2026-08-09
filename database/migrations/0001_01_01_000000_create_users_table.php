@@ -22,7 +22,9 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->string('google_id')->nullable()->unique();
             $table->string('avatar')->nullable();
-            $table->enum('user_type', ['user','admin'])->default('user');
+            $table->enum('user_type', ['user', 'admin'])->default('user')->index();
+            $table->boolean('is_seller')->default(false)->index();
+            $table->timestamp('seller_since')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
