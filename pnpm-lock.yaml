@@ -74,6 +74,9 @@ importers:
       concurrently:
         specifier: ^9.0.1
         version: 9.2.4
+      country-data-list:
+        specifier: ^1.6.3
+        version: 1.6.3
       globals:
         specifier: ^15.14.0
         version: 15.15.0
@@ -1417,6 +1420,9 @@ packages:
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
+
+  country-data-list@1.6.3:
+    resolution: {integrity: sha512-lyJkUP9bKZW4BkoM4Z3fLvrOwsFQ7bxnnPoR+xtQKbpAyAn7p1xOmnFURJ/oXWuIzDHedqTvZSOLjoRs6ccE7w==}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -4036,6 +4042,8 @@ snapshots:
       yargs: 17.7.2
 
   convert-source-map@2.0.0: {}
+
+  country-data-list@1.6.3: {}
 
   cross-spawn@7.0.6:
     dependencies:

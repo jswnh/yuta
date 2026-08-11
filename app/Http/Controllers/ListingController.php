@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateListingRequest;
 use App\Models\Listing;
 use App\Models\ListingImage;
+use App\Models\TemporaryListing;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -32,7 +35,33 @@ class ListingController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('listing/new');
+        $draft = TemporaryListing::where('user_id', auth()->user()->user_id)->first();
+
+        return Inertia::render('listing/new', [
+            'draft' => $draft?->payload,
+        ]);
+    }
+
+    /**
+     * Save temporary form input draft per user.
+     */
+    public function saveDraft(Request $request): JsonResponse
+    {
+        $payload = $request->except(['images']);
+
+        $draft = TemporaryListing::updateOrCreate(
+            ['user_id' => $request->user()->user_id],
+            [
+                'payload' => $payload,
+                'expires_at' => now()->addDays(7),
+            ]
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'temp_listing_id' => $draft->temp_listing_id,
+            'message' => 'Listing draft saved successfully.',
+        ]);
     }
 
     /**
@@ -81,6 +110,9 @@ class ListingController extends Controller
                 }
             }
         }
+
+        // Auto-delete temporary draft after successful listing publication
+        TemporaryListing::where('user_id', $request->user()->user_id)->delete();
 
         return redirect()->route('listings.index')
             ->with('success', 'Land listing created successfully!');

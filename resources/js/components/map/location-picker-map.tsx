@@ -38,7 +38,7 @@ export default function LocationPickerMap({
     onChange,
     onBoundaryChange,
     onReset,
-    height = '480px',
+    height,
 }: LocationPickerMapProps) {
     const [isMounted, setIsMounted] = useState(false);
     const [ReactLeaflet, setReactLeaflet] = useState<any>(null);
@@ -191,10 +191,7 @@ export default function LocationPickerMap({
 
     if (!isMounted || !ReactLeaflet || !L) {
         return (
-            <div
-                style={{ height }}
-                className="w-full rounded-2xl bg-muted/40 animate-pulse flex flex-col items-center justify-center border-2 border-dashed border-muted"
-            >
+            <div className="w-full h-[340px] sm:h-[420px] md:h-[480px] rounded-2xl bg-muted/40 animate-pulse flex flex-col items-center justify-center border-2 border-dashed border-muted">
                 <div className="flex flex-col items-center gap-3 text-muted-foreground">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     <span className="text-sm font-semibold tracking-wide">Initializing Interactive GIS Map...</span>
@@ -278,7 +275,7 @@ export default function LocationPickerMap({
                         />
                     </div>
                     <div className="flex gap-2">
-                        <Button type="submit" variant="secondary" size="sm" disabled={isSearching} className="gap-1.5 text-xs font-semibold">
+                        <Button type="submit" variant="secondary" size="sm" disabled={isSearching} className="flex-1 sm:flex-initial gap-1.5 text-xs font-semibold">
                             {isSearching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />}
                             Search Location
                         </Button>
@@ -288,7 +285,7 @@ export default function LocationPickerMap({
                             size="sm"
                             onClick={handleGetCurrentLocation}
                             disabled={isLocating}
-                            className="gap-1.5 text-xs font-semibold whitespace-nowrap"
+                            className="flex-1 sm:flex-initial gap-1.5 text-xs font-semibold whitespace-nowrap"
                         >
                             {isLocating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Navigation className="h-3.5 w-3.5 text-emerald-500" />}
                             GPS Locate
@@ -297,37 +294,37 @@ export default function LocationPickerMap({
                 </form>
 
                 {/* Controls Bar: Mode Switcher, Tile Switcher, Reset */}
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-2 border-t">
                     {/* Mode Selector */}
-                    <div className="flex items-center gap-1 bg-muted p-1 rounded-lg border">
+                    <div className="flex items-center gap-1 bg-muted p-1 rounded-lg border w-full sm:w-auto">
                         <button
                             type="button"
                             onClick={() => setMode('pin')}
-                            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
                                 mode === 'pin'
                                     ? 'bg-background text-foreground shadow-xs'
                                     : 'text-muted-foreground hover:text-foreground'
                             }`}
                         >
                             <Crosshair className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                            📍 Pin Center Point
+                            <span>📍 Pin Center</span>
                         </button>
                         <button
                             type="button"
                             onClick={() => setMode('boundary')}
-                            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
                                 mode === 'boundary'
                                     ? 'bg-emerald-600 text-white shadow-xs'
                                     : 'text-muted-foreground hover:text-foreground'
                             }`}
                         >
                             <PolygonIcon className="h-3.5 w-3.5" />
-                            📐 Draw Land Boundary
+                            <span>📐 Draw Boundary</span>
                         </button>
                     </div>
 
                     {/* Right Action Tools: Map Style Toggle & Full Reset Button */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
                         {/* Map Style Toggle */}
                         <div className="flex items-center gap-1 bg-muted p-1 rounded-lg border">
                             <button
@@ -371,8 +368,8 @@ export default function LocationPickerMap({
 
             {/* Map Container */}
             <div
-                style={{ height }}
-                className="w-full rounded-2xl overflow-hidden border-2 border-primary/20 shadow-lg relative z-10"
+                style={height ? { height } : undefined}
+                className="w-full h-[340px] sm:h-[420px] md:h-[480px] rounded-2xl overflow-hidden border-2 border-primary/20 shadow-lg relative z-10"
             >
                 <MapContainer
                     center={[currentLat, currentLng]}
@@ -463,20 +460,20 @@ export default function LocationPickerMap({
 
                 {/* Map Bottom Floating Status Overlay */}
                 <div className="absolute bottom-3 left-3 z-[1000] flex flex-wrap items-center gap-2 pointer-events-none">
-                    <div className="pointer-events-auto flex items-center gap-2 rounded-lg bg-background/90 backdrop-blur-md px-3 py-1.5 border shadow-md text-xs font-medium">
+                    <div className="pointer-events-auto flex items-center gap-2 rounded-lg bg-background/90 backdrop-blur-md px-3 py-1.5 border shadow-md text-xs font-medium max-w-[90vw]">
                         {mode === 'pin' ? (
-                            <span className="flex items-center gap-1.5 text-foreground">
-                                <Crosshair className="h-3.5 w-3.5 text-emerald-600" />
-                                Mode: <strong>Pin Property Center</strong>
+                            <span className="flex items-center gap-1.5 text-foreground truncate">
+                                <Crosshair className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                                <span>Mode: <strong>Pin Center</strong></span>
                             </span>
                         ) : (
-                            <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
-                                <PolygonIcon className="h-3.5 w-3.5" />
-                                Mode: <strong>Draw Boundary Corners</strong>
+                            <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 truncate">
+                                <PolygonIcon className="h-3.5 w-3.5 shrink-0" />
+                                <span>Mode: <strong>Draw Boundary</strong></span>
                             </span>
                         )}
                         {safeBoundaryCoords.length > 0 && (
-                            <Badge variant="outline" className="text-[10px] bg-background">
+                            <Badge variant="outline" className="text-[10px] bg-background shrink-0">
                                 {safeBoundaryCoords.length} Points
                             </Badge>
                         )}
@@ -494,7 +491,7 @@ export default function LocationPickerMap({
                             className="h-7 px-2 text-xs gap-1"
                             title="Undo last boundary vertex"
                         >
-                            <RotateCcw className="h-3 w-3" /> Undo Point
+                            <RotateCcw className="h-3 w-3" /> <span className="hidden sm:inline">Undo Point</span>
                         </Button>
                         <Button
                             type="button"
@@ -504,7 +501,7 @@ export default function LocationPickerMap({
                             className="h-7 px-2 text-xs gap-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
                             title="Clear polygon points"
                         >
-                            <Trash2 className="h-3 w-3" /> Clear Shape
+                            <Trash2 className="h-3 w-3" /> <span className="hidden sm:inline">Clear</span>
                         </Button>
                     </div>
                 )}
@@ -513,12 +510,12 @@ export default function LocationPickerMap({
             {/* Helper Footer Bar */}
             <div className="flex flex-col gap-1 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
                 <span className="flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-emerald-600" />
-                    Click anywhere on map to update pin or add polygon points. Drag corner handles to fine-tune lot borders.
+                    <MapPin className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                    Click map to pin location or draw perimeter. Drag corner handles to fine-tune.
                 </span>
                 {hasSelectedLocation && (
-                    <span className="font-mono text-[11px] text-foreground font-semibold">
-                        Lat: {currentLat.toFixed(6)}, Lng: {currentLng.toFixed(6)}
+                    <span className="font-mono text-[11px] text-foreground font-semibold shrink-0">
+                        {currentLat.toFixed(6)}, {currentLng.toFixed(6)}
                     </span>
                 )}
             </div>

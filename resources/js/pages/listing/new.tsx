@@ -1,9 +1,11 @@
-import { SyntheticEvent, useMemo, useState } from 'react';
+import { SyntheticEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import { toast } from 'sonner';
+import { currencies as AllCurrencies } from 'country-data-list';
 import {
     MapPin,
-    DollarSign,
+    Coins,
+    Compass,
     Layers,
     FileCheck,
     UploadCloud,
@@ -21,6 +23,9 @@ import {
     Camera,
     Shapes as PolygonIcon,
     ShieldCheck,
+    Save,
+    Loader2,
+    AlertCircle,
 } from 'lucide-react';
 
 import listingCategories from '@/data/listing_categories.json';
@@ -33,24 +38,10 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import type {
-    AreaUnit,
-    LandType,
-    LatLngCoordinate,
-    SellerType,
-    TitleStatus,
-    Topography,
-} from '@/types/listing';
-import { CardDescription } from '@/components/ui/card';
+import type { AreaUnit, LandType, LatLngCoordinate, SellerType, TitleStatus, Topography } from '@/types/listing';
 
 interface ImagePreview {
     file: File;
@@ -58,40 +49,123 @@ interface ImagePreview {
     caption: string;
 }
 
-export default function CreateListing() {
+interface CreateListingProps {
+    draft?: Record<string, any> | null;
+}
+
+export default function CreateListing({ draft }: CreateListingProps) {
     const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
+    const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+    const isFirstRender = useRef(true);
+    const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const { data, setData, post, processing, errors, transform } = useForm({
-        seller_type: 'owner' as SellerType,
-        title: '',
-        listing_category: '',
-        description: '',
-        price: '',
-        currency: 'PHP',
-        is_negotiable: false,
-        price_per_unit: '',
-        payment_terms: 'full' as 'full' | 'monthly' | 'yearly',
-        down_payment: '',
-        installment_count: '',
-        installment_amount: '',
-        area: '',
-        area_unit: 'sqm' as AreaUnit,
-        land_type: 'raw_land' as LandType,
-        topography: 'flat' as Topography,
-        title_status: 'clean_title' as TitleStatus,
-        parcel_number: '',
-        address_line: '',
-        barangay: '',
-        city_municipality: '',
-        province: '',
-        region: '',
-        zip_code: '',
-        latitude: '',
-        longitude: '',
-        boundary_coordinates: [] as LatLngCoordinate[],
+        seller_type: (draft?.seller_type || 'owner') as SellerType,
+        title: draft?.title || '',
+        listing_category: draft?.listing_category || '',
+        description: draft?.description || '',
+        price: draft?.price || '',
+        currency: draft?.currency || 'PHP',
+        is_negotiable: draft?.is_negotiable ?? false,
+        price_per_unit: draft?.price_per_unit || '',
+        payment_terms: (draft?.payment_terms || 'full') as 'full' | 'monthly' | 'yearly',
+        down_payment: draft?.down_payment || '',
+        installment_count: draft?.installment_count || '',
+        installment_amount: draft?.installment_amount || '',
+        area: draft?.area || '',
+        area_unit: (draft?.area_unit || 'sqm') as AreaUnit,
+        land_type: (draft?.land_type || 'raw_land') as LandType,
+        topography: (draft?.topography || 'flat') as Topography,
+        title_status: (draft?.title_status || 'clean_title') as TitleStatus,
+        parcel_number: draft?.parcel_number || '',
+        address_line: draft?.address_line || '',
+        barangay: draft?.barangay || '',
+        city_municipality: draft?.city_municipality || '',
+        province: draft?.province || '',
+        region: draft?.region || '',
+        zip_code: draft?.zip_code || '',
+        latitude: draft?.latitude || '',
+        longitude: draft?.longitude || '',
+        boundary_coordinates: (draft?.boundary_coordinates || []) as LatLngCoordinate[],
         images: [] as File[],
-        captions: [] as string[],
+        captions: (draft?.captions || []) as string[],
     });
+
+    // Efficient Real-Time Auto-Save (Debounced at 1.5 seconds of user inactivity)
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        if (resetTimerRef.current) {
+            clearTimeout(resetTimerRef.current);
+        }
+
+        setAutoSaveStatus('saving');
+
+        const timer = setTimeout(async () => {
+            try {
+                const { images, ...draftPayload } = data;
+                const res = await fetch('/listings/draft', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN':
+                            (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
+                    },
+                    body: JSON.stringify(draftPayload),
+                });
+
+                if (res.ok) {
+                    setAutoSaveStatus('saved');
+                    // Hide green check icon after 2 seconds
+                    resetTimerRef.current = setTimeout(() => {
+                        setAutoSaveStatus('idle');
+                    }, 2000);
+                } else {
+                    setAutoSaveStatus('error');
+                    // Hide red error icon after 3 seconds
+                    resetTimerRef.current = setTimeout(() => {
+                        setAutoSaveStatus('idle');
+                    }, 3000);
+                }
+            } catch {
+                setAutoSaveStatus('error');
+                resetTimerRef.current = setTimeout(() => {
+                    setAutoSaveStatus('idle');
+                }, 3000);
+            }
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, [data]);
+
+    // Uniform Flat Pill Styling Helper (Responsive Mobile & Desktop)
+    const getFlatPillClass = (isSelected: boolean) =>
+        `inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 sm:py-2 text-sm transition-all cursor-pointer text-center whitespace-nowrap min-w-[120px] sm:min-w-0 ${
+            isSelected
+                ? 'bg-primary text-primary-foreground font-semibold shadow-xs ring-1 ring-primary/40'
+                : 'border border-input bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+        }`;
+
+    // List of currencies from country-data-list
+    const currencyList = useMemo(() => {
+        if (!AllCurrencies || !AllCurrencies.all) return [];
+        return AllCurrencies.all
+            .filter((c: any) => c && c.code && c.name && c.code.length === 3)
+            .sort((a: any, b: any) => a.code.localeCompare(b.code));
+    }, []);
+
+    // Currently selected currency symbol
+    const selectedCurrencySymbol = useMemo(() => {
+        if (!data.currency) return '₱';
+        const found =
+            (AllCurrencies as any)?.[data.currency] ||
+            (AllCurrencies as any)?.all?.find((c: any) => c.code === data.currency);
+        return found?.symbol || data.currency;
+    }, [data.currency]);
 
     // Auto-calculate price per unit
     const computedPricePerUnit = useMemo(() => {
@@ -107,10 +181,7 @@ export default function CreateListing() {
         if (!e.target.files) return;
         const newFiles = Array.from(e.target.files);
         const updatedFiles = [...data.images, ...newFiles].slice(0, 10);
-        const updatedCaptions = [
-            ...data.captions,
-            ...newFiles.map(() => ''),
-        ].slice(0, 10);
+        const updatedCaptions = [...data.captions, ...newFiles.map(() => '')].slice(0, 10);
 
         setData((prev) => ({
             ...prev,
@@ -132,9 +203,7 @@ export default function CreateListing() {
         setData('captions', updatedCaptions);
 
         setImagePreviews((prev) =>
-            prev.map((item, i) =>
-                i === index ? { ...item, caption: captionValue } : item,
-            ),
+            prev.map((item, i) => (i === index ? { ...item, caption: captionValue } : item))
         );
     };
 
@@ -159,8 +228,7 @@ export default function CreateListing() {
 
         transform((formData) => ({
             ...formData,
-            price_per_unit:
-                formData.price_per_unit || computedPricePerUnit || '',
+            price_per_unit: formData.price_per_unit || computedPricePerUnit || '',
         }));
 
         post(listings.store.url(), {
@@ -178,33 +246,46 @@ export default function CreateListing() {
     const hasValidationErrors = Object.keys(errors).length > 0;
 
     return (
-        <div className="mx-auto max-w-4xl space-y-8 p-4 md:p-8">
+        <div className="mx-auto max-w-4xl space-y-6 sm:space-y-8 p-3 sm:p-6 md:p-8">
             {/* Header section */}
-            <div className="flex flex-col gap-4 border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 pb-3 border-b sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <div className="flex items-center gap-2">
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8"
+                            className="h-8 w-8 shrink-0"
                             onClick={() => router.get(listings.index.url())}
                         >
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+                        <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl md:text-3xl">
                             Create New Land Listing
                         </h1>
                     </div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        Fill in the land specifications, legal documentation,
-                        location, pricing, GIS boundaries, and photo gallery.
+                    <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+                        Fill in land specifications, legal documentation, location, pricing, GIS boundaries, and photo gallery.
                     </p>
                 </div>
+
+                {/* Minimal Real-time Auto-Save Status Icons */}
                 <div className="flex items-center gap-2">
-                    <Badge
-                        variant="outline"
-                        className="gap-1 px-3 py-1 text-xs"
-                    >
+                    {autoSaveStatus === 'saving' && (
+                        <div title="Saving draft..." className="p-1 rounded-full bg-muted/40 border">
+                            <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                        </div>
+                    )}
+                    {autoSaveStatus === 'saved' && (
+                        <div title="Draft saved" className="p-1 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                        </div>
+                    )}
+                    {autoSaveStatus === 'error' && (
+                        <div title="Auto-save failed" className="p-1 rounded-full bg-red-500/10 border border-red-500/30">
+                            <AlertCircle className="h-3.5 w-3.5 text-red-500" />
+                        </div>
+                    )}
+                    <Badge variant="outline" className="gap-1 text-xs py-1 px-3 w-fit hidden sm:inline-flex">
                         <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                         Land & Property System
                     </Badge>
@@ -213,95 +294,65 @@ export default function CreateListing() {
 
             {/* Error summary banner if validation failed */}
             {hasValidationErrors && (
-                <Alert
-                    variant="destructive"
-                    className="border-red-500/50 bg-red-500/10"
-                >
+                <Alert variant="destructive" className="border-red-500/50 bg-red-500/10">
                     <AlertTriangle className="h-5 w-5" />
-                    <AlertTitle className="font-semibold">
-                        Form Validation Errors
-                    </AlertTitle>
+                    <AlertTitle className="font-semibold">Form Validation Errors</AlertTitle>
                     <AlertDescription className="mt-1 text-sm">
-                        Please review the highlighted fields below before
-                        submitting the form.
+                        Please review the highlighted fields below before submitting the form.
                     </AlertDescription>
                 </Alert>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-10">
+            <form onSubmit={handleSubmit} className="space-y-8 sm:space-y-10">
                 {/* Section 1: Basic Information & Category */}
-                <section className="space-y-6">
+                <section className="space-y-4 sm:space-y-6">
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                            <Tag className="h-5 w-5 text-primary" />
-                            <h2 className="text-xl font-bold tracking-tight">
-                                1. Basic Information & Category
-                            </h2>
+                            <Tag className="h-5 w-5 text-primary shrink-0" />
+                            <h2 className="text-lg sm:text-xl font-bold tracking-tight">1. Basic Information & Category</h2>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                            Define the property title, category, seller
-                            relationship, and overview description.
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                            Define the property title, category, seller relationship, and overview description.
                         </p>
                     </div>
 
-                    <div className="space-y-6 pt-2">
+                    <div className="space-y-5 sm:space-y-6 pt-1">
                         {/* Listing Title */}
                         <div className="space-y-2">
-                            <Label htmlFor="title" className="font-semibold">
-                                Listing Title{' '}
-                                <span className="text-red-500">*</span>
+                            <Label htmlFor="title" className="font-semibold text-sm">
+                                Listing Title <span className="text-red-500">*</span>
                             </Label>
                             <Input
                                 id="title"
                                 placeholder="e.g. 5,000 sqm Prime Agricultural Farm Lot with Clean Title"
                                 value={data.title}
-                                onChange={(e) =>
-                                    setData('title', e.target.value)
-                                }
-                                className={
-                                    errors.title
-                                        ? 'border-red-500 focus-visible:ring-red-500'
-                                        : ''
-                                }
+                                onChange={(e) => setData('title', e.target.value)}
+                                className={errors.title ? 'border-red-500 focus-visible:ring-red-500' : ''}
                             />
                             <InputError message={errors.title} />
                         </div>
 
                         {/* Category selection */}
                         <div className="space-y-2">
-                            <Label
-                                htmlFor="listing_category"
-                                className="font-semibold"
-                            >
-                                Property Category{' '}
-                                <span className="text-red-500">*</span>
+                            <Label htmlFor="listing_category" className="font-semibold text-sm">
+                                Property Category <span className="text-red-500">*</span>
                             </Label>
                             <Select
                                 value={data.listing_category}
-                                onValueChange={(val) =>
-                                    setData('listing_category', val)
-                                }
+                                onValueChange={(val) => setData('listing_category', val)}
                             >
                                 <SelectTrigger
                                     id="listing_category"
-                                    className={
-                                        errors.listing_category
-                                            ? 'border-red-500'
-                                            : ''
-                                    }
+                                    className={errors.listing_category ? 'border-red-500' : ''}
                                 >
                                     <SelectValue placeholder="Select a pre-defined land category" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="max-h-60 overflow-y-auto">
                                     {listingCategories.map((cat) => (
                                         <SelectItem key={cat.id} value={cat.id}>
                                             <div className="flex flex-col py-0.5">
-                                                <span className="font-medium">
-                                                    {cat.name}
-                                                </span>
-                                                <span className="text-xs text-muted-foreground">
-                                                    {cat.description}
-                                                </span>
+                                                <span className="font-medium">{cat.name}</span>
+                                                <span className="text-xs text-muted-foreground">{cat.description}</span>
                                             </div>
                                         </SelectItem>
                                     ))}
@@ -310,59 +361,28 @@ export default function CreateListing() {
                             <InputError message={errors.listing_category} />
                         </div>
 
-                        {/* Seller Relationship */}
+                        {/* Seller Relationship (Uniform Flat Pills) */}
                         <div className="space-y-2">
-                            <Label className="font-semibold">
-                                Seller Relationship{' '}
-                                <span className="text-red-500">*</span>
+                            <Label className="font-semibold text-sm">
+                                Seller Relationship <span className="text-red-500">*</span>
                             </Label>
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="flex flex-wrap gap-2">
                                 {[
-                                    {
-                                        id: 'owner',
-                                        label: 'Property Owner',
-                                        icon: UserCheck,
-                                        desc: 'Direct owner selling',
-                                    },
-                                    {
-                                        id: 'agent',
-                                        label: 'Real Estate Agent',
-                                        icon: Building2,
-                                        desc: 'Representing owner',
-                                    },
-                                    {
-                                        id: 'broker',
-                                        label: 'Licensed Broker',
-                                        icon: ShieldCheck,
-                                        desc: 'Certified broker',
-                                    },
+                                    { id: 'owner', label: 'Property Owner', icon: UserCheck },
+                                    { id: 'agent', label: 'Real Estate Agent', icon: Building2 },
+                                    { id: 'broker', label: 'Licensed Broker', icon: ShieldCheck },
                                 ].map((type) => {
                                     const Icon = type.icon;
-                                    const isSelected =
-                                        data.seller_type === type.id;
+                                    const isSelected = data.seller_type === type.id;
                                     return (
                                         <button
                                             type="button"
                                             key={type.id}
-                                            onClick={() =>
-                                                setData(
-                                                    'seller_type',
-                                                    type.id as SellerType,
-                                                )
-                                            }
-                                            className={`flex flex-col items-center justify-center rounded-lg border p-3 text-center transition-all ${
-                                                isSelected
-                                                    ? 'border-primary bg-primary/10 font-medium text-primary ring-2 ring-primary/30'
-                                                    : 'border-input hover:bg-accent hover:text-accent-foreground'
-                                            }`}
+                                            onClick={() => setData('seller_type', type.id as SellerType)}
+                                            className={getFlatPillClass(isSelected)}
                                         >
-                                            <Icon className="mb-1 h-5 w-5" />
-                                            <span className="text-sm font-semibold">
-                                                {type.label}
-                                            </span>
-                                            <span className="text-xs text-muted-foreground">
-                                                {type.desc}
-                                            </span>
+                                            <Icon className="h-4 w-4 shrink-0" />
+                                            <span>{type.label}</span>
                                         </button>
                                     );
                                 })}
@@ -372,10 +392,7 @@ export default function CreateListing() {
 
                         {/* Description */}
                         <div className="space-y-2">
-                            <Label
-                                htmlFor="description"
-                                className="font-semibold"
-                            >
+                            <Label htmlFor="description" className="font-semibold text-sm">
                                 Description
                             </Label>
                             <Textarea
@@ -383,12 +400,8 @@ export default function CreateListing() {
                                 rows={4}
                                 placeholder="Describe the land features, access to roads, water/electricity access, nearby landmarks..."
                                 value={data.description}
-                                onChange={(e) =>
-                                    setData('description', e.target.value)
-                                }
-                                className={
-                                    errors.description ? 'border-red-500' : ''
-                                }
+                                onChange={(e) => setData('description', e.target.value)}
+                                className={errors.description ? 'border-red-500' : ''}
                             />
                             <InputError message={errors.description} />
                         </div>
@@ -398,55 +411,38 @@ export default function CreateListing() {
                 <Separator />
 
                 {/* Section 2: Physical & Legal Characteristics */}
-                <section className="space-y-6">
+                <section className="space-y-4 sm:space-y-6">
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                            <Layers className="h-5 w-5 text-primary" />
-                            <h2 className="text-xl font-bold tracking-tight">
-                                2. Land Characteristics & Legal Status
-                            </h2>
+                            <Layers className="h-5 w-5 text-primary shrink-0" />
+                            <h2 className="text-lg sm:text-xl font-bold tracking-tight">2. Land Characteristics & Legal Status</h2>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                            Specify physical land classification, size,
-                            topography, and title status.
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                            Specify physical land classification, size, topography, and title status.
                         </p>
                     </div>
 
-                    <div className="space-y-6 pt-2">
-                        {/* Land Type (Pill selection) */}
+                    <div className="space-y-5 sm:space-y-6 pt-1">
+                        {/* Land Type (Uniform Flat Pills) */}
                         <div className="space-y-2">
-                            <Label className="font-semibold">
-                                Land Type Classification{' '}
-                                <span className="text-red-500">*</span>
+                            <Label className="font-semibold text-sm">
+                                Land Type Classification <span className="text-red-500">*</span>
                             </Label>
                             <div className="flex flex-wrap gap-2">
                                 {[
                                     { id: 'residential', label: 'Residential' },
-                                    {
-                                        id: 'agricultural',
-                                        label: 'Agricultural',
-                                    },
+                                    { id: 'agricultural', label: 'Agricultural' },
                                     { id: 'commercial', label: 'Commercial' },
                                     { id: 'industrial', label: 'Industrial' },
                                     { id: 'raw_land', label: 'Raw Land' },
                                 ].map((type) => {
-                                    const isSelected =
-                                        data.land_type === type.id;
+                                    const isSelected = data.land_type === type.id;
                                     return (
                                         <button
                                             type="button"
                                             key={type.id}
-                                            onClick={() =>
-                                                setData(
-                                                    'land_type',
-                                                    type.id as LandType,
-                                                )
-                                            }
-                                            className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
-                                                isSelected
-                                                    ? 'bg-primary text-primary-foreground shadow-sm ring-2 ring-primary/40'
-                                                    : 'border border-input bg-background hover:bg-muted'
-                                            }`}
+                                            onClick={() => setData('land_type', type.id as LandType)}
+                                            className={getFlatPillClass(isSelected)}
                                         >
                                             {type.label}
                                         </button>
@@ -459,12 +455,11 @@ export default function CreateListing() {
                         {/* Land Area and Unit */}
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                             <div className="space-y-2 sm:col-span-2">
-                                <Label htmlFor="area" className="font-semibold">
-                                    Total Land Area{' '}
-                                    <span className="text-red-500">*</span>
+                                <Label htmlFor="area" className="font-semibold text-sm">
+                                    Total Land Area <span className="text-red-500">*</span>
                                 </Label>
                                 <div className="relative">
-                                    <Maximize2 className="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground" />
+                                    <Maximize2 className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         id="area"
                                         type="number"
@@ -472,9 +467,7 @@ export default function CreateListing() {
                                         min="0"
                                         placeholder="e.g. 5000"
                                         value={data.area}
-                                        onChange={(e) =>
-                                            setData('area', e.target.value)
-                                        }
+                                        onChange={(e) => setData('area', e.target.value)}
                                         className={`pl-9 ${errors.area ? 'border-red-500' : ''}`}
                                     />
                                 </div>
@@ -482,78 +475,45 @@ export default function CreateListing() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label
-                                    htmlFor="area_unit"
-                                    className="font-semibold"
-                                >
-                                    Area Unit{' '}
-                                    <span className="text-red-500">*</span>
+                                <Label htmlFor="area_unit" className="font-semibold text-sm">
+                                    Area Unit <span className="text-red-500">*</span>
                                 </Label>
                                 <Select
                                     value={data.area_unit}
-                                    onValueChange={(val) =>
-                                        setData('area_unit', val as AreaUnit)
-                                    }
+                                    onValueChange={(val) => setData('area_unit', val as AreaUnit)}
                                 >
-                                    <SelectTrigger
-                                        id="area_unit"
-                                        className={
-                                            errors.area_unit
-                                                ? 'border-red-500'
-                                                : ''
-                                        }
-                                    >
+                                    <SelectTrigger id="area_unit" className={errors.area_unit ? 'border-red-500' : ''}>
                                         <SelectValue placeholder="Select unit" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="sqm">
-                                            Square Meters (sqm)
-                                        </SelectItem>
-                                        <SelectItem value="hectare">
-                                            Hectares (ha)
-                                        </SelectItem>
-                                        <SelectItem value="sqft">
-                                            Square Feet (sqft)
-                                        </SelectItem>
+                                        <SelectItem value="sqm">Square Meters (sqm)</SelectItem>
+                                        <SelectItem value="hectare">Hectares (ha)</SelectItem>
+                                        <SelectItem value="sqft">Square Feet (sqft)</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <InputError message={errors.area_unit} />
                             </div>
                         </div>
 
-                        {/* Topography (Pills) */}
+                        {/* Topography (Uniform Flat Pills) */}
                         <div className="space-y-2">
-                            <Label className="flex items-center gap-1.5 font-semibold">
-                                <Mountain className="h-4 w-4 text-muted-foreground" />{' '}
-                                Topography
+                            <Label className="font-semibold text-sm flex items-center gap-1.5">
+                                <Mountain className="h-4 w-4 text-muted-foreground shrink-0" /> Topography
                             </Label>
                             <div className="flex flex-wrap gap-2">
                                 {[
                                     { id: 'flat', label: 'Flat / Level' },
-                                    {
-                                        id: 'sloped',
-                                        label: 'Sloped / Gently Rolling',
-                                    },
+                                    { id: 'sloped', label: 'Sloped / Gently Rolling' },
                                     { id: 'hilly', label: 'Hilly Terrain' },
                                     { id: 'mountainous', label: 'Mountainous' },
                                 ].map((topo) => {
-                                    const isSelected =
-                                        data.topography === topo.id;
+                                    const isSelected = data.topography === topo.id;
                                     return (
                                         <button
                                             type="button"
                                             key={topo.id}
-                                            onClick={() =>
-                                                setData(
-                                                    'topography',
-                                                    topo.id as Topography,
-                                                )
-                                            }
-                                            className={`rounded-lg px-3.5 py-1.5 text-sm font-medium transition-all ${
-                                                isSelected
-                                                    ? 'bg-slate-800 text-white shadow-xs dark:bg-slate-200 dark:text-slate-900'
-                                                    : 'border border-input bg-background text-muted-foreground hover:bg-muted'
-                                            }`}
+                                            onClick={() => setData('topography', topo.id as Topography)}
+                                            className={getFlatPillClass(isSelected)}
                                         >
                                             {topo.label}
                                         </button>
@@ -566,66 +526,37 @@ export default function CreateListing() {
                         {/* Legal & Title Status */}
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div className="space-y-2">
-                                <Label className="flex items-center gap-1.5 font-semibold">
-                                    <FileCheck className="h-4 w-4 text-muted-foreground" />{' '}
-                                    Title / Legal Status{' '}
+                                <Label className="font-semibold text-sm flex items-center gap-1.5">
+                                    <FileCheck className="h-4 w-4 text-muted-foreground shrink-0" /> Title / Legal Status{' '}
                                     <span className="text-red-500">*</span>
                                 </Label>
                                 <Select
                                     value={data.title_status}
-                                    onValueChange={(val) =>
-                                        setData(
-                                            'title_status',
-                                            val as TitleStatus,
-                                        )
-                                    }
+                                    onValueChange={(val) => setData('title_status', val as TitleStatus)}
                                 >
-                                    <SelectTrigger
-                                        className={
-                                            errors.title_status
-                                                ? 'border-red-500'
-                                                : ''
-                                        }
-                                    >
+                                    <SelectTrigger className={errors.title_status ? 'border-red-500' : ''}>
                                         <SelectValue placeholder="Select title status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="clean_title">
-                                            Clean Title (OCT/TCT)
-                                        </SelectItem>
-                                        <SelectItem value="tax_declaration">
-                                            Tax Declaration
-                                        </SelectItem>
-                                        <SelectItem value="mother_title">
-                                            Mother Title
-                                        </SelectItem>
-                                        <SelectItem value="rights">
-                                            Possessory Rights
-                                        </SelectItem>
+                                        <SelectItem value="clean_title">Clean Title (OCT/TCT)</SelectItem>
+                                        <SelectItem value="tax_declaration">Tax Declaration</SelectItem>
+                                        <SelectItem value="mother_title">Mother Title</SelectItem>
+                                        <SelectItem value="rights">Possessory Rights</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <InputError message={errors.title_status} />
                             </div>
 
                             <div className="space-y-2">
-                                <Label
-                                    htmlFor="parcel_number"
-                                    className="font-semibold"
-                                >
+                                <Label htmlFor="parcel_number" className="font-semibold text-sm">
                                     Parcel / Lot / TCT Number
                                 </Label>
                                 <Input
                                     id="parcel_number"
                                     placeholder="e.g. TCT No. 123-45678"
                                     value={data.parcel_number}
-                                    onChange={(e) =>
-                                        setData('parcel_number', e.target.value)
-                                    }
-                                    className={
-                                        errors.parcel_number
-                                            ? 'border-red-500'
-                                            : ''
-                                    }
+                                    onChange={(e) => setData('parcel_number', e.target.value)}
+                                    className={errors.parcel_number ? 'border-red-500' : ''}
                                 />
                                 <InputError message={errors.parcel_number} />
                             </div>
@@ -636,64 +567,43 @@ export default function CreateListing() {
                 <Separator />
 
                 {/* Section 3: Location Details & GIS Map Boundaries */}
-                <section className="space-y-6">
+                <section className="space-y-4 sm:space-y-6">
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                            <MapPin className="h-5 w-5 text-primary" />
-                            <h2 className="text-xl font-bold tracking-tight">
-                                3. Location Details & GIS Map Boundaries
-                            </h2>
+                            <MapPin className="h-5 w-5 text-primary shrink-0" />
+                            <h2 className="text-lg sm:text-xl font-bold tracking-tight">3. Location Details & GIS Map Boundaries</h2>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                            Pin the center property location, switch map views
-                            (street / satellite), and draw boundary shapes on
-                            the map.
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                            Pin the center property location, switch map views (street / satellite), and draw boundary shapes on the map.
                         </p>
                     </div>
 
-                    <div className="space-y-6 pt-2">
+                    <div className="space-y-5 sm:space-y-6 pt-1">
                         {/* Interactive React Leaflet Map Input & Boundary Polygon Drawer */}
                         <div className="space-y-2">
-                            <Label className="flex items-center justify-between font-semibold">
+                            <Label className="font-semibold text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                                 <span className="flex items-center gap-1.5">
-                                    <MapPin className="h-4 w-4 text-emerald-600" />{' '}
-                                    Interactive GIS Location & Perimeter Map
+                                    <MapPin className="h-4 w-4 text-emerald-600 shrink-0" /> Interactive GIS Location & Perimeter Map
                                 </span>
                                 {data.boundary_coordinates.length > 0 && (
-                                    <Badge
-                                        variant="secondary"
-                                        className="gap-1 font-mono text-xs"
-                                    >
+                                    <Badge variant="secondary" className="gap-1 text-xs font-mono w-fit">
                                         <PolygonIcon className="h-3 w-3 text-emerald-500" />
-                                        {data.boundary_coordinates.length}{' '}
-                                        Boundary Corners Pinned
+                                        {data.boundary_coordinates.length} Boundary Corners Pinned
                                     </Badge>
                                 )}
                             </Label>
                             <LocationPickerMap
-                                latitude={
-                                    data.latitude ? Number(data.latitude) : null
-                                }
-                                longitude={
-                                    data.longitude
-                                        ? Number(data.longitude)
-                                        : null
-                                }
+                                latitude={data.latitude ? Number(data.latitude) : null}
+                                longitude={data.longitude ? Number(data.longitude) : null}
                                 boundaryCoordinates={data.boundary_coordinates}
                                 onChange={(lat, lng, addressDetails) => {
                                     setData((prev) => ({
                                         ...prev,
                                         latitude: lat.toFixed(7),
                                         longitude: lng.toFixed(7),
-                                        province: addressDetails?.province
-                                            ? addressDetails.province
-                                            : prev.province,
-                                        city_municipality: addressDetails?.city
-                                            ? addressDetails.city
-                                            : prev.city_municipality,
-                                        barangay: addressDetails?.barangay
-                                            ? addressDetails.barangay
-                                            : prev.barangay,
+                                        province: addressDetails?.province ? addressDetails.province : prev.province,
+                                        city_municipality: addressDetails?.city ? addressDetails.city : prev.city_municipality,
+                                        barangay: addressDetails?.barangay ? addressDetails.barangay : prev.barangay,
                                     }));
                                 }}
                                 onBoundaryChange={(coords) => {
@@ -711,109 +621,92 @@ export default function CreateListing() {
                                         zip_code: '',
                                         boundary_coordinates: [],
                                     }));
-                                    toast.info(
-                                        'Map pin, location coordinates, and boundary polygon reset.',
-                                    );
+                                    toast.info('Map pin, location coordinates, and boundary polygon reset.');
                                 }}
                             />
+
+                            {/* Coordinates Information Display */}
+                            {data.latitude && data.longitude ? (
+                                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-300 mt-2">
+                                    <span className="flex items-center gap-1.5 font-mono">
+                                        <Compass className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                                        <span>Pinned Center GPS: <strong>{data.latitude}</strong>, <strong>{data.longitude}</strong></span>
+                                    </span>
+                                    <Badge variant="outline" className="bg-background text-[10px] text-emerald-600 border-emerald-500/30">
+                                        Auto-Pinned from Map
+                                    </Badge>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground italic mt-1.5">
+                                    <MapPin className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                                    <span>Click anywhere on the interactive map above or search a location to automatically set property coordinates.</span>
+                                </div>
+                            )}
+                            {(errors.latitude || errors.longitude) && (
+                                <InputError message={errors.latitude || errors.longitude} />
+                            )}
                         </div>
 
+                        {/* Address Fields */}
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             {/* Province */}
                             <div className="space-y-2">
-                                <Label
-                                    htmlFor="province"
-                                    className="font-semibold"
-                                >
-                                    Province{' '}
-                                    <span className="text-red-500">*</span>
+                                <Label htmlFor="province" className="font-semibold text-sm">
+                                    Province <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="province"
                                     placeholder="e.g. Cavite, Batangas, Cebu"
                                     value={data.province}
-                                    onChange={(e) =>
-                                        setData('province', e.target.value)
-                                    }
-                                    className={
-                                        errors.province ? 'border-red-500' : ''
-                                    }
+                                    onChange={(e) => setData('province', e.target.value)}
+                                    className={errors.province ? 'border-red-500' : ''}
                                 />
                                 <InputError message={errors.province} />
                             </div>
 
                             {/* City / Municipality */}
                             <div className="space-y-2">
-                                <Label
-                                    htmlFor="city_municipality"
-                                    className="font-semibold"
-                                >
-                                    City / Municipality{' '}
-                                    <span className="text-red-500">*</span>
+                                <Label htmlFor="city_municipality" className="font-semibold text-sm">
+                                    City / Municipality <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="city_municipality"
                                     placeholder="e.g. Tagaytay City"
                                     value={data.city_municipality}
-                                    onChange={(e) =>
-                                        setData(
-                                            'city_municipality',
-                                            e.target.value,
-                                        )
-                                    }
-                                    className={
-                                        errors.city_municipality
-                                            ? 'border-red-500'
-                                            : ''
-                                    }
+                                    onChange={(e) => setData('city_municipality', e.target.value)}
+                                    className={errors.city_municipality ? 'border-red-500' : ''}
                                 />
-                                <InputError
-                                    message={errors.city_municipality}
-                                />
+                                <InputError message={errors.city_municipality} />
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                             {/* Barangay */}
                             <div className="space-y-2 sm:col-span-2">
-                                <Label
-                                    htmlFor="barangay"
-                                    className="font-semibold"
-                                >
+                                <Label htmlFor="barangay" className="font-semibold text-sm">
                                     Barangay
                                 </Label>
                                 <Input
                                     id="barangay"
                                     placeholder="e.g. Brgy. Sungay East"
                                     value={data.barangay}
-                                    onChange={(e) =>
-                                        setData('barangay', e.target.value)
-                                    }
-                                    className={
-                                        errors.barangay ? 'border-red-500' : ''
-                                    }
+                                    onChange={(e) => setData('barangay', e.target.value)}
+                                    className={errors.barangay ? 'border-red-500' : ''}
                                 />
                                 <InputError message={errors.barangay} />
                             </div>
 
                             {/* Zip Code */}
                             <div className="space-y-2">
-                                <Label
-                                    htmlFor="zip_code"
-                                    className="font-semibold"
-                                >
+                                <Label htmlFor="zip_code" className="font-semibold text-sm">
                                     Zip Code
                                 </Label>
                                 <Input
                                     id="zip_code"
                                     placeholder="e.g. 4120"
                                     value={data.zip_code}
-                                    onChange={(e) =>
-                                        setData('zip_code', e.target.value)
-                                    }
-                                    className={
-                                        errors.zip_code ? 'border-red-500' : ''
-                                    }
+                                    onChange={(e) => setData('zip_code', e.target.value)}
+                                    className={errors.zip_code ? 'border-red-500' : ''}
                                 />
                                 <InputError message={errors.zip_code} />
                             </div>
@@ -821,72 +714,17 @@ export default function CreateListing() {
 
                         {/* Street / Address Line */}
                         <div className="space-y-2">
-                            <Label
-                                htmlFor="address_line"
-                                className="font-semibold"
-                            >
+                            <Label htmlFor="address_line" className="font-semibold text-sm">
                                 Street Address / Landmark
                             </Label>
                             <Input
                                 id="address_line"
                                 placeholder="e.g. Santa Rosa - Tagaytay Road near Caleruega"
                                 value={data.address_line}
-                                onChange={(e) =>
-                                    setData('address_line', e.target.value)
-                                }
-                                className={
-                                    errors.address_line ? 'border-red-500' : ''
-                                }
+                                onChange={(e) => setData('address_line', e.target.value)}
+                                className={errors.address_line ? 'border-red-500' : ''}
                             />
                             <InputError message={errors.address_line} />
-                        </div>
-
-                        {/* Coordinates */}
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <div className="space-y-2">
-                                <Label
-                                    htmlFor="latitude"
-                                    className="text-xs font-semibold text-muted-foreground"
-                                >
-                                    Latitude (Pinned from Map)
-                                </Label>
-                                <Input
-                                    id="latitude"
-                                    type="number"
-                                    step="any"
-                                    placeholder="Click map above to set latitude"
-                                    value={data.latitude}
-                                    onChange={(e) =>
-                                        setData('latitude', e.target.value)
-                                    }
-                                    className={
-                                        errors.latitude ? 'border-red-500' : ''
-                                    }
-                                />
-                                <InputError message={errors.latitude} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label
-                                    htmlFor="longitude"
-                                    className="text-xs font-semibold text-muted-foreground"
-                                >
-                                    Longitude (Pinned from Map)
-                                </Label>
-                                <Input
-                                    id="longitude"
-                                    type="number"
-                                    step="any"
-                                    placeholder="Click map above to set longitude"
-                                    value={data.longitude}
-                                    onChange={(e) =>
-                                        setData('longitude', e.target.value)
-                                    }
-                                    className={
-                                        errors.longitude ? 'border-red-500' : ''
-                                    }
-                                />
-                                <InputError message={errors.longitude} />
-                            </div>
                         </div>
                     </div>
                 </section>
@@ -894,34 +732,27 @@ export default function CreateListing() {
                 <Separator />
 
                 {/* Section 4: Pricing & Terms */}
-                <section className="space-y-6">
+                <section className="space-y-4 sm:space-y-6">
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                            <DollarSign className="h-5 w-5 text-primary" />
-                            <h2 className="text-xl font-bold tracking-tight">
-                                4. Pricing & Payment Terms
-                            </h2>
+                            <Coins className="h-5 w-5 text-primary shrink-0" />
+                            <h2 className="text-lg sm:text-xl font-bold tracking-tight">4. Pricing & Payment Terms</h2>
                         </div>
-                        <CardDescription>
-                            Set the selling price, currency, payment options,
-                            and installment arrangements.
-                        </CardDescription>
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                            Set the selling price, currency, payment options, and installment arrangements.
+                        </p>
                     </div>
 
-                    <div className="space-y-6 pt-2">
+                    <div className="space-y-5 sm:space-y-6 pt-1">
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                             {/* Total Price */}
                             <div className="space-y-2 sm:col-span-2">
-                                <Label
-                                    htmlFor="price"
-                                    className="font-semibold"
-                                >
-                                    Total Listing Price{' '}
-                                    <span className="text-red-500">*</span>
+                                <Label htmlFor="price" className="font-semibold text-sm">
+                                    Total Listing Price <span className="text-red-500">*</span>
                                 </Label>
                                 <div className="relative">
-                                    <span className="absolute top-2.5 left-3 text-sm font-semibold text-muted-foreground">
-                                        ₱
+                                    <span className="absolute left-3 top-2.5 text-sm font-semibold text-muted-foreground">
+                                        {selectedCurrencySymbol}
                                     </span>
                                     <Input
                                         id="price"
@@ -930,119 +761,80 @@ export default function CreateListing() {
                                         min="0"
                                         placeholder="e.g. 15000000"
                                         value={data.price}
-                                        onChange={(e) =>
-                                            setData('price', e.target.value)
-                                        }
+                                        onChange={(e) => setData('price', e.target.value)}
                                         className={`pl-8 ${errors.price ? 'border-red-500' : ''}`}
                                     />
                                 </div>
                                 <InputError message={errors.price} />
                             </div>
 
-                            {/* Currency */}
+                            {/* Currency Selection from country-data-list */}
                             <div className="space-y-2">
-                                <Label
-                                    htmlFor="currency"
-                                    className="font-semibold"
-                                >
-                                    Currency
+                                <Label htmlFor="currency" className="font-semibold text-sm">
+                                    Currency <span className="text-red-500">*</span>
                                 </Label>
-                                <Input
-                                    id="currency"
+                                <Select
                                     value={data.currency}
-                                    disabled
-                                    className="bg-muted"
-                                />
+                                    onValueChange={(val) => setData('currency', val)}
+                                >
+                                    <SelectTrigger id="currency" className={errors.currency ? 'border-red-500' : ''}>
+                                        <SelectValue placeholder="Select currency" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-60 overflow-y-auto">
+                                        {currencyList.map((curr: any) => (
+                                            <SelectItem key={curr.code} value={curr.code}>
+                                                {curr.code} - {curr.name} ({curr.symbol || curr.code})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={errors.currency} />
                             </div>
                         </div>
 
                         {/* Price per unit preview / override */}
-                        <div className="flex flex-col gap-4 rounded-lg border bg-muted/20 p-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="flex items-center gap-2">
-                                <FileText className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm font-medium">
-                                    Estimated Price per Unit:
-                                </span>
-                                <Badge
-                                    variant="secondary"
-                                    className="font-mono text-sm"
-                                >
+                        <div className="flex flex-col gap-3 rounded-lg border bg-muted/20 p-3.5 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                                <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                                <span className="font-medium">Estimated Price per Unit:</span>
+                                <Badge variant="secondary" className="font-mono text-xs sm:text-sm">
                                     {computedPricePerUnit
-                                        ? `₱ ${Number(computedPricePerUnit).toLocaleString()} / ${data.area_unit}`
+                                        ? `${selectedCurrencySymbol} ${Number(computedPricePerUnit).toLocaleString()} / ${data.area_unit}`
                                         : 'Enter price and area'}
                                 </Badge>
                             </div>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2 pt-1 sm:pt-0">
                                 <Checkbox
                                     id="is_negotiable"
                                     checked={data.is_negotiable}
-                                    onCheckedChange={(checked) =>
-                                        setData(
-                                            'is_negotiable',
-                                            Boolean(checked),
-                                        )
-                                    }
+                                    onCheckedChange={(checked) => setData('is_negotiable', Boolean(checked))}
                                 />
-                                <Label
-                                    htmlFor="is_negotiable"
-                                    className="cursor-pointer text-sm font-medium"
-                                >
+                                <Label htmlFor="is_negotiable" className="text-xs sm:text-sm font-medium cursor-pointer">
                                     Price is Negotiable
                                 </Label>
                             </div>
                         </div>
 
-                        {/* Payment Terms */}
+                        {/* Payment Terms (Uniform Flat Pills) */}
                         <div className="space-y-2">
-                            <Label className="font-semibold">
-                                Payment Terms{' '}
-                                <span className="text-red-500">*</span>
+                            <Label className="font-semibold text-sm">
+                                Payment Terms <span className="text-red-500">*</span>
                             </Label>
-                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                            <div className="flex flex-wrap gap-2">
                                 {[
-                                    {
-                                        id: 'full',
-                                        label: 'Full Cash Payment',
-                                        desc: '100% full payment upon transfer',
-                                    },
-                                    {
-                                        id: 'monthly',
-                                        label: 'Monthly Installment',
-                                        desc: 'Flexible monthly amortization',
-                                    },
-                                    {
-                                        id: 'yearly',
-                                        label: 'Yearly Installment',
-                                        desc: 'Annual payment plan',
-                                    },
+                                    { id: 'full', label: 'Full Cash Payment' },
+                                    { id: 'monthly', label: 'Monthly Installment' },
+                                    { id: 'yearly', label: 'Yearly Installment' },
                                 ].map((term) => {
-                                    const isSelected =
-                                        data.payment_terms === term.id;
+                                    const isSelected = data.payment_terms === term.id;
                                     return (
                                         <button
                                             type="button"
                                             key={term.id}
-                                            onClick={() =>
-                                                setData(
-                                                    'payment_terms',
-                                                    term.id as
-                                                        | 'full'
-                                                        | 'monthly'
-                                                        | 'yearly',
-                                                )
-                                            }
-                                            className={`flex flex-col rounded-lg border p-3 text-left transition-all ${
-                                                isSelected
-                                                    ? 'border-primary bg-primary/10 ring-2 ring-primary/30'
-                                                    : 'border-input hover:bg-muted'
-                                            }`}
+                                            onClick={() => setData('payment_terms', term.id as 'full' | 'monthly' | 'yearly')}
+                                            className={getFlatPillClass(isSelected)}
                                         >
-                                            <span className="text-sm font-semibold">
-                                                {term.label}
-                                            </span>
-                                            <span className="text-xs text-muted-foreground">
-                                                {term.desc}
-                                            </span>
+                                            {term.label}
                                         </button>
                                     );
                                 })}
@@ -1052,25 +844,18 @@ export default function CreateListing() {
 
                         {/* Conditional Installment Fields */}
                         {data.payment_terms !== 'full' && (
-                            <div className="space-y-4 rounded-xl border bg-muted/20 p-4">
-                                <h4 className="flex items-center gap-1.5 text-sm font-semibold">
-                                    <Sparkles className="h-4 w-4 text-primary" />{' '}
-                                    Installment Breakdown
+                            <div className="rounded-xl border bg-muted/20 p-3.5 sm:p-4 space-y-4">
+                                <h4 className="text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                                    <Sparkles className="h-4 w-4 text-primary shrink-0" /> Installment Breakdown
                                 </h4>
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                     <div className="space-y-2">
-                                        <Label
-                                            htmlFor="down_payment"
-                                            className="font-semibold"
-                                        >
-                                            Down Payment{' '}
-                                            <span className="text-red-500">
-                                                *
-                                            </span>
+                                        <Label htmlFor="down_payment" className="font-semibold text-xs sm:text-sm">
+                                            Down Payment <span className="text-red-500">*</span>
                                         </Label>
                                         <div className="relative">
-                                            <span className="absolute top-2.5 left-3 text-sm text-muted-foreground">
-                                                ₱
+                                            <span className="absolute left-3 top-2.5 text-sm text-muted-foreground">
+                                                {selectedCurrencySymbol}
                                             </span>
                                             <Input
                                                 id="down_payment"
@@ -1079,70 +864,37 @@ export default function CreateListing() {
                                                 min="0"
                                                 placeholder="e.g. 3000000"
                                                 value={data.down_payment}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        'down_payment',
-                                                        e.target.value,
-                                                    )
-                                                }
+                                                onChange={(e) => setData('down_payment', e.target.value)}
                                                 className={`pl-8 ${errors.down_payment ? 'border-red-500' : ''}`}
                                             />
                                         </div>
-                                        <InputError
-                                            message={errors.down_payment}
-                                        />
+                                        <InputError message={errors.down_payment} />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label
-                                            htmlFor="installment_count"
-                                            className="font-semibold"
-                                        >
-                                            No. of{' '}
-                                            {data.payment_terms === 'monthly'
-                                                ? 'Months'
-                                                : 'Years'}{' '}
-                                            <span className="text-red-500">
-                                                *
-                                            </span>
+                                        <Label htmlFor="installment_count" className="font-semibold text-xs sm:text-sm">
+                                            No. of {data.payment_terms === 'monthly' ? 'Months' : 'Years'}{' '}
+                                            <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="installment_count"
                                             type="number"
                                             min="1"
-                                            placeholder={
-                                                data.payment_terms === 'monthly'
-                                                    ? 'e.g. 24'
-                                                    : 'e.g. 5'
-                                            }
+                                            placeholder={data.payment_terms === 'monthly' ? 'e.g. 24' : 'e.g. 5'}
                                             value={data.installment_count}
-                                            onChange={(e) =>
-                                                setData(
-                                                    'installment_count',
-                                                    e.target.value,
-                                                )
-                                            }
-                                            className={
-                                                errors.installment_count
-                                                    ? 'border-red-500'
-                                                    : ''
-                                            }
+                                            onChange={(e) => setData('installment_count', e.target.value)}
+                                            className={errors.installment_count ? 'border-red-500' : ''}
                                         />
-                                        <InputError
-                                            message={errors.installment_count}
-                                        />
+                                        <InputError message={errors.installment_count} />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label
-                                            htmlFor="installment_amount"
-                                            className="font-semibold"
-                                        >
+                                        <Label htmlFor="installment_amount" className="font-semibold text-xs sm:text-sm">
                                             Approx. Amount per Period
                                         </Label>
                                         <div className="relative">
-                                            <span className="absolute top-2.5 left-3 text-sm text-muted-foreground">
-                                                ₱
+                                            <span className="absolute left-3 top-2.5 text-sm text-muted-foreground">
+                                                {selectedCurrencySymbol}
                                             </span>
                                             <Input
                                                 id="installment_amount"
@@ -1151,18 +903,11 @@ export default function CreateListing() {
                                                 min="0"
                                                 placeholder="e.g. 50000"
                                                 value={data.installment_amount}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        'installment_amount',
-                                                        e.target.value,
-                                                    )
-                                                }
+                                                onChange={(e) => setData('installment_amount', e.target.value)}
                                                 className={`pl-8 ${errors.installment_amount ? 'border-red-500' : ''}`}
                                             />
                                         </div>
-                                        <InputError
-                                            message={errors.installment_amount}
-                                        />
+                                        <InputError message={errors.installment_amount} />
                                     </div>
                                 </div>
                             </div>
@@ -1173,31 +918,22 @@ export default function CreateListing() {
                 <Separator />
 
                 {/* Section 5: Property Photos & Captions */}
-                <section className="space-y-6">
+                <section className="space-y-4 sm:space-y-6">
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                            <UploadCloud className="h-5 w-5 text-primary" />
-                            <h2 className="text-xl font-bold tracking-tight">
-                                5. Property Photos & Captions
-                            </h2>
+                            <UploadCloud className="h-5 w-5 text-primary shrink-0" />
+                            <h2 className="text-lg sm:text-xl font-bold tracking-tight">5. Property Photos & Captions</h2>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                            Upload high-resolution land photos, aerial drone
-                            views, or boundary blueprints. Add a caption for
-                            each photo. (Max 10 photos)
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                            Upload high-resolution land photos, aerial drone views, or boundary blueprints. Add a caption for each photo. (Max 10 photos)
                         </p>
                     </div>
 
-                    <div className="space-y-6 pt-2">
-                        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-muted-foreground/30 p-8 text-center transition-colors hover:border-primary/50">
-                            <Camera className="mb-2 h-10 w-10 text-muted-foreground" />
-                            <p className="text-sm font-semibold">
-                                Click to upload property images
-                            </p>
-                            <p className="mt-1 text-xs text-muted-foreground">
-                                PNG, JPG, JPEG, WEBP up to 5MB each. Direct
-                                cloud bucket storage.
-                            </p>
+                    <div className="space-y-5 sm:space-y-6 pt-1">
+                        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-muted-foreground/30 p-6 sm:p-8 text-center hover:border-primary/50 transition-colors">
+                            <Camera className="h-8 sm:h-10 w-8 sm:w-10 text-muted-foreground mb-2" />
+                            <p className="text-xs sm:text-sm font-semibold">Click to upload property images</p>
+                            <p className="text-[11px] sm:text-xs text-muted-foreground mt-1">PNG, JPG, JPEG, WEBP up to 5MB each. Direct cloud bucket storage.</p>
                             <input
                                 type="file"
                                 multiple
@@ -1208,32 +944,27 @@ export default function CreateListing() {
                             />
                             <Label
                                 htmlFor="image-upload"
-                                className="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-xs hover:bg-primary/90"
+                                className="mt-4 cursor-pointer inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-xs sm:text-sm font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 w-full sm:w-auto"
                             >
                                 <UploadCloud className="h-4 w-4" /> Select Files
                             </Label>
                         </div>
 
                         {/* Image upload errors */}
-                        {errors.images && (
-                            <InputError message={errors.images} />
-                        )}
-                        {errors['images.0'] && (
-                            <InputError message={errors['images.0']} />
-                        )}
+                        {errors.images && <InputError message={errors.images} />}
+                        {errors['images.0'] && <InputError message={errors['images.0']} />}
 
                         {/* Image Previews & Captions List */}
                         {imagePreviews.length > 0 && (
                             <div className="space-y-4">
-                                <Label className="text-xs font-semibold text-muted-foreground uppercase">
-                                    Uploaded Photos & Captions (
-                                    {imagePreviews.length} / 10)
+                                <Label className="text-xs font-semibold uppercase text-muted-foreground">
+                                    Uploaded Photos & Captions ({imagePreviews.length} / 10)
                                 </Label>
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                     {imagePreviews.map((preview, index) => (
                                         <div
                                             key={index}
-                                            className="flex flex-col gap-3 rounded-lg border bg-card p-3 shadow-xs"
+                                            className="flex flex-col gap-3 rounded-lg border p-3 bg-card shadow-xs"
                                         >
                                             <div className="relative aspect-video overflow-hidden rounded-md bg-muted">
                                                 <img
@@ -1242,47 +973,33 @@ export default function CreateListing() {
                                                     className="h-full w-full object-cover"
                                                 />
                                                 {index === 0 ? (
-                                                    <Badge className="absolute top-2 left-2 bg-emerald-600 px-2 py-0.5 text-[10px] text-white">
+                                                    <Badge className="absolute top-2 left-2 bg-emerald-600 text-white text-[10px] py-0.5 px-2">
                                                         Primary Photo
                                                     </Badge>
                                                 ) : (
-                                                    <Badge
-                                                        variant="secondary"
-                                                        className="absolute top-2 left-2 text-[10px]"
-                                                    >
+                                                    <Badge variant="secondary" className="absolute top-2 left-2 text-[10px]">
                                                         Photo #{index + 1}
                                                     </Badge>
                                                 )}
                                                 <button
                                                     type="button"
-                                                    onClick={() =>
-                                                        handleRemoveImage(index)
-                                                    }
-                                                    className="absolute top-2 right-2 rounded-full bg-red-600 p-1.5 text-white shadow-xs transition-colors hover:bg-red-700"
+                                                    onClick={() => handleRemoveImage(index)}
+                                                    className="absolute top-2 right-2 rounded-full bg-red-600 p-1.5 text-white shadow-xs hover:bg-red-700 transition-colors"
                                                     title="Remove Image"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </button>
                                             </div>
                                             <div className="space-y-1">
-                                                <Label
-                                                    htmlFor={`caption-${index}`}
-                                                    className="text-xs font-medium text-muted-foreground"
-                                                >
-                                                    Caption for Photo #
-                                                    {index + 1}
+                                                <Label htmlFor={`caption-${index}`} className="text-xs font-medium text-muted-foreground">
+                                                    Caption for Photo #{index + 1}
                                                 </Label>
                                                 <Input
                                                     id={`caption-${index}`}
                                                     placeholder="e.g. Front elevation view, Drone boundary outline..."
                                                     value={preview.caption}
-                                                    onChange={(e) =>
-                                                        handleCaptionChange(
-                                                            index,
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    className="h-8 text-xs"
+                                                    onChange={(e) => handleCaptionChange(index, e.target.value)}
+                                                    className="text-xs h-8"
                                                 />
                                             </div>
                                         </div>
@@ -1296,29 +1013,28 @@ export default function CreateListing() {
                 <Separator />
 
                 {/* Form Actions */}
-                <div className="flex items-center justify-end gap-4 pt-2">
+                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center sm:justify-end gap-3 pt-2">
                     <Button
                         type="button"
                         variant="outline"
                         disabled={processing}
                         onClick={() => router.get(listings.index.url())}
+                        className="w-full sm:w-auto text-sm"
                     >
                         Cancel
                     </Button>
                     <Button
                         type="submit"
                         disabled={processing}
-                        className="gap-2 px-6 font-semibold"
+                        className="w-full sm:w-auto gap-2 px-6 font-semibold text-sm"
                     >
                         {processing ? (
                             <>
-                                <Sparkles className="h-4 w-4 animate-spin" />{' '}
-                                Saving Listing...
+                                <Sparkles className="h-4 w-4 animate-spin" /> Publishing Listing...
                             </>
                         ) : (
                             <>
-                                <CheckCircle2 className="h-4 w-4" /> Publish
-                                Land Listing
+                                <CheckCircle2 className="h-4 w-4" /> Publish Land Listing
                             </>
                         )}
                     </Button>

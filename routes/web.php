@@ -22,6 +22,7 @@ Route::middleware(['auth', 'verified', 'seller'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
     Route::get('listings', [ListingController::class, 'index'])->name('listings.index');
     Route::get('listings/new', [ListingController::class, 'create'])->name('listings.new');
+    Route::post('listings/draft', [ListingController::class, 'saveDraft'])->name('listings.draft');
     Route::post('listings', [ListingController::class, 'store'])->name('listings.store');
 });
 

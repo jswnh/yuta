@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\ListingController::index
- * @see app/Http/Controllers/ListingController.php:18
+ * @see app/Http/Controllers/ListingController.php:21
  * @route '/listings'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\ListingController::index
- * @see app/Http/Controllers/ListingController.php:18
+ * @see app/Http/Controllers/ListingController.php:21
  * @route '/listings'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ListingController::index
- * @see app/Http/Controllers/ListingController.php:18
+ * @see app/Http/Controllers/ListingController.php:21
  * @route '/listings'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\ListingController::index
- * @see app/Http/Controllers/ListingController.php:18
+ * @see app/Http/Controllers/ListingController.php:21
  * @route '/listings'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\ListingController::index
- * @see app/Http/Controllers/ListingController.php:18
+ * @see app/Http/Controllers/ListingController.php:21
  * @route '/listings'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\ListingController::index
- * @see app/Http/Controllers/ListingController.php:18
+ * @see app/Http/Controllers/ListingController.php:21
  * @route '/listings'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\ListingController::index
- * @see app/Http/Controllers/ListingController.php:18
+ * @see app/Http/Controllers/ListingController.php:21
  * @route '/listings'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\ListingController::newMethod
- * @see app/Http/Controllers/ListingController.php:33
+ * @see app/Http/Controllers/ListingController.php:36
  * @route '/listings/new'
  */
 export const newMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ newMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\ListingController::newMethod
- * @see app/Http/Controllers/ListingController.php:33
+ * @see app/Http/Controllers/ListingController.php:36
  * @route '/listings/new'
  */
 newMethod.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ newMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ListingController::newMethod
- * @see app/Http/Controllers/ListingController.php:33
+ * @see app/Http/Controllers/ListingController.php:36
  * @route '/listings/new'
  */
 newMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ newMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\ListingController::newMethod
- * @see app/Http/Controllers/ListingController.php:33
+ * @see app/Http/Controllers/ListingController.php:36
  * @route '/listings/new'
  */
 newMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ newMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\ListingController::newMethod
- * @see app/Http/Controllers/ListingController.php:33
+ * @see app/Http/Controllers/ListingController.php:36
  * @route '/listings/new'
  */
     const newMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ newMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\ListingController::newMethod
- * @see app/Http/Controllers/ListingController.php:33
+ * @see app/Http/Controllers/ListingController.php:36
  * @route '/listings/new'
  */
         newMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ newMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\ListingController::newMethod
- * @see app/Http/Controllers/ListingController.php:33
+ * @see app/Http/Controllers/ListingController.php:36
  * @route '/listings/new'
  */
         newMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -156,8 +156,63 @@ newMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     
     newMethod.form = newMethodForm
 /**
+* @see \App\Http\Controllers\ListingController::draft
+ * @see app/Http/Controllers/ListingController.php:48
+ * @route '/listings/draft'
+ */
+export const draft = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: draft.url(options),
+    method: 'post',
+})
+
+draft.definition = {
+    methods: ["post"],
+    url: '/listings/draft',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\ListingController::draft
+ * @see app/Http/Controllers/ListingController.php:48
+ * @route '/listings/draft'
+ */
+draft.url = (options?: RouteQueryOptions) => {
+    return draft.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\ListingController::draft
+ * @see app/Http/Controllers/ListingController.php:48
+ * @route '/listings/draft'
+ */
+draft.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: draft.url(options),
+    method: 'post',
+})
+
+    /**
+* @see \App\Http\Controllers\ListingController::draft
+ * @see app/Http/Controllers/ListingController.php:48
+ * @route '/listings/draft'
+ */
+    const draftForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: draft.url(options),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\ListingController::draft
+ * @see app/Http/Controllers/ListingController.php:48
+ * @route '/listings/draft'
+ */
+        draftForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: draft.url(options),
+            method: 'post',
+        })
+    
+    draft.form = draftForm
+/**
 * @see \App\Http\Controllers\ListingController::store
- * @see app/Http/Controllers/ListingController.php:41
+ * @see app/Http/Controllers/ListingController.php:70
  * @route '/listings'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +227,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\ListingController::store
- * @see app/Http/Controllers/ListingController.php:41
+ * @see app/Http/Controllers/ListingController.php:70
  * @route '/listings'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -181,7 +236,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ListingController::store
- * @see app/Http/Controllers/ListingController.php:41
+ * @see app/Http/Controllers/ListingController.php:70
  * @route '/listings'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +246,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\ListingController::store
- * @see app/Http/Controllers/ListingController.php:41
+ * @see app/Http/Controllers/ListingController.php:70
  * @route '/listings'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +256,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\ListingController::store
- * @see app/Http/Controllers/ListingController.php:41
+ * @see app/Http/Controllers/ListingController.php:70
  * @route '/listings'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -213,6 +268,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 const listings = {
     index: Object.assign(index, index),
 new: Object.assign(newMethod, newMethod),
+draft: Object.assign(draft, draft),
 store: Object.assign(store, store),
 }
 
