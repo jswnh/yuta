@@ -16,15 +16,16 @@ return new class extends Migration
 
             // Seller Relationship
             $table->foreignUuid('seller_id')
-                  ->constrained('users', 'user_id')
-                  ->cascadeOnDelete();
+                ->constrained('users', 'user_id')
+                ->cascadeOnDelete();
             $table->enum('seller_type', ['owner', 'agent', 'broker'])->default('owner');
-            
+
             // Content & Routing
             $table->string('title');
+            $table->string('listing_category')->nullable();
             $table->string('slug')->unique();
             $table->text('description')->nullable();
-            
+
             // Pricing & Terms
             $table->decimal('price', 14, 2);
             $table->string('currency', 3)->default('PHP');
@@ -64,7 +65,7 @@ return new class extends Migration
             $table->boolean('is_featured')->default(false);
             $table->unsignedBigInteger('view_count')->default(0);
             $table->timestamp('published_at')->nullable();
-            $table->timestamp('sold_at')->nullable();       
+            $table->timestamp('sold_at')->nullable();
 
             $table->timestamps();
         });

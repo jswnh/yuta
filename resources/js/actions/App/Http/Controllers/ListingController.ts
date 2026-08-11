@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\ListingController::index
  * @see app/Http/Controllers/ListingController.php:18
@@ -78,74 +78,74 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     
     index.form = indexForm
 /**
-* @see \App\Http\Controllers\ListingController::newMethod
+* @see \App\Http\Controllers\ListingController::create
  * @see app/Http/Controllers/ListingController.php:33
  * @route '/listings/new'
  */
-export const newMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: newMethod.url(options),
+export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: create.url(options),
     method: 'get',
 })
 
-newMethod.definition = {
+create.definition = {
     methods: ["get","head"],
     url: '/listings/new',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see \App\Http\Controllers\ListingController::newMethod
+* @see \App\Http\Controllers\ListingController::create
  * @see app/Http/Controllers/ListingController.php:33
  * @route '/listings/new'
  */
-newMethod.url = (options?: RouteQueryOptions) => {
-    return newMethod.definition.url + queryParams(options)
+create.url = (options?: RouteQueryOptions) => {
+    return create.definition.url + queryParams(options)
 }
 
 /**
-* @see \App\Http\Controllers\ListingController::newMethod
+* @see \App\Http\Controllers\ListingController::create
  * @see app/Http/Controllers/ListingController.php:33
  * @route '/listings/new'
  */
-newMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: newMethod.url(options),
+create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: create.url(options),
     method: 'get',
 })
 /**
-* @see \App\Http\Controllers\ListingController::newMethod
+* @see \App\Http\Controllers\ListingController::create
  * @see app/Http/Controllers/ListingController.php:33
  * @route '/listings/new'
  */
-newMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: newMethod.url(options),
+create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: create.url(options),
     method: 'head',
 })
 
     /**
-* @see \App\Http\Controllers\ListingController::newMethod
+* @see \App\Http\Controllers\ListingController::create
  * @see app/Http/Controllers/ListingController.php:33
  * @route '/listings/new'
  */
-    const newMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: newMethod.url(options),
+    const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: create.url(options),
         method: 'get',
     })
 
             /**
-* @see \App\Http\Controllers\ListingController::newMethod
+* @see \App\Http\Controllers\ListingController::create
  * @see app/Http/Controllers/ListingController.php:33
  * @route '/listings/new'
  */
-        newMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: newMethod.url(options),
+        createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: create.url(options),
             method: 'get',
         })
             /**
-* @see \App\Http\Controllers\ListingController::newMethod
+* @see \App\Http\Controllers\ListingController::create
  * @see app/Http/Controllers/ListingController.php:33
  * @route '/listings/new'
  */
-        newMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: newMethod.url({
+        createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: create.url({
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',
                             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -154,7 +154,7 @@ newMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
     
-    newMethod.form = newMethodForm
+    create.form = createForm
 /**
 * @see \App\Http\Controllers\ListingController::store
  * @see app/Http/Controllers/ListingController.php:41
@@ -210,10 +210,6 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
         })
     
     store.form = storeForm
-const listings = {
-    index: Object.assign(index, index),
-new: Object.assign(newMethod, newMethod),
-store: Object.assign(store, store),
-}
+const ListingController = { index, create, store }
 
-export default listings
+export default ListingController

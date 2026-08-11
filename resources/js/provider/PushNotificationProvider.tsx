@@ -10,7 +10,6 @@ import {
 import { subscribeToPush, unsubscribeFromPush } from '@/lib/push';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string;
-console.log('VAPID_PUBLIC_KEY', VAPID_PUBLIC_KEY);
 
 interface PushNotificationContextValue {
     subscribed: boolean;

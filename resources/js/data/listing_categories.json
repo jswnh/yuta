@@ -1,0 +1,52 @@
+[
+  {
+    "id": "residential_lot",
+    "name": "Residential Lot",
+    "description": "Lots intended for single-family homes, townhouses, or residential structures."
+  },
+  {
+    "id": "subdivision_lot",
+    "name": "Subdivision Lot",
+    "description": "Planned residential lot within a gated community or subdivision."
+  },
+  {
+    "id": "agricultural_land",
+    "name": "Agricultural / Farm Land",
+    "description": "Farmland suitable for crops, rice fields, coconut groves, or orchards."
+  },
+  {
+    "id": "poultry_livestock_farm",
+    "name": "Poultry & Livestock Farm",
+    "description": "Zoned agricultural land designated for animal husbandry, poultry, or piggery."
+  },
+  {
+    "id": "commercial_lot",
+    "name": "Commercial Lot",
+    "description": "High-visibility property along main avenues for retail, offices, or mixed-use buildings."
+  },
+  {
+    "id": "industrial_lot",
+    "name": "Industrial Park / Warehouse Lot",
+    "description": "Land zoned for manufacturing, distribution centers, processing plants, or warehouses."
+  },
+  {
+    "id": "beachfront_coastal",
+    "name": "Beachfront & Coastal Land",
+    "description": "Oceanfront, seaside, or coastal land suitable for private estates or resort developments."
+  },
+  {
+    "id": "eco_tourism_mountain",
+    "name": "Eco-Tourism & Mountain Property",
+    "description": "Elevated, scenic, or hilly land ideal for glamping, eco-resorts, or vacation cabins."
+  },
+  {
+    "id": "raw_land_investment",
+    "name": "Raw Uncut Land",
+    "description": "Undeveloped vast acreage suitable for land banking, future masterplans, or subdivisions."
+  },
+  {
+    "id": "island_property",
+    "name": "Island Property",
+    "description": "Whole private island or island parcel."
+  }
+]

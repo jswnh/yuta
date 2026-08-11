@@ -10,17 +10,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Listing extends Model
 {
-
     use HasFactory, HasUuids;
 
     protected $primaryKey = 'listing_id';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
         'seller_id',
         'seller_type',
         'title',
+        'listing_category',
         'slug',
         'description',
         'price',
@@ -83,6 +85,6 @@ class Listing extends Model
     public function images(): HasMany
     {
         return $this->hasMany(ListingImage::class, 'listing_id', 'listing_id')
-                    ->orderBy('sort_order', 'asc');
+            ->orderBy('sort_order', 'asc');
     }
 }

@@ -26,6 +26,7 @@ export interface Listing {
     seller_id: string;
     seller_type: SellerType;
     title: string;
+    listing_category?: string | null;
     slug: string;
     description: string | null;
     price: number;

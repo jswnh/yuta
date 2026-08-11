@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\BecomeSellerController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\ListingController;
 use App\Http\Controllers\XenditWebhookController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
@@ -19,8 +20,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::middleware(['auth', 'verified', 'seller'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
-    Route::inertia('listings', 'listing/listings')->name('listings.index');
-    Route::inertia('listings/new', 'listing/new')->name('listings.new');
+    Route::get('listings', [ListingController::class, 'index'])->name('listings.index');
+    Route::get('listings/new', [ListingController::class, 'create'])->name('listings.new');
+    Route::post('listings', [ListingController::class, 'store'])->name('listings.store');
 });
 
 Route::get('/auth/{provider}/redirect', [SocialiteController::class, 'redirect'])
