@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class ListingImage extends Model
 {
@@ -46,18 +45,13 @@ class ListingImage extends Model
             return $this->file_path;
         }
 
-        $disk = config('filesystems.default', 'r2');
+        $r2Url = config('filesystems.disks.r2.url') ?: env('R2_URL', 'https://pub-19475a64b9ef47b78593af8d0414d4be.r2.dev');
 
-        try {
-            return Storage::disk($disk)->url($this->file_path);
-        } catch (\Throwable) {
-            $r2Url = config('filesystems.disks.r2.url') ?? env('R2_URL');
-            if ($r2Url) {
-                return rtrim($r2Url, '/').'/'.ltrim($this->file_path, '/');
-            }
-
-            return asset('storage/'.ltrim($this->file_path, '/'));
+        if ($r2Url) {
+            return rtrim($r2Url, '/').'/'.ltrim($this->file_path, '/');
         }
+
+        return asset('storage/'.ltrim($this->file_path, '/'));
     }
 
     public function listing(): BelongsTo

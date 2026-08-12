@@ -148,6 +148,20 @@ export default function EditListing({ listing }: EditListingProps) {
         return null;
     }, [data.price, data.area]);
 
+    const getImageUrl = (img: ListingImage): string => {
+        if (img.url && img.url.trim().length > 0) {
+            return img.url;
+        }
+        if (!img.file_path || img.file_path === '0') {
+            return '';
+        }
+        if (img.file_path.startsWith('http://') || img.file_path.startsWith('https://')) {
+            return img.file_path;
+        }
+        const r2Base = 'https://pub-19475a64b9ef47b78593af8d0414d4be.r2.dev';
+        return `${r2Base}/${img.file_path.replace(/^\//, '')}`;
+    };
+
     // Existing image caption update handler
     const handleExistingCaptionChange = (imageId: string, caption: string) => {
         setData('existing_captions', {
@@ -879,47 +893,57 @@ export default function EditListing({ listing }: EditListingProps) {
                                 </Label>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {existingImages.map((img) => (
-                                        <div
-                                            key={img.image_id}
-                                            className="flex flex-col sm:flex-row items-center gap-3 p-3 rounded-xl border bg-card shadow-xs relative group"
-                                        >
-                                            <div className="w-full sm:w-28 h-28 rounded-lg overflow-hidden border bg-muted shrink-0 relative">
-                                                <img
-                                                    src={img.url}
-                                                    alt={img.caption || 'Property image'}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                                {img.is_primary && (
-                                                    <Badge className="absolute top-1 left-1 bg-emerald-600 text-white text-[9px] px-1.5 py-0.5">
-                                                        Primary
-                                                    </Badge>
-                                                )}
-                                            </div>
+                                    {existingImages.map((img) => {
+                                        const imageUrl = getImageUrl(img);
+                                        return (
+                                            <div
+                                                key={img.image_id}
+                                                className="flex flex-col sm:flex-row items-center gap-3 p-3 rounded-xl border bg-card shadow-xs relative group"
+                                            >
+                                                <div className="w-full sm:w-28 h-28 rounded-lg overflow-hidden border bg-muted shrink-0 relative">
+                                                    {imageUrl ? (
+                                                        <img
+                                                            src={imageUrl}
+                                                            alt={img.caption || 'Property image'}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground p-2 text-center">
+                                                            <Camera className="h-6 w-6 opacity-40 mb-1" />
+                                                            <span className="text-[10px]">No Image File</span>
+                                                        </div>
+                                                    )}
+                                                    {img.is_primary && (
+                                                        <Badge className="absolute top-1 left-1 bg-emerald-600 text-white text-[9px] px-1.5 py-0.5">
+                                                            Primary
+                                                        </Badge>
+                                                    )}
+                                                </div>
 
-                                            <div className="flex-1 w-full space-y-2">
-                                                <Label htmlFor={`existing-caption-${img.image_id}`} className="text-xs font-semibold text-muted-foreground">
-                                                    Image Caption
-                                                </Label>
-                                                <Input
-                                                    id={`existing-caption-${img.image_id}`}
-                                                    placeholder="e.g. Front entrance, Drone boundary view..."
-                                                    value={data.existing_captions[img.image_id] || ''}
-                                                    onChange={(e) => handleExistingCaptionChange(img.image_id, e.target.value)}
-                                                    className="text-xs h-8"
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    variant="destructive"
-                                                    size="sm"
-                                                    onClick={() => handleDeleteExistingImage(img.image_id)}
-                                                    className="h-7 text-[11px] gap-1 px-2.5 w-full sm:w-auto"
-                                                >
-                                                    <Trash2 className="h-3 w-3" /> Delete Photo
-                                                </Button>
+                                                <div className="flex-1 w-full space-y-2">
+                                                    <Label htmlFor={`existing-caption-${img.image_id}`} className="text-xs font-semibold text-muted-foreground">
+                                                        Image Caption
+                                                    </Label>
+                                                    <Input
+                                                        id={`existing-caption-${img.image_id}`}
+                                                        placeholder="e.g. Front entrance, Drone boundary view..."
+                                                        value={data.existing_captions[img.image_id] || ''}
+                                                        onChange={(e) => handleExistingCaptionChange(img.image_id, e.target.value)}
+                                                        className="text-xs h-8"
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        onClick={() => handleDeleteExistingImage(img.image_id)}
+                                                        className="h-7 text-[11px] gap-1 px-2.5 w-full sm:w-auto"
+                                                    >
+                                                        <Trash2 className="h-3 w-3" /> Delete Photo
+                                                    </Button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
