@@ -14,6 +14,7 @@ export interface ListingImage {
     image_id: string;
     listing_id: string;
     file_path: string;
+    url?: string;
     caption: string | null;
     sort_order: number;
     is_primary: boolean;
@@ -33,6 +34,10 @@ export interface Listing {
     currency: string;
     is_negotiable: boolean;
     price_per_unit: number | null;
+    payment_terms?: 'full' | 'monthly' | 'yearly' | string | null;
+    down_payment?: number | string | null;
+    installment_count?: number | string | null;
+    installment_amount?: number | string | null;
     area: number;
     area_unit: AreaUnit;
     land_type: LandType;

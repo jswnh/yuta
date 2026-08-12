@@ -2,15 +2,11 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class CreateListingRequest extends FormRequest
+class UpdateListingRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
@@ -62,7 +58,15 @@ class CreateListingRequest extends FormRequest
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'boundary_coordinates' => ['nullable', 'array'],
 
-            // Photos & Media
+            // Deleted Existing Images
+            'deleted_image_ids' => ['nullable', 'array'],
+            'deleted_image_ids.*' => ['string'],
+
+            // Existing Captions Update
+            'existing_captions' => ['nullable', 'array'],
+            'existing_captions.*' => ['nullable', 'string', 'max:255'],
+
+            // New Uploaded Photos & Media
             'images' => ['nullable', 'array', 'max:10'],
             'images.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'captions' => ['nullable', 'array', 'max:10'],
@@ -74,44 +78,19 @@ class CreateListingRequest extends FormRequest
     {
         return [
             'seller_type.required' => 'Please select whether you are the property owner, agent, or broker.',
-            'seller_type.in' => 'Selected seller type is invalid.',
             'title.required' => 'Give your land listing a clear, descriptive title.',
-            'title.max' => 'Title cannot exceed 255 characters.',
             'listing_category.required' => 'Please select a property category.',
             'price.required' => 'Please enter the listing price.',
-            'price.numeric' => 'Price must be a valid number.',
-            'price.min' => 'Listing price cannot be negative.',
             'area.required' => 'Specify the total area of the property.',
-            'area.numeric' => 'Area must be a valid number.',
-            'area.gt' => 'Land area must be greater than zero.',
             'area_unit.required' => 'Please select the area unit (e.g., sqm, hectare).',
             'land_type.required' => 'Select the primary classification/type of land.',
             'title_status.required' => 'Select the legal title status (e.g., Clean Title, Tax Dec).',
             'city_municipality.required' => 'City or municipality is required to locate the property.',
             'province.required' => 'Province is required.',
-            'payment_terms.required' => 'Please select how the buyer can pay: full payment, monthly, or yearly installment.',
-            'down_payment.required_if' => 'Down payment is required for installment plans.',
-            'down_payment.lt' => 'Down payment must be less than the total price.',
-            'installment_count.required_if' => 'Please specify the number of payment periods.',
-            'images.max' => 'You can upload a maximum of 10 images.',
             'images.*.uploaded' => 'One of the selected images failed to upload because it exceeds the 2MB PHP file size limit.',
             'images.*.image' => 'Uploaded file must be a valid image.',
             'images.*.mimes' => 'Images must be in JPEG, PNG, JPG, or WEBP format.',
             'images.*.max' => 'Each image size must not exceed 2MB.',
-            'captions.*.max' => 'Image caption cannot exceed 255 characters.',
         ];
-    }
-
-    /**
-     * Dump validation errors on failure for debugging.
-     */
-    protected function failedValidation(Validator $validator): void
-    {
-        dd([
-            'type' => 'Validation Failed',
-            'errors' => $validator->errors()->toArray(),
-            'failed_rules' => $validator->failed(),
-            'submitted_input' => $this->all(),
-        ]);
     }
 }

@@ -188,9 +188,26 @@ export default function CreateListing({ draft }: CreateListingProps) {
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
-        const newFiles = Array.from(e.target.files);
-        const updatedFiles = [...data.images, ...newFiles].slice(0, 10);
-        const updatedCaptions = [...data.captions, ...newFiles.map(() => '')].slice(0, 10);
+        const selectedFiles = Array.from(e.target.files);
+        const validFiles: File[] = [];
+
+        for (const file of selectedFiles) {
+            // Check PHP upload_max_filesize threshold (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                toast.error(`"${file.name}" is larger than 2MB. Please choose a smaller image file.`);
+                continue;
+            }
+            if (!file.type.startsWith('image/')) {
+                toast.error(`"${file.name}" is not a valid image file.`);
+                continue;
+            }
+            validFiles.push(file);
+        }
+
+        if (validFiles.length === 0) return;
+
+        const updatedFiles = [...data.images, ...validFiles].slice(0, 10);
+        const updatedCaptions = [...data.captions, ...validFiles.map(() => '')].slice(0, 10);
 
         setData((prev) => ({
             ...prev,

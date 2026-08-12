@@ -70,7 +70,10 @@ return [
             'url' => env('R2_URL'),
             'use_path_style_endpoint' => true,
             'visibility' => 'public',
-            'throw' => false,
+            'http' => [
+                'verify' => env('R2_HTTP_VERIFY', false),
+            ],
+            'throw' => true,
             'report' => false,
         ],
 
