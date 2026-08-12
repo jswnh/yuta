@@ -1,4 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import {
+    MapContainer,
+    TileLayer,
+    Marker,
+    Polygon,
+    Polyline,
+    Popup,
+    useMapEvents,
+    useMap,
+} from 'react-leaflet';
 import {
     MapPin,
     Navigation,
@@ -16,6 +28,39 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { LatLngCoordinate } from '@/types/listing';
+
+// Fix default Leaflet icon paths
+delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
+interface NominatimAddress {
+    state?: string;
+    province?: string;
+    region?: string;
+    city?: string;
+    town?: string;
+    municipality?: string;
+    county?: string;
+    quarter?: string;
+    suburb?: string;
+    village?: string;
+    hamlet?: string;
+    neighbourhood?: string;
+}
+
+interface NominatimReverseResponse {
+    address?: NominatimAddress;
+}
+
+interface NominatimSearchResult {
+    lat: string;
+    lon: string;
+    display_name?: string;
+}
 
 interface LocationPickerMapProps {
     latitude: number | null;
@@ -41,8 +86,6 @@ export default function LocationPickerMap({
     height,
 }: LocationPickerMapProps) {
     const [isMounted, setIsMounted] = useState(false);
-    const [ReactLeaflet, setReactLeaflet] = useState<any>(null);
-    const [L, setL] = useState<any>(null);
     const [mode, setMode] = useState<'pin' | 'boundary'>('pin');
     const [mapStyle, setMapStyle] = useState<'street' | 'satellite'>('street');
     const [searchQuery, setSearchQuery] = useState('');
@@ -54,56 +97,71 @@ export default function LocationPickerMap({
     const currentLng = longitude && !isNaN(longitude) ? longitude : 120.9842;
     const hasSelectedLocation = latitude !== null && longitude !== null && !isNaN(latitude) && !isNaN(longitude);
 
-    const safeBoundaryCoords = Array.isArray(boundaryCoordinates) ? boundaryCoordinates : [];
+    const safeBoundaryCoords = useMemo(
+        () => (Array.isArray(boundaryCoordinates) ? boundaryCoordinates : []),
+        [boundaryCoordinates]
+    );
+
+    const centerTuple = useMemo<[number, number]>(() => [currentLat, currentLng], [currentLat, currentLng]);
 
     useEffect(() => {
         setIsMounted(true);
-        Promise.all([
-            import('leaflet'),
-            import('react-leaflet'),
-            import('leaflet/dist/leaflet.css' as any),
-        ])
-            .then(([leafletModule, reactLeafletModule]) => {
-                const Leaflet = leafletModule.default || leafletModule;
-                delete (Leaflet.Icon.Default.prototype as any)._getIconUrl;
-                Leaflet.Icon.Default.mergeOptions({
-                    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-                    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-                    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-                });
-                setL(Leaflet);
-                setReactLeaflet(reactLeafletModule);
-            })
-            .catch((err) => {
-                console.error('Failed to load Leaflet:', err);
-            });
+    }, []);
+
+    // Memoize custom Leaflet icons to prevent DOM re-creation flickering on every render
+    const pinIcon = useMemo(() => {
+        return L.divIcon({
+            className: 'custom-pin-marker',
+            html: `
+                <div class="relative flex items-center justify-center">
+                    <span class="absolute inline-flex h-7 w-7 animate-ping rounded-full bg-emerald-400 opacity-60"></span>
+                    <div class="relative flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white shadow-md ring-2 ring-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                </div>
+            `,
+            iconSize: [28, 28],
+            iconAnchor: [14, 28],
+        });
+    }, []);
+
+    const vertexIcon = useMemo(() => {
+        return L.divIcon({
+            className: 'custom-boundary-vertex',
+            html: `<div style="width: 14px; height: 14px; background: #10b981; border: 2px solid white; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.4); cursor: grab;"></div>`,
+            iconSize: [14, 14],
+            iconAnchor: [7, 7],
+        });
     }, []);
 
     // Perform reverse geocoding to suggest province, city, barangay
-    const reverseGeocode = async (lat: number, lng: number) => {
-        try {
-            const res = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
-            );
-            if (!res.ok) return;
-            const data = await res.json();
-            if (data && data.address) {
-                const addr = data.address;
-                const province = addr.state || addr.province || addr.region || '';
-                const city = addr.city || addr.town || addr.municipality || addr.county || '';
-                const barangay = addr.quarter || addr.suburb || fontBarangay(addr) || '';
-                onChange(lat, lng, { province, city, barangay });
-                return;
+    const reverseGeocode = useCallback(
+        async (lat: number, lng: number) => {
+            try {
+                const res = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
+                );
+                if (!res.ok) {
+                    onChange(lat, lng);
+                    return;
+                }
+                const data: NominatimReverseResponse = await res.json();
+                if (data && data.address) {
+                    const addr = data.address;
+                    const province = addr.state || addr.province || addr.region || '';
+                    const city = addr.city || addr.town || addr.municipality || addr.county || '';
+                    const barangay =
+                        addr.quarter || addr.suburb || addr.village || addr.hamlet || addr.neighbourhood || '';
+                    onChange(lat, lng, { province, city, barangay });
+                    return;
+                }
+            } catch {
+                // Ignore geocoding network issues gracefully
             }
-        } catch {
-            // Ignore geocoding network issues gracefully
-        }
-        onChange(lat, lng);
-    };
-
-    const fontBarangay = (addressObj: any) => {
-        return addressObj.village || addressObj.hamlet || addressObj.neighbourhood || '';
-    };
+            onChange(lat, lng);
+        },
+        [onChange]
+    );
 
     const handleSearchLocation = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -116,7 +174,7 @@ export default function LocationPickerMap({
                     searchQuery + ', Philippines'
                 )}`
             );
-            const data = await res.json();
+            const data: NominatimSearchResult[] = await res.json();
             if (data && data.length > 0) {
                 const firstResult = data[0];
                 const lat = parseFloat(firstResult.lat);
@@ -189,10 +247,10 @@ export default function LocationPickerMap({
         }
     };
 
-    if (!isMounted || !ReactLeaflet || !L) {
+    if (!isMounted) {
         return (
-            <div className="w-full h-[340px] sm:h-[420px] md:h-[480px] rounded-2xl bg-muted/40 animate-pulse flex flex-col items-center justify-center border-2 border-dashed border-muted">
-                <div className="flex flex-col items-center gap-3 text-muted-foreground">
+            <div className="w-full h-[320px] sm:h-[400px] md:h-[460px] rounded-2xl bg-muted/40 animate-pulse flex flex-col items-center justify-center border-2 border-dashed border-muted p-4">
+                <div className="flex flex-col items-center gap-3 text-muted-foreground text-center">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     <span className="text-sm font-semibold tracking-wide">Initializing Interactive GIS Map...</span>
                 </div>
@@ -200,35 +258,10 @@ export default function LocationPickerMap({
         );
     }
 
-    const { MapContainer, TileLayer, Marker, Polygon, Polyline, Popup, useMapEvents, useMap } = ReactLeaflet;
-
-    // Custom pulse marker for property pin
-    const pinIcon = L.divIcon({
-        className: 'custom-pin-marker',
-        html: `
-            <div class="relative flex items-center justify-center">
-                <span class="absolute inline-flex h-8 w-8 animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                <div class="relative flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg ring-2 ring-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                </div>
-            </div>
-        `,
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-    });
-
-    // Custom vertex icon for polygon boundary corners
-    const vertexIcon = L.divIcon({
-        className: 'custom-boundary-vertex',
-        html: `<div style="width: 14px; height: 14px; background: #10b981; border: 2.5px solid white; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.5); cursor: grab;"></div>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
-    });
-
     // Component to handle map clicks based on mode
     function MapClickHandler() {
         useMapEvents({
-            click(e: any) {
+            click(e: L.LeafletMouseEvent) {
                 const { lat, lng } = e.latlng;
                 if (mode === 'pin') {
                     reverseGeocode(lat, lng);
@@ -240,12 +273,27 @@ export default function LocationPickerMap({
         return null;
     }
 
-    // Component to center map dynamically when coordinates change
+    // Component to center map smoothly without flying/lagging on every minor re-render
     function MapRecenter({ center }: { center: [number, number] }) {
         const map = useMap();
+        const lastPosRef = useRef<[number, number] | null>(null);
+
         useEffect(() => {
-            map.flyTo(center, Math.max(map.getZoom(), 14), { duration: 1 });
-        }, [center[0], center[1]]);
+            const [lat, lng] = center;
+            if (!lastPosRef.current) {
+                lastPosRef.current = [lat, lng];
+                return;
+            }
+            const [lastLat, lastLng] = lastPosRef.current;
+            const diffLat = Math.abs(lat - lastLat);
+            const diffLng = Math.abs(lng - lastLng);
+            // Only re-center if coordinates change significantly (e.g. from search, GPS, or manual pin pick)
+            if (diffLat > 0.0001 || diffLng > 0.0001) {
+                lastPosRef.current = [lat, lng];
+                map.setView([lat, lng], Math.max(map.getZoom(), 14), { animate: true });
+            }
+        }, [center[0], center[1], map]);
+
         return null;
     }
 
@@ -256,13 +304,13 @@ export default function LocationPickerMap({
 
     const tileAttribution =
         mapStyle === 'satellite'
-            ? 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            ? 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and GIS User Community'
             : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
     return (
         <div className="space-y-3">
             {/* Top Toolbar: Search, GPS, Layer Switcher & Full Reset */}
-            <div className="flex flex-col gap-3 rounded-xl border bg-card p-3 shadow-xs">
+            <div className="flex flex-col gap-2.5 rounded-xl border bg-card p-2.5 sm:p-3 shadow-xs">
                 {/* Search Bar */}
                 <form onSubmit={handleSearchLocation} className="flex flex-col gap-2 sm:flex-row">
                     <div className="relative flex-1">
@@ -271,11 +319,11 @@ export default function LocationPickerMap({
                             placeholder="Search city, municipality, address, or landmark in PH..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 text-xs"
+                            className="pl-9 text-xs h-9 sm:h-9"
                         />
                     </div>
-                    <div className="flex gap-2">
-                        <Button type="submit" variant="secondary" size="sm" disabled={isSearching} className="flex-1 sm:flex-initial gap-1.5 text-xs font-semibold">
+                    <div className="flex items-center gap-2">
+                        <Button type="submit" variant="secondary" size="sm" disabled={isSearching} className="flex-1 sm:flex-initial h-9 gap-1.5 text-xs font-semibold">
                             {isSearching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />}
                             Search Location
                         </Button>
@@ -285,7 +333,7 @@ export default function LocationPickerMap({
                             size="sm"
                             onClick={handleGetCurrentLocation}
                             disabled={isLocating}
-                            className="flex-1 sm:flex-initial gap-1.5 text-xs font-semibold whitespace-nowrap"
+                            className="flex-1 sm:flex-initial h-9 gap-1.5 text-xs font-semibold whitespace-nowrap"
                         >
                             {isLocating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Navigation className="h-3.5 w-3.5 text-emerald-500" />}
                             GPS Locate
@@ -294,32 +342,32 @@ export default function LocationPickerMap({
                 </form>
 
                 {/* Controls Bar: Mode Switcher, Tile Switcher, Reset */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-2 border-t">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between pt-2 border-t">
                     {/* Mode Selector */}
-                    <div className="flex items-center gap-1 bg-muted p-1 rounded-lg border w-full sm:w-auto">
+                    <div className="grid grid-cols-2 sm:flex items-center gap-1 bg-muted p-1 rounded-lg border w-full sm:w-auto">
                         <button
                             type="button"
                             onClick={() => setMode('pin')}
-                            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                            className={`flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
                                 mode === 'pin'
                                     ? 'bg-background text-foreground shadow-xs'
                                     : 'text-muted-foreground hover:text-foreground'
                             }`}
                         >
                             <Crosshair className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                            <span>📍 Pin Center</span>
+                            <span>Pin Center</span>
                         </button>
                         <button
                             type="button"
                             onClick={() => setMode('boundary')}
-                            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                            className={`flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
                                 mode === 'boundary'
                                     ? 'bg-emerald-600 text-white shadow-xs'
                                     : 'text-muted-foreground hover:text-foreground'
                             }`}
                         >
                             <PolygonIcon className="h-3.5 w-3.5" />
-                            <span>📐 Draw Boundary</span>
+                            <span>Draw Boundary</span>
                         </button>
                     </div>
 
@@ -357,7 +405,7 @@ export default function LocationPickerMap({
                             variant="destructive"
                             size="sm"
                             onClick={handleFullReset}
-                            className="h-8 px-3 text-xs gap-1.5 font-semibold shadow-xs"
+                            className="h-8 px-2.5 text-xs gap-1.5 font-semibold shadow-xs shrink-0"
                             title="Reset all map markers and boundary polygon coordinates"
                         >
                             <RefreshCw className="h-3.5 w-3.5" /> Reset Map
@@ -369,28 +417,28 @@ export default function LocationPickerMap({
             {/* Map Container */}
             <div
                 style={height ? { height } : undefined}
-                className="w-full h-[340px] sm:h-[420px] md:h-[480px] rounded-2xl overflow-hidden border-2 border-primary/20 shadow-lg relative z-10"
+                className="w-full h-[320px] sm:h-[400px] md:h-[460px] rounded-2xl overflow-hidden border-2 border-primary/20 shadow-lg relative z-10"
             >
                 <MapContainer
-                    center={[currentLat, currentLng]}
+                    center={centerTuple}
                     zoom={hasSelectedLocation ? 15 : 10}
                     scrollWheelZoom={true}
                     style={{ height: '100%', width: '100%' }}
                 >
-                    <TileLayer attribution={tileAttribution} url={tileUrl} />
+                    <TileLayer key={mapStyle} attribution={tileAttribution} url={tileUrl} />
 
                     <MapClickHandler />
-                    <MapRecenter center={[currentLat, currentLng]} />
+                    <MapRecenter center={centerTuple} />
 
                     {/* Center Property Location Pin */}
-                    {hasSelectedLocation && (
+                    {hasSelectedLocation && pinIcon && (
                         <Marker
                             position={[currentLat, currentLng]}
                             icon={pinIcon}
                             draggable={mode === 'pin'}
                             eventHandlers={{
-                                dragend(e: any) {
-                                    const marker = e.target;
+                                dragend(e: L.DragEndEvent) {
+                                    const marker = e.target as L.Marker;
                                     if (marker) {
                                         const pos = marker.getLatLng();
                                         reverseGeocode(pos.lat, pos.lng);
@@ -437,25 +485,27 @@ export default function LocationPickerMap({
                     ) : null}
 
                     {/* Draggable Vertex Markers for Boundary Corners */}
-                    {safeBoundaryCoords.map((coord, idx) => (
-                        <Marker
-                            key={`vertex-${idx}`}
-                            position={[coord.lat, coord.lng]}
-                            icon={vertexIcon}
-                            draggable={true}
-                            eventHandlers={{
-                                dragend(e: any) {
-                                    const pos = e.target.getLatLng();
-                                    handleVertexDrag(idx, pos.lat, pos.lng);
-                                },
-                                click() {
-                                    if (mode === 'boundary') {
-                                        handleRemoveVertex(idx);
-                                    }
-                                },
-                            }}
-                        />
-                    ))}
+                    {vertexIcon &&
+                        safeBoundaryCoords.map((coord, idx) => (
+                            <Marker
+                                key={`vertex-${idx}`}
+                                position={[coord.lat, coord.lng]}
+                                icon={vertexIcon}
+                                draggable={true}
+                                eventHandlers={{
+                                    dragend(e: L.DragEndEvent) {
+                                        const marker = e.target as L.Marker;
+                                        const pos = marker.getLatLng();
+                                        handleVertexDrag(idx, pos.lat, pos.lng);
+                                    },
+                                    click() {
+                                        if (mode === 'boundary') {
+                                            handleRemoveVertex(idx);
+                                        }
+                                    },
+                                }}
+                            />
+                        ))}
                 </MapContainer>
 
                 {/* Map Bottom Floating Status Overlay */}
@@ -522,3 +572,4 @@ export default function LocationPickerMap({
         </div>
     );
 }
+

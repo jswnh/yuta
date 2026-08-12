@@ -49,8 +49,16 @@ interface ImagePreview {
     caption: string;
 }
 
+interface CurrencyItem {
+    code: string;
+    name: string;
+    symbol?: string;
+    decimals?: number;
+    number?: string;
+}
+
 interface CreateListingProps {
-    draft?: Record<string, any> | null;
+    draft?: Record<string, unknown> | null;
 }
 
 export default function CreateListing({ draft }: CreateListingProps) {
@@ -61,34 +69,34 @@ export default function CreateListing({ draft }: CreateListingProps) {
 
     const { data, setData, post, processing, errors, transform } = useForm({
         seller_type: (draft?.seller_type || 'owner') as SellerType,
-        title: draft?.title || '',
-        listing_category: draft?.listing_category || '',
-        description: draft?.description || '',
-        price: draft?.price || '',
-        currency: draft?.currency || 'PHP',
-        is_negotiable: draft?.is_negotiable ?? false,
-        price_per_unit: draft?.price_per_unit || '',
-        payment_terms: (draft?.payment_terms || 'full') as 'full' | 'monthly' | 'yearly',
-        down_payment: draft?.down_payment || '',
-        installment_count: draft?.installment_count || '',
-        installment_amount: draft?.installment_amount || '',
-        area: draft?.area || '',
-        area_unit: (draft?.area_unit || 'sqm') as AreaUnit,
-        land_type: (draft?.land_type || 'raw_land') as LandType,
-        topography: (draft?.topography || 'flat') as Topography,
-        title_status: (draft?.title_status || 'clean_title') as TitleStatus,
-        parcel_number: draft?.parcel_number || '',
-        address_line: draft?.address_line || '',
-        barangay: draft?.barangay || '',
-        city_municipality: draft?.city_municipality || '',
-        province: draft?.province || '',
-        region: draft?.region || '',
-        zip_code: draft?.zip_code || '',
-        latitude: draft?.latitude || '',
-        longitude: draft?.longitude || '',
-        boundary_coordinates: (draft?.boundary_coordinates || []) as LatLngCoordinate[],
+        title: (draft?.title as string) || '',
+        listing_category: (draft?.listing_category as string) || '',
+        description: (draft?.description as string) || '',
+        price: (draft?.price as string) || '',
+        currency: (draft?.currency as string) || 'PHP',
+        is_negotiable: Boolean(draft?.is_negotiable ?? false),
+        price_per_unit: (draft?.price_per_unit as string) || '',
+        payment_terms: ((draft?.payment_terms as string) || 'full') as 'full' | 'monthly' | 'yearly',
+        down_payment: (draft?.down_payment as string) || '',
+        installment_count: (draft?.installment_count as string) || '',
+        installment_amount: (draft?.installment_amount as string) || '',
+        area: (draft?.area as string) || '',
+        area_unit: ((draft?.area_unit as string) || 'sqm') as AreaUnit,
+        land_type: ((draft?.land_type as string) || 'raw_land') as LandType,
+        topography: ((draft?.topography as string) || 'flat') as Topography,
+        title_status: ((draft?.title_status as string) || 'clean_title') as TitleStatus,
+        parcel_number: (draft?.parcel_number as string) || '',
+        address_line: (draft?.address_line as string) || '',
+        barangay: (draft?.barangay as string) || '',
+        city_municipality: (draft?.city_municipality as string) || '',
+        province: (draft?.province as string) || '',
+        region: (draft?.region as string) || '',
+        zip_code: (draft?.zip_code as string) || '',
+        latitude: (draft?.latitude as string) || '',
+        longitude: (draft?.longitude as string) || '',
+        boundary_coordinates: ((draft?.boundary_coordinates as LatLngCoordinate[]) || []) as LatLngCoordinate[],
         images: [] as File[],
-        captions: (draft?.captions || []) as string[],
+        captions: ((draft?.captions as string[]) || []) as string[],
     });
 
     // Efficient Real-Time Auto-Save (Debounced at 1.5 seconds of user inactivity)
@@ -142,28 +150,29 @@ export default function CreateListing({ draft }: CreateListingProps) {
         return () => clearTimeout(timer);
     }, [data]);
 
-    // Uniform Flat Pill Styling Helper (Responsive Mobile & Desktop)
+    // Responsive Pill Styling Helper for Mobile & Desktop
     const getFlatPillClass = (isSelected: boolean) =>
-        `inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 sm:py-2 text-sm transition-all cursor-pointer text-center whitespace-nowrap min-w-[120px] sm:min-w-0 ${
+        `inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all cursor-pointer text-center select-none min-h-[42px] sm:min-h-[38px] w-full ${
             isSelected
-                ? 'bg-primary text-primary-foreground font-semibold shadow-xs ring-1 ring-primary/40'
-                : 'border border-input bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                ? 'bg-primary text-primary-foreground font-semibold shadow-xs ring-2 ring-primary/20 scale-[1.01]'
+                : 'border border-input bg-card text-muted-foreground hover:bg-accent/60 hover:text-foreground hover:border-accent'
         }`;
 
     // List of currencies from country-data-list
-    const currencyList = useMemo(() => {
+    const currencyList = useMemo<CurrencyItem[]>(() => {
         if (!AllCurrencies || !AllCurrencies.all) return [];
-        return AllCurrencies.all
-            .filter((c: any) => c && c.code && c.name && c.code.length === 3)
-            .sort((a: any, b: any) => a.code.localeCompare(b.code));
+        return (AllCurrencies.all as CurrencyItem[])
+            .filter((c: CurrencyItem) => c && c.code && c.name && c.code.length === 3)
+            .sort((a: CurrencyItem, b: CurrencyItem) => a.code.localeCompare(b.code));
     }, []);
 
     // Currently selected currency symbol
     const selectedCurrencySymbol = useMemo(() => {
         if (!data.currency) return '₱';
+        const currenciesMap = AllCurrencies as unknown as Record<string, CurrencyItem | undefined> & { all?: CurrencyItem[] };
         const found =
-            (AllCurrencies as any)?.[data.currency] ||
-            (AllCurrencies as any)?.all?.find((c: any) => c.code === data.currency);
+            currenciesMap[data.currency] ||
+            currenciesMap.all?.find((c: CurrencyItem) => c.code === data.currency);
         return found?.symbol || data.currency;
     }, [data.currency]);
 
@@ -248,7 +257,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
     return (
         <div className="mx-auto max-w-4xl space-y-6 sm:space-y-8 p-3 sm:p-6 md:p-8">
             {/* Header section */}
-            <div className="flex flex-col gap-3 pb-3 border-b sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 pb-4 border-b sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <div className="flex items-center gap-2">
                         <Button
@@ -263,29 +272,32 @@ export default function CreateListing({ draft }: CreateListingProps) {
                             Create New Land Listing
                         </h1>
                     </div>
-                    <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+                    <p className="mt-1 text-xs sm:text-sm text-muted-foreground pl-10 sm:pl-10">
                         Fill in land specifications, legal documentation, location, pricing, GIS boundaries, and photo gallery.
                     </p>
                 </div>
 
                 {/* Minimal Real-time Auto-Save Status Icons */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 self-start sm:self-auto pl-10 sm:pl-0">
                     {autoSaveStatus === 'saving' && (
-                        <div title="Saving draft..." className="p-1 rounded-full bg-muted/40 border">
-                            <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                        <div title="Saving draft..." className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/60 border text-xs text-muted-foreground">
+                            <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                            <span className="text-[11px] sm:inline">Saving draft...</span>
                         </div>
                     )}
                     {autoSaveStatus === 'saved' && (
-                        <div title="Draft saved" className="p-1 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+                        <div title="Draft saved" className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-600 dark:text-emerald-400">
                             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                            <span className="text-[11px]">Draft saved</span>
                         </div>
                     )}
                     {autoSaveStatus === 'error' && (
-                        <div title="Auto-save failed" className="p-1 rounded-full bg-red-500/10 border border-red-500/30">
+                        <div title="Auto-save failed" className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-xs text-red-600 dark:text-red-400">
                             <AlertCircle className="h-3.5 w-3.5 text-red-500" />
+                            <span className="text-[11px]">Auto-save failed</span>
                         </div>
                     )}
-                    <Badge variant="outline" className="gap-1 text-xs py-1 px-3 w-fit hidden sm:inline-flex">
+                    <Badge variant="outline" className="gap-1 text-xs py-1 px-3 w-fit hidden md:inline-flex">
                         <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                         Land & Property System
                     </Badge>
@@ -311,7 +323,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                             <Tag className="h-5 w-5 text-primary shrink-0" />
                             <h2 className="text-lg sm:text-xl font-bold tracking-tight">1. Basic Information & Category</h2>
                         </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground pl-7">
                             Define the property title, category, seller relationship, and overview description.
                         </p>
                     </div>
@@ -327,7 +339,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                 placeholder="e.g. 5,000 sqm Prime Agricultural Farm Lot with Clean Title"
                                 value={data.title}
                                 onChange={(e) => setData('title', e.target.value)}
-                                className={errors.title ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                                className={`h-10 text-sm ${errors.title ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                             />
                             <InputError message={errors.title} />
                         </div>
@@ -343,7 +355,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                             >
                                 <SelectTrigger
                                     id="listing_category"
-                                    className={errors.listing_category ? 'border-red-500' : ''}
+                                    className={`h-10 text-sm ${errors.listing_category ? 'border-red-500' : ''}`}
                                 >
                                     <SelectValue placeholder="Select a pre-defined land category" />
                                 </SelectTrigger>
@@ -366,7 +378,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                             <Label className="font-semibold text-sm">
                                 Seller Relationship <span className="text-red-500">*</span>
                             </Label>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                                 {[
                                     { id: 'owner', label: 'Property Owner', icon: UserCheck },
                                     { id: 'agent', label: 'Real Estate Agent', icon: Building2 },
@@ -401,7 +413,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                 placeholder="Describe the land features, access to roads, water/electricity access, nearby landmarks..."
                                 value={data.description}
                                 onChange={(e) => setData('description', e.target.value)}
-                                className={errors.description ? 'border-red-500' : ''}
+                                className={`text-sm ${errors.description ? 'border-red-500' : ''}`}
                             />
                             <InputError message={errors.description} />
                         </div>
@@ -417,7 +429,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                             <Layers className="h-5 w-5 text-primary shrink-0" />
                             <h2 className="text-lg sm:text-xl font-bold tracking-tight">2. Land Characteristics & Legal Status</h2>
                         </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground pl-7">
                             Specify physical land classification, size, topography, and title status.
                         </p>
                     </div>
@@ -428,7 +440,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                             <Label className="font-semibold text-sm">
                                 Land Type Classification <span className="text-red-500">*</span>
                             </Label>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
                                 {[
                                     { id: 'residential', label: 'Residential' },
                                     { id: 'agricultural', label: 'Agricultural' },
@@ -459,7 +471,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                     Total Land Area <span className="text-red-500">*</span>
                                 </Label>
                                 <div className="relative">
-                                    <Maximize2 className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Maximize2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         id="area"
                                         type="number"
@@ -468,7 +480,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                         placeholder="e.g. 5000"
                                         value={data.area}
                                         onChange={(e) => setData('area', e.target.value)}
-                                        className={`pl-9 ${errors.area ? 'border-red-500' : ''}`}
+                                        className={`pl-9 h-10 text-sm ${errors.area ? 'border-red-500' : ''}`}
                                     />
                                 </div>
                                 <InputError message={errors.area} />
@@ -482,7 +494,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                     value={data.area_unit}
                                     onValueChange={(val) => setData('area_unit', val as AreaUnit)}
                                 >
-                                    <SelectTrigger id="area_unit" className={errors.area_unit ? 'border-red-500' : ''}>
+                                    <SelectTrigger id="area_unit" className={`h-10 text-sm ${errors.area_unit ? 'border-red-500' : ''}`}>
                                         <SelectValue placeholder="Select unit" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -500,10 +512,10 @@ export default function CreateListing({ draft }: CreateListingProps) {
                             <Label className="font-semibold text-sm flex items-center gap-1.5">
                                 <Mountain className="h-4 w-4 text-muted-foreground shrink-0" /> Topography
                             </Label>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                                 {[
                                     { id: 'flat', label: 'Flat / Level' },
-                                    { id: 'sloped', label: 'Sloped / Gently Rolling' },
+                                    { id: 'sloped', label: 'Sloped / Rolling' },
                                     { id: 'hilly', label: 'Hilly Terrain' },
                                     { id: 'mountainous', label: 'Mountainous' },
                                 ].map((topo) => {
@@ -534,7 +546,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                     value={data.title_status}
                                     onValueChange={(val) => setData('title_status', val as TitleStatus)}
                                 >
-                                    <SelectTrigger className={errors.title_status ? 'border-red-500' : ''}>
+                                    <SelectTrigger className={`h-10 text-sm ${errors.title_status ? 'border-red-500' : ''}`}>
                                         <SelectValue placeholder="Select title status" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -556,7 +568,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                     placeholder="e.g. TCT No. 123-45678"
                                     value={data.parcel_number}
                                     onChange={(e) => setData('parcel_number', e.target.value)}
-                                    className={errors.parcel_number ? 'border-red-500' : ''}
+                                    className={`h-10 text-sm ${errors.parcel_number ? 'border-red-500' : ''}`}
                                 />
                                 <InputError message={errors.parcel_number} />
                             </div>
@@ -573,7 +585,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                             <MapPin className="h-5 w-5 text-primary shrink-0" />
                             <h2 className="text-lg sm:text-xl font-bold tracking-tight">3. Location Details & GIS Map Boundaries</h2>
                         </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground pl-7">
                             Pin the center property location, switch map views (street / satellite), and draw boundary shapes on the map.
                         </p>
                     </div>
@@ -581,7 +593,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                     <div className="space-y-5 sm:space-y-6 pt-1">
                         {/* Interactive React Leaflet Map Input & Boundary Polygon Drawer */}
                         <div className="space-y-2">
-                            <Label className="font-semibold text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                            <Label className="font-semibold text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5">
                                 <span className="flex items-center gap-1.5">
                                     <MapPin className="h-4 w-4 text-emerald-600 shrink-0" /> Interactive GIS Location & Perimeter Map
                                 </span>
@@ -627,12 +639,12 @@ export default function CreateListing({ draft }: CreateListingProps) {
 
                             {/* Coordinates Information Display */}
                             {data.latitude && data.longitude ? (
-                                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-300 mt-2">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl border bg-emerald-500/10 px-3.5 py-2.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 mt-2">
                                     <span className="flex items-center gap-1.5 font-mono">
                                         <Compass className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
                                         <span>Pinned Center GPS: <strong>{data.latitude}</strong>, <strong>{data.longitude}</strong></span>
                                     </span>
-                                    <Badge variant="outline" className="bg-background text-[10px] text-emerald-600 border-emerald-500/30">
+                                    <Badge variant="outline" className="bg-background text-[10px] text-emerald-600 border-emerald-500/30 w-fit">
                                         Auto-Pinned from Map
                                     </Badge>
                                 </div>
@@ -659,7 +671,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                     placeholder="e.g. Cavite, Batangas, Cebu"
                                     value={data.province}
                                     onChange={(e) => setData('province', e.target.value)}
-                                    className={errors.province ? 'border-red-500' : ''}
+                                    className={`h-10 text-sm ${errors.province ? 'border-red-500' : ''}`}
                                 />
                                 <InputError message={errors.province} />
                             </div>
@@ -674,7 +686,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                     placeholder="e.g. Tagaytay City"
                                     value={data.city_municipality}
                                     onChange={(e) => setData('city_municipality', e.target.value)}
-                                    className={errors.city_municipality ? 'border-red-500' : ''}
+                                    className={`h-10 text-sm ${errors.city_municipality ? 'border-red-500' : ''}`}
                                 />
                                 <InputError message={errors.city_municipality} />
                             </div>
@@ -691,7 +703,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                     placeholder="e.g. Brgy. Sungay East"
                                     value={data.barangay}
                                     onChange={(e) => setData('barangay', e.target.value)}
-                                    className={errors.barangay ? 'border-red-500' : ''}
+                                    className={`h-10 text-sm ${errors.barangay ? 'border-red-500' : ''}`}
                                 />
                                 <InputError message={errors.barangay} />
                             </div>
@@ -706,7 +718,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                     placeholder="e.g. 4120"
                                     value={data.zip_code}
                                     onChange={(e) => setData('zip_code', e.target.value)}
-                                    className={errors.zip_code ? 'border-red-500' : ''}
+                                    className={`h-10 text-sm ${errors.zip_code ? 'border-red-500' : ''}`}
                                 />
                                 <InputError message={errors.zip_code} />
                             </div>
@@ -722,7 +734,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                 placeholder="e.g. Santa Rosa - Tagaytay Road near Caleruega"
                                 value={data.address_line}
                                 onChange={(e) => setData('address_line', e.target.value)}
-                                className={errors.address_line ? 'border-red-500' : ''}
+                                className={`h-10 text-sm ${errors.address_line ? 'border-red-500' : ''}`}
                             />
                             <InputError message={errors.address_line} />
                         </div>
@@ -738,7 +750,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                             <Coins className="h-5 w-5 text-primary shrink-0" />
                             <h2 className="text-lg sm:text-xl font-bold tracking-tight">4. Pricing & Payment Terms</h2>
                         </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground pl-7">
                             Set the selling price, currency, payment options, and installment arrangements.
                         </p>
                     </div>
@@ -762,7 +774,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                         placeholder="e.g. 15000000"
                                         value={data.price}
                                         onChange={(e) => setData('price', e.target.value)}
-                                        className={`pl-8 ${errors.price ? 'border-red-500' : ''}`}
+                                        className={`pl-8 h-10 text-sm ${errors.price ? 'border-red-500' : ''}`}
                                     />
                                 </div>
                                 <InputError message={errors.price} />
@@ -777,11 +789,11 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                     value={data.currency}
                                     onValueChange={(val) => setData('currency', val)}
                                 >
-                                    <SelectTrigger id="currency" className={errors.currency ? 'border-red-500' : ''}>
+                                    <SelectTrigger id="currency" className={`h-10 text-sm ${errors.currency ? 'border-red-500' : ''}`}>
                                         <SelectValue placeholder="Select currency" />
                                     </SelectTrigger>
                                     <SelectContent className="max-h-60 overflow-y-auto">
-                                        {currencyList.map((curr: any) => (
+                                        {currencyList.map((curr: CurrencyItem) => (
                                             <SelectItem key={curr.code} value={curr.code}>
                                                 {curr.code} - {curr.name} ({curr.symbol || curr.code})
                                             </SelectItem>
@@ -793,7 +805,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                         </div>
 
                         {/* Price per unit preview / override */}
-                        <div className="flex flex-col gap-3 rounded-lg border bg-muted/20 p-3.5 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex flex-col gap-3 rounded-xl border bg-muted/30 p-3.5 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
                                 <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
                                 <span className="font-medium">Estimated Price per Unit:</span>
@@ -820,7 +832,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                             <Label className="font-semibold text-sm">
                                 Payment Terms <span className="text-red-500">*</span>
                             </Label>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                                 {[
                                     { id: 'full', label: 'Full Cash Payment' },
                                     { id: 'monthly', label: 'Monthly Installment' },
@@ -865,7 +877,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                                 placeholder="e.g. 3000000"
                                                 value={data.down_payment}
                                                 onChange={(e) => setData('down_payment', e.target.value)}
-                                                className={`pl-8 ${errors.down_payment ? 'border-red-500' : ''}`}
+                                                className={`pl-8 h-10 text-sm ${errors.down_payment ? 'border-red-500' : ''}`}
                                             />
                                         </div>
                                         <InputError message={errors.down_payment} />
@@ -883,7 +895,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                             placeholder={data.payment_terms === 'monthly' ? 'e.g. 24' : 'e.g. 5'}
                                             value={data.installment_count}
                                             onChange={(e) => setData('installment_count', e.target.value)}
-                                            className={errors.installment_count ? 'border-red-500' : ''}
+                                            className={`h-10 text-sm ${errors.installment_count ? 'border-red-500' : ''}`}
                                         />
                                         <InputError message={errors.installment_count} />
                                     </div>
@@ -904,7 +916,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                                 placeholder="e.g. 50000"
                                                 value={data.installment_amount}
                                                 onChange={(e) => setData('installment_amount', e.target.value)}
-                                                className={`pl-8 ${errors.installment_amount ? 'border-red-500' : ''}`}
+                                                className={`pl-8 h-10 text-sm ${errors.installment_amount ? 'border-red-500' : ''}`}
                                             />
                                         </div>
                                         <InputError message={errors.installment_amount} />
@@ -924,13 +936,13 @@ export default function CreateListing({ draft }: CreateListingProps) {
                             <UploadCloud className="h-5 w-5 text-primary shrink-0" />
                             <h2 className="text-lg sm:text-xl font-bold tracking-tight">5. Property Photos & Captions</h2>
                         </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground pl-7">
                             Upload high-resolution land photos, aerial drone views, or boundary blueprints. Add a caption for each photo. (Max 10 photos)
                         </p>
                     </div>
 
                     <div className="space-y-5 sm:space-y-6 pt-1">
-                        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-muted-foreground/30 p-6 sm:p-8 text-center hover:border-primary/50 transition-colors">
+                        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-muted-foreground/30 p-5 sm:p-8 text-center hover:border-primary/50 transition-colors bg-muted/10">
                             <Camera className="h-8 sm:h-10 w-8 sm:w-10 text-muted-foreground mb-2" />
                             <p className="text-xs sm:text-sm font-semibold">Click to upload property images</p>
                             <p className="text-[11px] sm:text-xs text-muted-foreground mt-1">PNG, JPG, JPEG, WEBP up to 5MB each. Direct cloud bucket storage.</p>
@@ -944,7 +956,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                             />
                             <Label
                                 htmlFor="image-upload"
-                                className="mt-4 cursor-pointer inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-xs sm:text-sm font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 w-full sm:w-auto"
+                                className="mt-4 cursor-pointer inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs sm:text-sm font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 w-full sm:w-auto min-h-[40px]"
                             >
                                 <UploadCloud className="h-4 w-4" /> Select Files
                             </Label>
@@ -957,16 +969,16 @@ export default function CreateListing({ draft }: CreateListingProps) {
                         {/* Image Previews & Captions List */}
                         {imagePreviews.length > 0 && (
                             <div className="space-y-4">
-                                <Label className="text-xs font-semibold uppercase text-muted-foreground">
+                                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                     Uploaded Photos & Captions ({imagePreviews.length} / 10)
                                 </Label>
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                     {imagePreviews.map((preview, index) => (
                                         <div
                                             key={index}
-                                            className="flex flex-col gap-3 rounded-lg border p-3 bg-card shadow-xs"
+                                            className="flex flex-col gap-3 rounded-xl border p-3 bg-card shadow-xs"
                                         >
-                                            <div className="relative aspect-video overflow-hidden rounded-md bg-muted">
+                                            <div className="relative aspect-video overflow-hidden rounded-lg bg-muted">
                                                 <img
                                                     src={preview.url}
                                                     alt={`Photo ${index + 1}`}
@@ -999,7 +1011,7 @@ export default function CreateListing({ draft }: CreateListingProps) {
                                                     placeholder="e.g. Front elevation view, Drone boundary outline..."
                                                     value={preview.caption}
                                                     onChange={(e) => handleCaptionChange(index, e.target.value)}
-                                                    className="text-xs h-8"
+                                                    className="text-xs h-9 sm:h-8"
                                                 />
                                             </div>
                                         </div>
@@ -1019,14 +1031,14 @@ export default function CreateListing({ draft }: CreateListingProps) {
                         variant="outline"
                         disabled={processing}
                         onClick={() => router.get(listings.index.url())}
-                        className="w-full sm:w-auto text-sm"
+                        className="w-full sm:w-auto text-sm min-h-[42px] sm:min-h-[38px] rounded-xl"
                     >
                         Cancel
                     </Button>
                     <Button
                         type="submit"
                         disabled={processing}
-                        className="w-full sm:w-auto gap-2 px-6 font-semibold text-sm"
+                        className="w-full sm:w-auto gap-2 px-6 font-semibold text-sm min-h-[42px] sm:min-h-[38px] rounded-xl"
                     >
                         {processing ? (
                             <>
