@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('listing_images', function (Blueprint $table) {
             $table->uuid('image_id')->primary();
-            
+
             $table->foreignUuid('listing_id')->constrained('listings', 'listing_id')->cascadeOnDelete();
 
             $table->string('file_path');

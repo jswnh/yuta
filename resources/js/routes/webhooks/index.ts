@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\XenditWebhookController::xendit
- * @see app/Http/Controllers/XenditWebhookController.php:16
+ * @see app/Http/Controllers/XenditWebhookController.php:17
  * @route '/webhooks/xendit'
  */
 export const xendit = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ xendit.definition = {
 
 /**
 * @see \App\Http\Controllers\XenditWebhookController::xendit
- * @see app/Http/Controllers/XenditWebhookController.php:16
+ * @see app/Http/Controllers/XenditWebhookController.php:17
  * @route '/webhooks/xendit'
  */
 xendit.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ xendit.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\XenditWebhookController::xendit
- * @see app/Http/Controllers/XenditWebhookController.php:16
+ * @see app/Http/Controllers/XenditWebhookController.php:17
  * @route '/webhooks/xendit'
  */
 xendit.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ xendit.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\XenditWebhookController::xendit
- * @see app/Http/Controllers/XenditWebhookController.php:16
+ * @see app/Http/Controllers/XenditWebhookController.php:17
  * @route '/webhooks/xendit'
  */
     const xenditForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ xendit.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\XenditWebhookController::xendit
- * @see app/Http/Controllers/XenditWebhookController.php:16
+ * @see app/Http/Controllers/XenditWebhookController.php:17
  * @route '/webhooks/xendit'
  */
         xenditForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

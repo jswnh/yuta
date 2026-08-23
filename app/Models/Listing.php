@@ -51,6 +51,7 @@ class Listing extends Model
         'boundary_coordinates',
         'status',
         'is_featured',
+        'is_pinned',
         'view_count',
         'published_at',
         'sold_at',
@@ -62,6 +63,7 @@ class Listing extends Model
             'is_negotiable' => 'boolean',
             'is_verified' => 'boolean',
             'is_featured' => 'boolean',
+            'is_pinned' => 'boolean',
             'price' => 'decimal:2',
             'price_per_unit' => 'decimal:2',
             'down_payment' => 'decimal:2',
@@ -86,5 +88,25 @@ class Listing extends Model
     {
         return $this->hasMany(ListingImage::class, 'listing_id', 'listing_id')
             ->orderBy('sort_order', 'asc');
+    }
+
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(ListingFavorite::class, 'listing_id', 'listing_id');
+    }
+
+    public function agreements(): HasMany
+    {
+        return $this->hasMany(Agreement::class, 'listing_id', 'listing_id');
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'listing_id', 'listing_id');
+    }
+
+    public function conversations(): HasMany
+    {
+        return $this->hasMany(Conversation::class, 'listing_id', 'listing_id');
     }
 }

@@ -49,6 +49,39 @@ export function UserMenuContent({ user }: Props) {
                 <DropdownMenuItem asChild>
                     <Link
                         className="block w-full cursor-pointer"
+                        href="/agreements"
+                        prefetch
+                        onClick={cleanup}
+                    >
+                        <Settings className="mr-2 h-4 w-4" />
+                        My Agreements
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link
+                        className="block w-full cursor-pointer"
+                        href="/transactions"
+                        prefetch
+                        onClick={cleanup}
+                    >
+                        <Settings className="mr-2 h-4 w-4" />
+                        My Transactions
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link
+                        className="block w-full cursor-pointer"
+                        href="/favorites"
+                        prefetch
+                        onClick={cleanup}
+                    >
+                        <Settings className="mr-2 h-4 w-4" />
+                        Saved Listings
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link
+                        className="block w-full cursor-pointer"
                         href={edit()}
                         prefetch
                         onClick={cleanup}

@@ -10,11 +10,11 @@ use Illuminate\Support\Str;
 
 class ListingController extends Controller
 {
-    public function create(CreateListingRequest $request): RedirectResponse 
+    public function create(CreateListingRequest $request): RedirectResponse
     {
         $validated = $request->validated();
 
-        $uniqueSlug = Str::slug($validated['title']) . '-' . Str::random(6);
+        $uniqueSlug = Str::slug($validated['title']).'-'.Str::random(6);
 
         Listing::create([
             'seller_id' => $request->user()->user_id,

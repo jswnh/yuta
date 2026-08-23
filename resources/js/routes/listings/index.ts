@@ -1,5 +1,181 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
+* @see \App\Http\Controllers\ListingDetailController::show
+ * @see app/Http/Controllers/ListingDetailController.php:13
+ * @route '/properties/{slug}'
+ */
+export const show = (args: { slug: string | number } | [slug: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: show.url(args, options),
+    method: 'get',
+})
+
+show.definition = {
+    methods: ["get","head"],
+    url: '/properties/{slug}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\ListingDetailController::show
+ * @see app/Http/Controllers/ListingDetailController.php:13
+ * @route '/properties/{slug}'
+ */
+show.url = (args: { slug: string | number } | [slug: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { slug: args }
+    }
+
+    
+    if (Array.isArray(args)) {
+        args = {
+                    slug: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        slug: args.slug,
+                }
+
+    return show.definition.url
+            .replace('{slug}', parsedArgs.slug.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\ListingDetailController::show
+ * @see app/Http/Controllers/ListingDetailController.php:13
+ * @route '/properties/{slug}'
+ */
+show.get = (args: { slug: string | number } | [slug: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: show.url(args, options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\ListingDetailController::show
+ * @see app/Http/Controllers/ListingDetailController.php:13
+ * @route '/properties/{slug}'
+ */
+show.head = (args: { slug: string | number } | [slug: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: show.url(args, options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\ListingDetailController::show
+ * @see app/Http/Controllers/ListingDetailController.php:13
+ * @route '/properties/{slug}'
+ */
+    const showForm = (args: { slug: string | number } | [slug: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: show.url(args, options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\ListingDetailController::show
+ * @see app/Http/Controllers/ListingDetailController.php:13
+ * @route '/properties/{slug}'
+ */
+        showForm.get = (args: { slug: string | number } | [slug: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: show.url(args, options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\ListingDetailController::show
+ * @see app/Http/Controllers/ListingDetailController.php:13
+ * @route '/properties/{slug}'
+ */
+        showForm.head = (args: { slug: string | number } | [slug: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: show.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    show.form = showForm
+/**
+* @see \App\Http\Controllers\ListingFavoriteController::favorite
+ * @see app/Http/Controllers/ListingFavoriteController.php:37
+ * @route '/properties/{listing}/favorite'
+ */
+export const favorite = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: favorite.url(args, options),
+    method: 'post',
+})
+
+favorite.definition = {
+    methods: ["post"],
+    url: '/properties/{listing}/favorite',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\ListingFavoriteController::favorite
+ * @see app/Http/Controllers/ListingFavoriteController.php:37
+ * @route '/properties/{listing}/favorite'
+ */
+favorite.url = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { listing: args }
+    }
+
+            if (typeof args === 'object' && !Array.isArray(args) && 'listing_id' in args) {
+            args = { listing: args.listing_id }
+        }
+    
+    if (Array.isArray(args)) {
+        args = {
+                    listing: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        listing: typeof args.listing === 'object'
+                ? args.listing.listing_id
+                : args.listing,
+                }
+
+    return favorite.definition.url
+            .replace('{listing}', parsedArgs.listing.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\ListingFavoriteController::favorite
+ * @see app/Http/Controllers/ListingFavoriteController.php:37
+ * @route '/properties/{listing}/favorite'
+ */
+favorite.post = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: favorite.url(args, options),
+    method: 'post',
+})
+
+    /**
+* @see \App\Http\Controllers\ListingFavoriteController::favorite
+ * @see app/Http/Controllers/ListingFavoriteController.php:37
+ * @route '/properties/{listing}/favorite'
+ */
+    const favoriteForm = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: favorite.url(args, options),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\ListingFavoriteController::favorite
+ * @see app/Http/Controllers/ListingFavoriteController.php:37
+ * @route '/properties/{listing}/favorite'
+ */
+        favoriteForm.post = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: favorite.url(args, options),
+            method: 'post',
+        })
+    
+    favorite.form = favoriteForm
+/**
 * @see \App\Http\Controllers\ListingController::index
  * @see app/Http/Controllers/ListingController.php:23
  * @route '/listings'
@@ -447,7 +623,9 @@ update.post = (args: { listing: string | { listing_id: string } } | [listing: st
     
     update.form = updateForm
 const listings = {
-    index: Object.assign(index, index),
+    show: Object.assign(show, show),
+favorite: Object.assign(favorite, favorite),
+index: Object.assign(index, index),
 new: Object.assign(newMethod, newMethod),
 draft: Object.assign(draft, draft),
 store: Object.assign(store, store),
