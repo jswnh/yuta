@@ -86,10 +86,16 @@ class ListingController extends Controller
                 $validated['currency'] = 'PHP';
             }
 
+            // If this is the first listing or only listing, auto-pin and feature it
+            $isFirstListing = Listing::count() === 0;
+
             $listing = Listing::create([
                 'seller_id' => $request->user()->user_id,
                 'slug' => $uniqueSlug,
-                'status' => 'pending_review',
+                'status' => 'active',
+                'published_at' => now(),
+                'is_pinned' => $isFirstListing,
+                'is_featured' => $isFirstListing,
                 ...$validated,
             ]);
 

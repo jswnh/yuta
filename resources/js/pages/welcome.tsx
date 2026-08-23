@@ -92,51 +92,51 @@ export default function Welcome({
     });
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-slate-950 font-sans antialiased overflow-x-hidden">
-            <Head title="Yuta — Philippine Land & Property Marketplace">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-emerald-500 selection:text-white font-sans antialiased overflow-x-hidden">
+            <Head title="Philippine Land & Property Marketplace">
                 <link rel="preconnect" href="https://fonts.bunny.net" />
                 <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
             </Head>
 
             {/* TOP NAVIGATION BAR */}
-            <header className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/85 border-b border-slate-800/80">
+            <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/85 dark:bg-slate-950/85 border-b border-slate-200 dark:border-slate-800/80">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                         <Link href="/" className="flex items-center gap-2.5 group">
-                            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-                                <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
-                                    <AppLogoIcon className="w-5 h-5 text-emerald-400" />
+                            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+                                <div className="w-full h-full bg-white dark:bg-slate-950 rounded-[14px] flex items-center justify-center">
+                                    <AppLogoIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                                 </div>
                             </div>
-                            <span className="text-2xl font-black tracking-tight text-white group-hover:text-emerald-400 transition-colors">
-                                Yuta<span className="text-emerald-400">.</span>
+                            <span className="text-2xl font-black tracking-tight text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                Yuta<span className="text-emerald-500">.</span>
                             </span>
                         </Link>
-                        <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
                             Land & Property Marketplace
                         </span>
                     </div>
 
-                    <nav className="hidden md:flex items-center gap-1 bg-slate-900/60 p-1.5 rounded-full border border-slate-800">
+                    <nav className="hidden md:flex items-center gap-1 bg-slate-100 dark:bg-slate-900/60 p-1.5 rounded-full border border-slate-200 dark:border-slate-800">
                         <Link
                             href="/marketplace"
-                            className="px-4 py-2 rounded-full text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all flex items-center gap-1.5"
+                            className="px-4 py-2 rounded-full text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800/80 transition-all flex items-center gap-1.5"
                         >
-                            <Store className="w-3.5 h-3.5 text-emerald-400" />
+                            <Store className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                             Browse Marketplace
                         </Link>
                         <a
                             href="#featured"
-                            className="px-4 py-2 rounded-full text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all flex items-center gap-1.5"
+                            className="px-4 py-2 rounded-full text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800/80 transition-all flex items-center gap-1.5"
                         >
-                            <Flame className="w-3.5 h-3.5 text-amber-400" />
+                            <Flame className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                             Featured Lots
                         </a>
                         <Link
                             href="/billing"
-                            className="px-4 py-2 rounded-full text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all flex items-center gap-1.5"
+                            className="px-4 py-2 rounded-full text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800/80 transition-all flex items-center gap-1.5"
                         >
-                            <CreditCard className="w-3.5 h-3.5 text-teal-400" />
+                            <CreditCard className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                             Seller Membership
                         </Link>
                     </nav>
@@ -147,7 +147,7 @@ export default function Welcome({
                                 {auth.user.is_seller ? (
                                     <Link
                                         href="/dashboard"
-                                        className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all"
+                                        className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all"
                                     >
                                         <Layers className="w-3.5 h-3.5" />
                                         Seller Dashboard
@@ -155,7 +155,7 @@ export default function Welcome({
                                 ) : (
                                     <button
                                         onClick={handleBecomeSeller}
-                                        className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+                                        className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
                                     >
                                         <Plus className="w-3.5 h-3.5" />
                                         Become a Seller
@@ -164,10 +164,10 @@ export default function Welcome({
 
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <button className="flex items-center gap-2 p-1 rounded-full bg-slate-900 border border-slate-800 hover:border-slate-700 cursor-pointer">
+                                        <button className="flex items-center gap-2 p-1 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer">
                                             <Avatar className="w-8 h-8 rounded-full">
                                                 <AvatarImage src={auth.user.avatar} alt={auth.user.name} />
-                                                <AvatarFallback className="bg-emerald-950 text-emerald-400 font-bold text-xs">
+                                                <AvatarFallback className="bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 font-bold text-xs">
                                                     {getInitials(auth.user.name ?? '')}
                                                 </AvatarFallback>
                                             </Avatar>
@@ -182,13 +182,13 @@ export default function Welcome({
                             <div className="flex items-center gap-2">
                                 <Link
                                     href="/login"
-                                    className="px-4 py-2 rounded-full text-xs font-semibold text-slate-300 hover:text-white transition-colors"
+                                    className="px-4 py-2 rounded-full text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
                                 >
                                     Log In
                                 </Link>
                                 <Link
                                     href="/register"
-                                    className="px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all"
+                                    className="px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all"
                                 >
                                     Get Started
                                 </Link>
@@ -197,7 +197,7 @@ export default function Welcome({
 
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white cursor-pointer"
+                            className="md:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer"
                         >
                             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                         </button>
@@ -205,17 +205,17 @@ export default function Welcome({
                 </div>
 
                 {mobileMenuOpen && (
-                    <div className="md:hidden px-4 pt-2 pb-6 bg-slate-950/95 border-b border-slate-800 space-y-3">
+                    <div className="md:hidden px-4 pt-2 pb-6 bg-white/95 dark:bg-slate-950/95 border-b border-slate-200 dark:border-slate-800 space-y-3">
                         <Link
                             href="/marketplace"
-                            className="block px-4 py-2.5 rounded-xl bg-slate-900 text-sm font-semibold text-white"
+                            className="block px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-sm font-semibold text-slate-900 dark:text-white"
                             onClick={() => setMobileMenuOpen(false)}
                         >
                             Browse Marketplace
                         </Link>
                         <Link
                             href="/billing"
-                            className="block px-4 py-2.5 rounded-xl bg-slate-900 text-sm font-semibold text-slate-300"
+                            className="block px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-300"
                             onClick={() => setMobileMenuOpen(false)}
                         >
                             Seller Membership (₱500/mo)
@@ -226,23 +226,23 @@ export default function Welcome({
 
             {/* HERO SECTION */}
             <section className="relative pt-12 pb-20 md:pt-20 md:pb-32 overflow-hidden">
-                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-emerald-500/15 rounded-full blur-[140px] pointer-events-none" />
+                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="text-center max-w-3xl mx-auto space-y-6">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 text-xs font-semibold backdrop-blur-md">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-semibold backdrop-blur-md">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                             <span>Philippines Premier Land & Property Marketplace</span>
                         </div>
 
-                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-white leading-tight">
+                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
                             Discover, Negotiate, & Transact{' '}
-                            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
+                            <span className="bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-600 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-400 bg-clip-text text-transparent">
                                 Verified Land & Lots
                             </span>
                         </h1>
 
-                        <p className="text-slate-400 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
+                        <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
                             The transparent land marketplace with interactive GIS boundary mapping, automated deal agreements, and verified Philippine land titles.
                         </p>
 
@@ -250,10 +250,10 @@ export default function Welcome({
                         <div className="pt-4 max-w-2xl mx-auto">
                             <form
                                 onSubmit={handleSearchSubmit}
-                                className="relative rounded-3xl bg-slate-900/90 border border-slate-800 p-2 sm:p-2.5 shadow-2xl backdrop-blur-2xl transition-all focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20"
+                                className="relative rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-2 sm:p-2.5 shadow-xl backdrop-blur-2xl transition-all focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20"
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="pl-3 text-emerald-400 shrink-0">
+                                    <div className="pl-3 text-emerald-600 dark:text-emerald-400 shrink-0">
                                         <Search className="w-5 h-5" />
                                     </div>
                                     <input
@@ -261,11 +261,11 @@ export default function Welcome({
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         placeholder="Search by city, province, or keywords (e.g. Cavite, Batangas farm, Cebu)..."
-                                        className="w-full bg-transparent border-0 text-white placeholder-slate-500 text-xs sm:text-sm focus:ring-0 focus:outline-none py-2"
+                                        className="w-full bg-transparent border-0 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs sm:text-sm focus:ring-0 focus:outline-none py-2"
                                     />
                                     <button
                                         type="submit"
-                                        className="px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm shadow-md transition-all shrink-0 flex items-center gap-2 cursor-pointer"
+                                        className="px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all shrink-0 flex items-center gap-2 cursor-pointer"
                                     >
                                         Search
                                     </button>
@@ -276,40 +276,40 @@ export default function Welcome({
 
                     {/* LIVE HUD STATS */}
                     <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
-                        <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-xl">
-                            <span className="text-slate-400 text-xs font-semibold block mb-1">Active Listings</span>
+                        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 shadow-sm backdrop-blur-xl">
+                            <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold block mb-1">Active Listings</span>
                             <div className="flex items-baseline gap-2">
-                                <span className="text-2xl sm:text-3xl font-black text-white">
+                                <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
                                     {analytics.active_listings_count.toLocaleString()}
                                 </span>
-                                <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Live</span>
+                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">Live</span>
                             </div>
                         </div>
 
-                        <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-xl">
-                            <span className="text-slate-400 text-xs font-semibold block mb-1">Verified Sellers</span>
+                        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 shadow-sm backdrop-blur-xl">
+                            <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold block mb-1">Verified Sellers</span>
                             <div className="flex items-baseline gap-2">
-                                <span className="text-2xl sm:text-3xl font-black text-emerald-400">
+                                <span className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">
                                     {analytics.verified_sellers_count.toLocaleString()}
                                 </span>
-                                <span className="text-[10px] text-slate-400 font-bold">Legit</span>
+                                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">Legit</span>
                             </div>
                         </div>
 
-                        <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-xl">
-                            <span className="text-slate-400 text-xs font-semibold block mb-1">Completed Deals</span>
+                        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 shadow-sm backdrop-blur-xl">
+                            <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold block mb-1">Completed Deals</span>
                             <div className="flex items-baseline gap-2">
-                                <span className="text-2xl sm:text-3xl font-black text-teal-400">
+                                <span className="text-2xl sm:text-3xl font-black text-teal-600 dark:text-teal-400">
                                     {analytics.completed_transactions_count.toLocaleString()}
                                 </span>
-                                <span className="text-[10px] text-slate-400 font-bold">Closed</span>
+                                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">Closed</span>
                             </div>
                         </div>
 
-                        <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-xl">
-                            <span className="text-slate-400 text-xs font-semibold block mb-1">Total Deal Value</span>
+                        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 shadow-sm backdrop-blur-xl">
+                            <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold block mb-1">Total Deal Value</span>
                             <div className="flex items-baseline gap-2">
-                                <span className="text-2xl sm:text-3xl font-black text-cyan-400">
+                                <span className="text-2xl sm:text-3xl font-black text-cyan-600 dark:text-cyan-400">
                                     ₱{analytics.total_transaction_value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                 </span>
                             </div>
@@ -319,25 +319,25 @@ export default function Welcome({
             </section>
 
             {/* FEATURED PROPERTIES */}
-            <section id="featured" className="py-16 bg-slate-900/40 border-y border-slate-800/60">
+            <section id="featured" className="py-16 bg-slate-100/60 dark:bg-slate-900/40 border-y border-slate-200 dark:border-slate-800/60">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
                         <div>
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-bold uppercase tracking-wider mb-2">
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-bold uppercase tracking-wider mb-2">
                                 <Flame className="w-3.5 h-3.5" />
                                 Top Spotlight
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-black text-white">
+                            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
                                 Featured Land & Property
                             </h2>
-                            <p className="text-slate-400 text-sm mt-1">
+                            <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
                                 Priority algorithm: verified pins, views, and engagement.
                             </p>
                         </div>
 
                         <Link
                             href="/marketplace"
-                            className="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 hover:text-emerald-300 group"
+                            className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 group"
                         >
                             <span>View All Marketplace Listings</span>
                             <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -345,22 +345,29 @@ export default function Welcome({
                     </div>
 
                     {primaryFeatured ? (
-                        <div className="mb-10 rounded-3xl bg-slate-900 border border-slate-800 overflow-hidden shadow-2xl grid lg:grid-cols-12 gap-0 group">
-                            <div className="lg:col-span-7 relative h-72 lg:h-auto min-h-[340px] bg-slate-950 overflow-hidden">
+                        <div className="mb-10 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl grid lg:grid-cols-12 gap-0 group">
+                            <div className="lg:col-span-7 relative h-72 lg:h-auto min-h-[340px] bg-slate-100 dark:bg-slate-950 overflow-hidden">
                                 <img
-                                    src={primaryFeatured.images?.[0]?.file_path || '/images/aerial_land_plot.jpg'}
+                                    src={
+                                        primaryFeatured.images?.[0]?.url || 
+                                        (primaryFeatured.images?.[0]?.file_path?.startsWith('http') || primaryFeatured.images?.[0]?.file_path?.startsWith('/') 
+                                            ? primaryFeatured.images?.[0]?.file_path 
+                                            : primaryFeatured.images?.[0]?.file_path 
+                                                ? `https://pub-19475a64b9ef47b78593af8d0414d4be.r2.dev/${primaryFeatured.images?.[0]?.file_path}`
+                                                : '/images/aerial_land_plot.jpg')
+                                    }
                                     alt={primaryFeatured.title}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
                                 <div className="absolute top-4 left-4 flex items-center gap-2">
-                                    {primaryFeatured.is_pinned && (
+                                    {(primaryFeatured.is_pinned || allDisplayListings.length === 1) && (
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 text-slate-950 text-xs font-black shadow-lg">
                                             <Pin className="w-3.5 h-3.5 fill-slate-950" />
                                             Primary Featured
                                         </span>
                                     )}
-                                    <span className="px-3 py-1.5 rounded-full bg-slate-950/80 text-white text-xs font-bold uppercase backdrop-blur-md border border-white/10">
+                                    <span className="px-3 py-1.5 rounded-full bg-slate-900/80 text-white text-xs font-bold uppercase backdrop-blur-md border border-white/10">
                                         {primaryFeatured.land_type?.replace('_', ' ')}
                                     </span>
                                 </div>
@@ -368,33 +375,33 @@ export default function Welcome({
 
                             <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-6">
                                 <div>
-                                    <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">
-                                        <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2">
+                                        <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                                         <span>{primaryFeatured.city_municipality}, {primaryFeatured.province}</span>
                                     </div>
-                                    <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight group-hover:text-emerald-400 transition-colors">
+                                    <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white leading-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                                         {primaryFeatured.title}
                                     </h3>
-                                    <p className="text-slate-400 text-xs sm:text-sm mt-3 line-clamp-3 leading-relaxed">
+                                    <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-3 line-clamp-3 leading-relaxed">
                                         {primaryFeatured.description}
                                     </p>
 
-                                    <div className="grid grid-cols-3 gap-3 py-4 my-4 border-y border-slate-800 text-xs">
+                                    <div className="grid grid-cols-3 gap-3 py-4 my-4 border-y border-slate-100 dark:border-slate-800 text-xs">
                                         <div>
                                             <span className="text-slate-500 text-[11px] block">Lot Area</span>
-                                            <span className="font-bold text-white text-sm">
+                                            <span className="font-bold text-slate-900 dark:text-white text-sm">
                                                 {Number(primaryFeatured.area).toLocaleString()} {primaryFeatured.area_unit}
                                             </span>
                                         </div>
                                         <div>
                                             <span className="text-slate-500 text-[11px] block">Title Status</span>
-                                            <span className="font-bold text-white text-sm capitalize">
+                                            <span className="font-bold text-slate-900 dark:text-white text-sm capitalize">
                                                 {primaryFeatured.title_status?.replace('_', ' ')}
                                             </span>
                                         </div>
                                         <div>
                                             <span className="text-slate-500 text-[11px] block">Topography</span>
-                                            <span className="font-bold text-white text-sm capitalize">
+                                            <span className="font-bold text-slate-900 dark:text-white text-sm capitalize">
                                                 {primaryFeatured.topography || 'Flat'}
                                             </span>
                                         </div>
@@ -406,14 +413,14 @@ export default function Welcome({
                                         <span className="text-[10px] uppercase font-semibold text-slate-500 block">
                                             Asking Price
                                         </span>
-                                        <span className="text-2xl sm:text-3xl font-black text-emerald-400">
+                                        <span className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">
                                             ₱{Number(primaryFeatured.price).toLocaleString()}
                                         </span>
                                     </div>
 
                                     <Link
                                         href={`/properties/${primaryFeatured.slug}`}
-                                        className="px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-500/20 transition-all"
+                                        className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all"
                                     >
                                         Explore Property
                                     </Link>
@@ -421,10 +428,10 @@ export default function Welcome({
                             </div>
                         </div>
                     ) : (
-                        <div className="p-8 rounded-3xl bg-slate-900 border border-slate-800 text-center mb-8">
-                            <Store className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-                            <h3 className="text-lg font-bold text-white">Marketplace is Ready for Listings</h3>
-                            <p className="text-slate-400 text-xs mt-1">
+                        <div className="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center mb-8 shadow-sm">
+                            <Store className="w-10 h-10 text-slate-400 dark:text-slate-600 mx-auto mb-3" />
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Marketplace is Ready for Listings</h3>
+                            <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
                                 Be the first verified seller to publish a property listing!
                             </p>
                         </div>
@@ -450,16 +457,16 @@ export default function Welcome({
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                         <div>
-                            <h2 className="text-2xl sm:text-3xl font-black text-white">
+                            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
                                 Explore Real Properties
                             </h2>
-                            <p className="text-slate-400 text-sm mt-1">
+                            <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
                                 Real database listings with GIS coordinates and boundary polygons.
                             </p>
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2">
-                            <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-full border border-slate-800">
+                            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-full border border-slate-200 dark:border-slate-800">
                                 {[
                                     { id: 'all', label: 'All Lots' },
                                     { id: 'land_lots', label: 'Land & Lots' },
@@ -471,8 +478,8 @@ export default function Welcome({
                                         onClick={() => setSelectedCategory(cat.id)}
                                         className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                                             selectedCategory === cat.id
-                                                ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                                                : 'text-slate-400 hover:text-white'
+                                                ? 'bg-emerald-600 text-white dark:bg-emerald-500 dark:text-slate-950 shadow-sm font-bold'
+                                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                                         }`}
                                     >
                                         {cat.label}
@@ -480,13 +487,13 @@ export default function Welcome({
                                 ))}
                             </div>
 
-                            <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-full border border-slate-800">
+                            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-full border border-slate-200 dark:border-slate-800">
                                 <button
                                     onClick={() => setViewMode('grid')}
                                     className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                                         viewMode === 'grid'
-                                            ? 'bg-slate-800 text-white'
-                                            : 'text-slate-400 hover:text-white'
+                                            ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm font-bold'
+                                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                                     }`}
                                 >
                                     Grid
@@ -495,8 +502,8 @@ export default function Welcome({
                                     onClick={() => setViewMode('map')}
                                     className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                                         viewMode === 'map'
-                                            ? 'bg-slate-800 text-white'
-                                            : 'text-slate-400 hover:text-white'
+                                            ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm font-bold'
+                                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                                     }`}
                                 >
                                     Map View
@@ -518,7 +525,10 @@ export default function Welcome({
                                 {filteredListings.slice(0, 3).map((listing) => (
                                     <ListingCard
                                         key={listing.listing_id}
-                                        listing={listing}
+                                        listing={{
+                                            ...listing,
+                                            is_pinned: listing.is_pinned || allDisplayListings.length === 1,
+                                        }}
                                         isSelected={selectedListingId === listing.listing_id}
                                         onHover={() => setSelectedListingId(listing.listing_id)}
                                     />
@@ -531,16 +541,19 @@ export default function Welcome({
                                 filteredListings.map((listing) => (
                                     <ListingCard
                                         key={listing.listing_id}
-                                        listing={listing}
+                                        listing={{
+                                            ...listing,
+                                            is_pinned: listing.is_pinned || allDisplayListings.length === 1,
+                                        }}
                                         isSelected={selectedListingId === listing.listing_id}
                                         onHover={() => setSelectedListingId(listing.listing_id)}
                                     />
                                 ))
                             ) : (
-                                <div className="col-span-full py-16 text-center rounded-3xl bg-slate-900/50 border border-slate-800">
-                                    <Store className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                                    <h4 className="text-lg font-bold text-white">No properties found matching criteria</h4>
-                                    <p className="text-slate-400 text-xs mt-1">
+                                <div className="col-span-full py-16 text-center rounded-3xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-sm">
+                                    <Store className="w-12 h-12 text-slate-400 dark:text-slate-600 mx-auto mb-3" />
+                                    <h4 className="text-lg font-bold text-slate-900 dark:text-white">No properties found matching criteria</h4>
+                                    <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
                                         Try adjusting your category filters or search keywords.
                                     </p>
                                     <button
@@ -548,7 +561,7 @@ export default function Welcome({
                                             setSelectedCategory('all');
                                             setSearchQuery('');
                                         }}
-                                        className="mt-4 px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white cursor-pointer"
+                                        className="mt-4 px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-900 dark:text-white cursor-pointer"
                                     >
                                         Reset Filters
                                     </button>
@@ -560,30 +573,30 @@ export default function Welcome({
             </section>
 
             {/* SELLER CTA */}
-            <section className="py-20 bg-gradient-to-b from-slate-950 via-emerald-950/20 to-slate-950 border-t border-slate-800">
+            <section className="py-20 bg-emerald-50/50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-emerald-950/20 dark:to-slate-950 border-t border-slate-200 dark:border-slate-800">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="max-w-3xl mx-auto text-center space-y-4">
-                        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold">
+                        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 text-xs font-bold">
                             <ShieldCheck className="w-4 h-4" />
                             Verified Seller Program
                         </div>
-                        <h2 className="text-3xl sm:text-4xl font-black text-white">
+                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white">
                             List Your Property & Reach Serious Buyers
                         </h2>
-                        <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+                        <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
                             Subscribe to the monthly seller membership for only ₱500/month powered by Xendit secure payments. Publish unlimited listings, receive buyer deal proposals, and verify your credentials.
                         </p>
 
                         <div className="pt-6 flex flex-wrap items-center justify-center gap-4">
                             <button
                                 onClick={handleBecomeSeller}
-                                className="px-8 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-xl shadow-emerald-500/25 transition-all cursor-pointer"
+                                className="px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm shadow-lg transition-all cursor-pointer"
                             >
                                 {auth?.user?.is_seller ? 'Go to Seller Dashboard' : 'Subscribe for ₱500 / Month'}
                             </button>
                             <Link
                                 href="/billing"
-                                className="px-6 py-3.5 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-white font-bold text-sm transition-colors"
+                                className="px-6 py-3.5 rounded-full bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-bold text-sm transition-colors shadow-sm"
                             >
                                 View Membership Details
                             </Link>
@@ -593,18 +606,18 @@ export default function Welcome({
             </section>
 
             {/* FOOTER */}
-            <footer className="py-12 bg-slate-950 border-t border-slate-900 text-xs text-slate-500">
+            <footer className="py-12 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-900 text-xs text-slate-500">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-2">
-                        <AppLogoIcon className="w-4 h-4 text-emerald-400" />
-                        <span className="font-bold text-slate-300">Yuta</span>
+                        <AppLogoIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <span className="font-bold text-slate-700 dark:text-slate-300">Yuta</span>
                         <span>— Philippine Land & Property Marketplace © {new Date().getFullYear()}</span>
                     </div>
 
                     <div className="flex items-center gap-6">
-                        <Link href="/marketplace" className="hover:text-slate-300 transition-colors">Marketplace</Link>
-                        <Link href="/billing" className="hover:text-slate-300 transition-colors">Billing</Link>
-                        <Link href="/login" className="hover:text-slate-300 transition-colors">Sign In</Link>
+                        <Link href="/marketplace" className="hover:text-slate-900 dark:hover:text-slate-300 transition-colors">Marketplace</Link>
+                        <Link href="/billing" className="hover:text-slate-900 dark:hover:text-slate-300 transition-colors">Billing</Link>
+                        <Link href="/login" className="hover:text-slate-900 dark:hover:text-slate-300 transition-colors">Sign In</Link>
                     </div>
                 </div>
             </footer>

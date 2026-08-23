@@ -64,7 +64,14 @@ export default function ListingCard({ listing, isSelected, onHover }: ListingCar
                     {/* IMAGE CAROUSEL HEADER */}
                     <div className="relative w-full h-56 bg-slate-900 overflow-hidden group/img">
                         <img 
-                            src={images[currentImageIndex]?.file_path || '/images/aerial_land_plot.jpg'} 
+                            src={
+                                images[currentImageIndex]?.url || 
+                                (images[currentImageIndex]?.file_path?.startsWith('http') || images[currentImageIndex]?.file_path?.startsWith('/') 
+                                    ? images[currentImageIndex]?.file_path 
+                                    : images[currentImageIndex]?.file_path 
+                                        ? `https://pub-19475a64b9ef47b78593af8d0414d4be.r2.dev/${images[currentImageIndex]?.file_path}`
+                                        : '/images/aerial_land_plot.jpg')
+                            } 
                             alt={images[currentImageIndex]?.caption || listing.title}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />

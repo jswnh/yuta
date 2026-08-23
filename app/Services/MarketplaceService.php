@@ -17,53 +17,82 @@ class MarketplaceService
     /**
      * Get the Primary Featured Listing according to the priority algorithm.
      * Priority 1: Admin Pinned active listing
-     * Priority 2: Most viewed active listing
-     * Priority 3: Highest engagement active listing
-     * Priority 4: Most recent active listing
+     * Priority 2: Explicitly featured or most viewed active listing
+     * Priority 3: Highest engagement active listing (favorites + inquiries)
+     * Priority 4: Most recent active listing (auto-pinned if only 1 listing exists)
      */
     public function getPrimaryFeaturedListing(): ?Listing
     {
-        // Priority 1 — Admin Pinned Listing
+        $totalListings = Listing::whereIn('status', ['active', 'pending_review'])->count();
+
+        // Priority 1 - Admin Pinned Listing
         $pinned = Listing::with(['images', 'seller.sellerProfile'])
             ->withCount('favorites')
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'pending_review'])
             ->where('is_pinned', true)
+            ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
             ->latest('published_at')
+            ->latest('created_at')
             ->first();
 
         if ($pinned) {
             return $pinned;
         }
 
-        // Priority 2 — Explicitly featured or Most Viewed Listing
+        // Priority 2 - Explicitly featured or Most Viewed Listing
         $mostViewed = Listing::with(['images', 'seller.sellerProfile'])
             ->withCount('favorites')
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'pending_review'])
+            ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
             ->orderByDesc('is_featured')
             ->orderByDesc('view_count')
+            ->latest('published_at')
+            ->latest('created_at')
             ->first();
 
-        if ($mostViewed && $mostViewed->view_count > 0) {
+        if ($mostViewed && ($mostViewed->is_featured || $mostViewed->view_count > 0)) {
+            if ($totalListings <= 1) {
+                $mostViewed->is_pinned = true;
+                $mostViewed->is_featured = true;
+            }
+
             return $mostViewed;
         }
 
-        // Priority 3 — Trending / Engagement (Favorites + Inquiries)
+        // Priority 3 - Trending / Engagement (Favorites + Inquiries)
         $mostEngaged = Listing::with(['images', 'seller.sellerProfile'])
             ->withCount('favorites')
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'pending_review'])
+            ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
             ->orderByDesc('favorites_count')
+            ->latest('published_at')
+            ->latest('created_at')
             ->first();
 
         if ($mostEngaged && $mostEngaged->favorites_count > 0) {
+            if ($totalListings <= 1) {
+                $mostEngaged->is_pinned = true;
+                $mostEngaged->is_featured = true;
+            }
+
             return $mostEngaged;
         }
 
-        // Priority 4 — Recent Active Listing fallback
-        return Listing::with(['images', 'seller.sellerProfile'])
+        // Priority 4 - Most Recent Listing fallback
+        $fallback = Listing::with(['images', 'seller.sellerProfile'])
             ->withCount('favorites')
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'pending_review'])
+            ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
             ->latest('published_at')
+            ->latest('created_at')
             ->first();
+
+        if ($fallback && $totalListings <= 1) {
+            $fallback->is_pinned = true;
+            $fallback->is_featured = true;
+        }
+
+        return $fallback;
     }
 
     /**
@@ -75,18 +104,20 @@ class MarketplaceService
     {
         $query = Listing::with(['images', 'seller.sellerProfile'])
             ->withCount('favorites')
-            ->where('status', 'active');
+            ->whereIn('status', ['active', 'pending_review']);
 
         if ($excludeListingId) {
             $query->where('listing_id', '!=', $excludeListingId);
         }
 
         return $query
+            ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
             ->orderByDesc('is_pinned')
             ->orderByDesc('is_featured')
             ->orderByDesc('view_count')
             ->orderByDesc('favorites_count')
             ->latest('published_at')
+            ->latest('created_at')
             ->take(3)
             ->get();
     }
@@ -101,9 +132,11 @@ class MarketplaceService
     {
         return Listing::with(['images', 'seller.sellerProfile'])
             ->withCount('favorites')
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'pending_review'])
+            ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
             ->orderByDesc(DB::raw('(view_count + (SELECT COUNT(*) FROM listing_favorites WHERE listing_favorites.listing_id = listings.listing_id) * 3)'))
             ->latest('published_at')
+            ->latest('created_at')
             ->take($limit)
             ->get();
     }
@@ -122,9 +155,9 @@ class MarketplaceService
      */
     public function getMarketplaceAnalytics(): array
     {
-        $activeListingsCount = Listing::where('status', 'active')->count();
+        $activeListingsCount = Listing::whereIn('status', ['active', 'pending_review'])->count();
         $verifiedSellersCount = SellerProfile::where('verification_status', 'verified')->count();
-        $totalViewsCount = (int) Listing::where('status', 'active')->sum('view_count');
+        $totalViewsCount = (int) Listing::whereIn('status', ['active', 'pending_review'])->sum('view_count');
         $activeAgreementsCount = Agreement::whereIn('status', ['accepted', 'active'])->count();
         $completedTransactionsCount = Transaction::where('payment_status', 'completed')->count();
         $totalTransactionValue = (float) Transaction::where('payment_status', 'completed')->sum('amount');
@@ -146,7 +179,7 @@ class MarketplaceService
     {
         $query = Listing::with(['images', 'seller.sellerProfile'])
             ->withCount('favorites')
-            ->where('status', 'active');
+            ->whereIn('status', ['active', 'pending_review']);
 
         // Search text
         if ($search = $request->query('search')) {
@@ -224,11 +257,13 @@ class MarketplaceService
                 $query->orderBy('area', 'desc');
                 break;
             case 'featured':
-                $query->orderByDesc('is_pinned')->orderByDesc('is_featured')->latest('published_at');
+                $query->orderByDesc('is_pinned')->orderByDesc('is_featured')->latest('published_at')->latest('created_at');
                 break;
             case 'newest':
             default:
-                $query->latest('published_at')->latest('created_at');
+                $query->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
+                    ->latest('published_at')
+                    ->latest('created_at');
                 break;
         }
 

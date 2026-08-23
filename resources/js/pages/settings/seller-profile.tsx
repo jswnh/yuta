@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Head, router, useForm } from '@inertiajs/react';
-import SettingsLayout from '@/layouts/settings/layout';
+import { Head, router } from '@inertiajs/react';
 import { useSellerProfile } from '@/hooks/use-seller-profile';
 import type { SellerProfile, SellerDocument } from '@/types/seller';
 import { 
@@ -12,20 +11,21 @@ import {
     CheckCircle2, 
     Clock, 
     Send,
-    Loader2
+    Building2
 } from 'lucide-react';
 
 interface SellerProfileProps {
     profile?: SellerProfile | null;
     documents?: SellerDocument[];
+    isSeller?: boolean;
 }
 
-export default function SellerProfileSettings({ profile, documents = [] }: SellerProfileProps) {
+export default function SellerProfileSettings({ profile, documents = [], isSeller = false }: SellerProfileProps) {
     const { uploadDocument, deleteDocument, submitForVerification, submittingVerification, uploadingDoc, deletingDocId } = useSellerProfile();
 
     // Profile form state
     const [businessName, setBusinessName] = useState(profile?.business_name || '');
-    const [sellerType, setSellerType] = useState(profile?.seller_type || 'individual_owner');
+    const [sellerType, setSellerType] = useState(profile?.seller_type || 'owner');
     const [licenseNumber, setLicenseNumber] = useState(profile?.license_number || '');
     const [taxIdNumber, setTaxIdNumber] = useState(profile?.tax_id_number || '');
     const [description, setDescription] = useState(profile?.description || '');
@@ -71,40 +71,40 @@ export default function SellerProfileSettings({ profile, documents = [] }: Selle
     const status = profile?.verification_status || 'unverified';
 
     return (
-        <SettingsLayout>
-            <Head title="Seller Profile & Verification — Yuta" />
+        <>
+            <Head title="Seller Profile & Verification" />
 
             <div className="space-y-8 max-w-4xl">
                 {/* HEADER */}
                 <div>
-                    <h1 className="text-2xl font-black text-white">Seller Profile & Verification</h1>
-                    <p className="text-slate-400 text-xs sm:text-sm mt-1">
+                    <h1 className="text-2xl font-black text-slate-900 dark:text-white">Seller Profile & Verification</h1>
+                    <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-1">
                         Build buyer confidence with verified credentials (PRC license, government IDs, and DHSUD registration).
                     </p>
                 </div>
 
                 {/* VERIFICATION STATUS BANNER */}
                 <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                    status === 'verified' ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300' :
-                    status === 'pending' ? 'bg-amber-950/40 border-amber-500/30 text-amber-300' :
-                    status === 'rejected' ? 'bg-rose-950/40 border-rose-500/30 text-rose-300' :
-                    'bg-slate-900 border-slate-800 text-slate-300'
+                    status === 'verified' ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300' :
+                    status === 'pending' ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-500/30 text-amber-800 dark:text-amber-300' :
+                    status === 'rejected' ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-500/30 text-rose-800 dark:text-rose-300' :
+                    'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
                 }`}>
                     <div className="flex items-center gap-3">
-                        {status === 'verified' && <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />}
-                        {status === 'pending' && <Clock className="w-6 h-6 text-amber-400 shrink-0" />}
-                        {status === 'rejected' && <AlertCircle className="w-6 h-6 text-rose-400 shrink-0" />}
-                        {status === 'unverified' && <ShieldCheck className="w-6 h-6 text-slate-400 shrink-0" />}
+                        {status === 'verified' && <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400 shrink-0" />}
+                        {status === 'pending' && <Clock className="w-6 h-6 text-amber-600 dark:text-amber-400 shrink-0" />}
+                        {status === 'rejected' && <AlertCircle className="w-6 h-6 text-rose-600 dark:text-rose-400 shrink-0" />}
+                        {status === 'unverified' && <ShieldCheck className="w-6 h-6 text-slate-500 dark:text-slate-400 shrink-0" />}
                         <div>
                             <div className="flex items-center gap-2">
                                 <span className="font-bold text-sm capitalize">Status: {status.replace('_', ' ')}</span>
                                 {status === 'verified' && (
-                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black uppercase">
+                                    <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white dark:bg-emerald-500 dark:text-slate-950 text-[10px] font-black uppercase">
                                         Verified Badge Active
                                     </span>
                                 )}
                             </div>
-                            <p className="text-xs text-slate-400 mt-0.5">
+                            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                                 {status === 'verified' && 'Your listings display the official Verified Seller badge.'}
                                 {status === 'pending' && 'Your documents are currently under review by our compliance team.'}
                                 {status === 'rejected' && (profile?.rejection_reason || 'Verification was rejected. Please re-upload clear credentials.')}
@@ -118,7 +118,7 @@ export default function SellerProfileSettings({ profile, documents = [] }: Selle
                             type="button"
                             onClick={() => submitForVerification()}
                             disabled={submittingVerification || documents.length === 0}
-                            className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition-all shrink-0 flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all shrink-0 flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
                         >
                             <Send className="w-3.5 h-3.5" />
                             <span>Submit for Review</span>
@@ -127,106 +127,105 @@ export default function SellerProfileSettings({ profile, documents = [] }: Selle
                 </div>
 
                 {/* PROFILE INFORMATION FORM */}
-                <form onSubmit={handleProfileSubmit} className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-6">
-                    <h2 className="text-lg font-bold text-white">Seller Information</h2>
+                <form onSubmit={handleProfileSubmit} className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Seller Information</h2>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label className="text-xs font-semibold text-slate-300 block mb-1">Seller Type</label>
+                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Seller Type</label>
                             <select
                                 value={sellerType}
                                 onChange={(e) => setSellerType(e.target.value)}
-                                className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-white"
+                                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-2xl p-3 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                             >
-                                <option value="individual_owner">Individual Property Owner</option>
-                                <option value="licensed_broker">Licensed Real Estate Broker</option>
-                                <option value="real_estate_agent">Real Estate Agent / Salesperson</option>
-                                <option value="developer">Property Developer / Entity</option>
+                                <option value="owner">Individual Property Owner</option>
+                                <option value="broker">Licensed Real Estate Broker</option>
+                                <option value="agent">Real Estate Agent / Salesperson</option>
                             </select>
                         </div>
 
                         <div>
-                            <label className="text-xs font-semibold text-slate-300 block mb-1">Business / Agency Name</label>
+                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Business / Agency Name</label>
                             <input
                                 type="text"
                                 value={businessName}
                                 onChange={(e) => setBusinessName(e.target.value)}
                                 placeholder="e.g. Prime Land Realty (Optional)"
-                                className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-white"
+                                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-2xl p-3 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                             />
                         </div>
 
                         <div>
-                            <label className="text-xs font-semibold text-slate-300 block mb-1">PRC License Number</label>
+                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">PRC License Number</label>
                             <input
                                 type="text"
                                 value={licenseNumber}
                                 onChange={(e) => setLicenseNumber(e.target.value)}
                                 placeholder="PRC REB # (if broker/agent)"
-                                className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-white"
+                                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-2xl p-3 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                             />
                         </div>
 
                         <div>
-                            <label className="text-xs font-semibold text-slate-300 block mb-1">Tax ID Number (TIN)</label>
+                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Tax ID Number (TIN)</label>
                             <input
                                 type="text"
                                 value={taxIdNumber}
                                 onChange={(e) => setTaxIdNumber(e.target.value)}
                                 placeholder="000-000-000-000"
-                                className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-white"
+                                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-2xl p-3 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                             />
                         </div>
 
                         <div>
-                            <label className="text-xs font-semibold text-slate-300 block mb-1">Contact Phone</label>
+                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Contact Phone</label>
                             <input
                                 type="text"
                                 value={contactPhone}
                                 onChange={(e) => setContactPhone(e.target.value)}
                                 placeholder="+63 912 345 6789"
-                                className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-white"
+                                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-2xl p-3 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                             />
                         </div>
 
                         <div>
-                            <label className="text-xs font-semibold text-slate-300 block mb-1">Years of Real Estate Experience</label>
+                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Years of Real Estate Experience</label>
                             <input
                                 type="number"
                                 value={yearsExperience}
                                 onChange={(e) => setYearsExperience(e.target.value)}
                                 placeholder="e.g. 5"
-                                className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-white"
+                                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-2xl p-3 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="text-xs font-semibold text-slate-300 block mb-1">Business / Office Address</label>
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Business / Office Address</label>
                         <input
                             type="text"
                             value={addressLine}
                             onChange={(e) => setAddressLine(e.target.value)}
                             placeholder="Complete City, Province"
-                            className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-white"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-2xl p-3 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                         />
                     </div>
 
                     <div>
-                        <label className="text-xs font-semibold text-slate-300 block mb-1">Seller Bio / Description</label>
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Seller Bio / Description</label>
                         <textarea
                             rows={3}
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Share your specialization (agricultural land, commercial subdivisions, titles, etc.)..."
-                            className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-white"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-2xl p-3 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                         />
                     </div>
 
                     <div className="flex justify-end">
                         <button
                             type="submit"
-                            className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition-all cursor-pointer"
+                            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
                         >
                             Save Profile
                         </button>
@@ -234,23 +233,23 @@ export default function SellerProfileSettings({ profile, documents = [] }: Selle
                 </form>
 
                 {/* VERIFICATION DOCUMENTS MANAGEMENT */}
-                <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-6">
+                <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
                     <div>
-                        <h2 className="text-lg font-bold text-white">Verification Documents</h2>
-                        <p className="text-slate-400 text-xs mt-0.5">
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Verification Documents</h2>
+                        <p className="text-slate-600 dark:text-slate-400 text-xs mt-0.5">
                             Upload government-issued IDs, PRC broker licenses, or DHSUD registration for compliance.
                         </p>
                     </div>
 
                     {/* UPLOAD FORM */}
-                    <form onSubmit={handleDocSubmit} className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
+                    <form onSubmit={handleDocSubmit} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <label className="text-xs font-semibold text-slate-400 block mb-1">Document Type</label>
+                                <label className="text-xs font-semibold text-slate-700 dark:text-slate-400 block mb-1">Document Type</label>
                                 <select
                                     value={docType}
                                     onChange={(e) => setDocType(e.target.value)}
-                                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white"
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                                 >
                                     <option value="government_id">Government ID (Passport / UMID / Driver's)</option>
                                     <option value="prc_license">PRC Real Estate License</option>
@@ -262,22 +261,22 @@ export default function SellerProfileSettings({ profile, documents = [] }: Selle
                             </div>
 
                             <div>
-                                <label className="text-xs font-semibold text-slate-400 block mb-1">Document / ID Number</label>
+                                <label className="text-xs font-semibold text-slate-700 dark:text-slate-400 block mb-1">Document / ID Number</label>
                                 <input
                                     type="text"
                                     value={docNumber}
                                     onChange={(e) => setDocNumber(e.target.value)}
                                     placeholder="Optional reference #"
-                                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white"
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                                 />
                             </div>
 
                             <div>
-                                <label className="text-xs font-semibold text-slate-400 block mb-1">File (PDF, JPG, PNG)</label>
+                                <label className="text-xs font-semibold text-slate-700 dark:text-slate-400 block mb-1">File (PDF, JPG, PNG)</label>
                                 <input
                                     type="file"
                                     onChange={(e) => setDocFile(e.target.files?.[0] || null)}
-                                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-xs text-slate-300"
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl p-1.5 text-xs text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                                     required
                                 />
                             </div>
@@ -287,7 +286,7 @@ export default function SellerProfileSettings({ profile, documents = [] }: Selle
                             <button
                                 type="submit"
                                 disabled={uploadingDoc || !docFile}
-                                className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                                className="px-5 py-2 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-sm transition-all"
                             >
                                 <Upload className="w-3.5 h-3.5" />
                                 <span>Upload Document</span>
@@ -297,15 +296,15 @@ export default function SellerProfileSettings({ profile, documents = [] }: Selle
 
                     {/* UPLOADED DOCUMENTS LIST */}
                     <div className="space-y-3">
-                        <h3 className="text-xs uppercase font-bold text-slate-400">Uploaded Credentials</h3>
+                        <h3 className="text-xs uppercase font-bold text-slate-600 dark:text-slate-400">Uploaded Credentials</h3>
                         {documents.length > 0 ? (
-                            <div className="divide-y divide-slate-800 border border-slate-800 rounded-2xl overflow-hidden">
+                            <div className="divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
                                 {documents.map((doc) => (
-                                    <div key={doc.id} className="p-4 flex items-center justify-between gap-4 bg-slate-950/40">
+                                    <div key={doc.id} className="p-4 flex items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-950/40">
                                         <div className="flex items-center gap-3">
-                                            <FileText className="w-5 h-5 text-emerald-400" />
+                                            <FileText className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                                             <div>
-                                                <span className="font-bold text-sm text-white capitalize block">
+                                                <span className="font-bold text-sm text-slate-900 dark:text-white capitalize block">
                                                     {doc.document_type.replace('_', ' ')}
                                                 </span>
                                                 <span className="text-xs text-slate-500">
@@ -316,9 +315,9 @@ export default function SellerProfileSettings({ profile, documents = [] }: Selle
 
                                         <div className="flex items-center gap-3">
                                             <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                                                doc.status === 'approved' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                                                doc.status === 'rejected' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' :
-                                                'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                                                doc.status === 'approved' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' :
+                                                doc.status === 'rejected' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' :
+                                                'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
                                             }`}>
                                                 {doc.status}
                                             </span>
@@ -327,7 +326,7 @@ export default function SellerProfileSettings({ profile, documents = [] }: Selle
                                                 type="button"
                                                 onClick={() => deleteDocument(doc.id)}
                                                 disabled={deletingDocId === doc.id}
-                                                className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 transition-colors cursor-pointer disabled:opacity-50"
+                                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 transition-colors cursor-pointer disabled:opacity-50"
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
@@ -336,13 +335,13 @@ export default function SellerProfileSettings({ profile, documents = [] }: Selle
                                 ))}
                             </div>
                         ) : (
-                            <div className="p-6 text-center text-slate-500 text-xs border border-dashed border-slate-800 rounded-2xl">
+                            <div className="p-6 text-center text-slate-500 text-xs border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
                                 No verification documents uploaded yet.
                             </div>
                         )}
                     </div>
                 </div>
             </div>
-        </SettingsLayout>
+        </>
     );
 }
