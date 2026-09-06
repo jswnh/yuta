@@ -37,3 +37,7 @@ services:
             sync: false
           - key: DB_PASSWORD
             sync: false
+          - key: DB_SSLMODE
+            value: require
+          - key: SESSION_DRIVER
+            value: database
