@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -115,5 +116,60 @@ class User extends Authenticatable implements MustVerifyEmail
         $activeSub = $this->activeSubscription();
 
         return $activeSub !== null && $activeSub->isActive();
+    }
+
+    public function sellerProfile(): HasOne
+    {
+        return $this->hasOne(SellerProfile::class, 'user_id', 'user_id');
+    }
+
+    public function sellerDocuments(): HasMany
+    {
+        return $this->hasMany(SellerDocument::class, 'user_id', 'user_id');
+    }
+
+    public function listings(): HasMany
+    {
+        return $this->hasMany(Listing::class, 'seller_id', 'user_id');
+    }
+
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(ListingFavorite::class, 'user_id', 'user_id');
+    }
+
+    public function buyerAgreements(): HasMany
+    {
+        return $this->hasMany(Agreement::class, 'buyer_id', 'user_id');
+    }
+
+    public function sellerAgreements(): HasMany
+    {
+        return $this->hasMany(Agreement::class, 'seller_id', 'user_id');
+    }
+
+    public function buyerTransactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'buyer_id', 'user_id');
+    }
+
+    public function sellerTransactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'seller_id', 'user_id');
+    }
+
+    public function buyerConversations(): HasMany
+    {
+        return $this->hasMany(Conversation::class, 'buyer_id', 'user_id');
+    }
+
+    public function sellerConversations(): HasMany
+    {
+        return $this->hasMany(Conversation::class, 'seller_id', 'user_id');
+    }
+
+    public function isSellerVerified(): bool
+    {
+        return $this->sellerProfile?->isVerified() ?? false;
     }
 }

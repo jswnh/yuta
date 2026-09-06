@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Models\Subscription;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class XenditService
 {
@@ -67,7 +69,7 @@ class XenditService
         }
 
         try {
-            $client = Http::timeout(30);
+            $client = Http::timeout(10)->connectTimeout(5);
 
             if (app()->environment('local') || config('app.debug')) {
                 $client = $client->withoutVerifying();
@@ -109,6 +111,93 @@ class XenditService
             ];
         } catch (\Throwable $e) {
             Log::error('Xendit Exception: '.$e->getMessage());
+
+            return [
+                'error' => 'Unable to connect to Xendit payment server: '.$e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Create a Xendit Invoice for a property transaction.
+     *
+     * @return array{id?: string, invoice_url?: string, status?: string, error?: string}
+     */
+    public function createTransactionInvoice(Transaction $transaction, User $payer): array
+    {
+        $externalId = $transaction->xendit_external_id ?: 'txn_'.Str::uuid();
+        $transaction->update(['xendit_external_id' => $externalId]);
+
+        $givenName = trim((string) ($payer->first_name ?? 'Valued'));
+        $surname = trim((string) ($payer->last_name ?? 'Buyer'));
+
+        $payload = [
+            'external_id' => $externalId,
+            'amount' => (float) $transaction->amount,
+            'payer_email' => $payer->email,
+            'description' => 'Yuta Property Payment: '.$transaction->title.' (#'.$transaction->transaction_number.')',
+            'invoice_duration' => 86400 * 3, // 3 days for property deals
+            'success_redirect_url' => route('transactions.show', ['transaction' => $transaction->id, 'payment' => 'success']),
+            'failure_redirect_url' => route('transactions.show', ['transaction' => $transaction->id, 'payment' => 'failed']),
+            'currency' => $transaction->currency ?: 'PHP',
+            'customer' => array_filter([
+                'given_names' => $givenName,
+                'surname' => $surname,
+                'email' => $payer->email,
+            ]),
+            'items' => [
+                [
+                    'name' => $transaction->title,
+                    'quantity' => 1,
+                    'price' => (float) $transaction->amount,
+                    'category' => 'Property Transaction',
+                ],
+            ],
+        ];
+
+        // If secret key is missing, return mock invoice for local testing
+        if (empty($this->secretKey)) {
+            Log::warning('Xendit secret key is missing. Using mock checkout flow.');
+            $mockInvoiceId = 'inv_demo_'.bin2hex(random_bytes(6));
+
+            return [
+                'id' => $mockInvoiceId,
+                'invoice_url' => route('transactions.show', ['transaction' => $transaction->id, 'payment' => 'success', 'mock' => '1']),
+                'status' => 'PENDING',
+            ];
+        }
+
+        try {
+            $client = Http::timeout(10)->connectTimeout(5);
+
+            if (app()->environment('local') || config('app.debug')) {
+                $client = $client->withoutVerifying();
+            }
+
+            $response = $client->withBasicAuth($this->secretKey, '')
+                ->post("{$this->baseUrl}/v2/invoices", $payload);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            $statusCode = $response->status();
+            $responseJson = $response->json();
+            $errorMessage = $responseJson['message'] ?? 'Failed to create Xendit invoice for transaction.';
+            $errorCode = $responseJson['error_code'] ?? '';
+
+            Log::error('Xendit Property Transaction Invoice Creation Failed', [
+                'status' => $statusCode,
+                'error_code' => $errorCode,
+                'message' => $errorMessage,
+                'body' => $response->body(),
+            ]);
+
+            return [
+                'error' => "Xendit Error: {$errorMessage}",
+            ];
+        } catch (\Throwable $e) {
+            Log::error('Xendit Transaction Exception: '.$e->getMessage());
 
             return [
                 'error' => 'Unable to connect to Xendit payment server: '.$e->getMessage(),

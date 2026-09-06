@@ -56,10 +56,32 @@ export interface Listing {
     boundary_coordinates: LatLngCoordinate[] | null;
     status: ListingStatus;
     is_featured: boolean;
+    is_pinned?: boolean;
     view_count: number;
+    favorites_count?: number;
+    is_favorited?: boolean;
     published_at: string | null;
     sold_at: string | null;
     created_at: string;
     updated_at: string;
     images?: ListingImage[];
+    seller?: {
+        user_id: string;
+        first_name: string;
+        last_name: string;
+        name?: string;
+        avatar?: string | null;
+        email?: string;
+        contact_number?: string | null;
+        is_seller?: boolean;
+        seller_since?: string | null;
+        seller_profile?: {
+            id: string;
+            display_name?: string | null;
+            business_name?: string | null;
+            seller_type?: string;
+            verification_status?: 'unverified' | 'pending' | 'verified' | 'rejected';
+            years_of_experience?: number | null;
+        } | null;
+    };
 }

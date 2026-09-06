@@ -3,11 +3,11 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushChannel;
 use NotificationChannels\WebPush\WebPushMessage;
+
 class NewMessageNotification extends Notification
 {
     use Queueable;
@@ -15,9 +15,7 @@ class NewMessageNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(private readonly string $body)
-    {
-    }
+    public function __construct(private readonly string $body) {}
 
     /**
      * Get the notification's delivery channels.

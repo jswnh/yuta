@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import type { Listing } from '@/types/listing';
 
 interface ListingMapProps {
@@ -9,7 +9,7 @@ interface ListingMapProps {
 }
 
 export default function ListingMap({ 
-    listings, 
+    listings = [], 
     selectedListingId, 
     onSelectListing,
     height = "450px" 
@@ -58,14 +58,21 @@ export default function ListingMap({
 
     const { MapContainer, TileLayer, Marker, Popup, Polygon } = ReactLeaflet;
 
+    // Filter valid listings with valid numeric latitude & longitude
+    const validListings = (listings || []).filter(l => {
+        const lat = parseFloat(String(l?.latitude));
+        const lng = parseFloat(String(l?.longitude));
+        return !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0;
+    });
+
     // Calculate default center from listings or fall back to Antipolo, PH
-    const validListings = listings.filter(l => l.latitude && l.longitude);
-    const centerLat = validListings.length > 0 ? validListings[0].latitude! : 14.6254;
-    const centerLng = validListings.length > 0 ? validListings[0].longitude! : 121.1258;
+    const centerLat = validListings.length > 0 ? parseFloat(String(validListings[0].latitude)) : 14.6254;
+    const centerLng = validListings.length > 0 ? parseFloat(String(validListings[0].longitude)) : 121.1258;
 
     return (
         <div style={{ height }} className="w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-md relative z-10">
             <MapContainer 
+                key={`map-${centerLat.toFixed(3)}-${centerLng.toFixed(3)}`}
                 center={[centerLat, centerLng]} 
                 zoom={11} 
                 scrollWheelZoom={false}
@@ -79,18 +86,29 @@ export default function ListingMap({
                 {validListings.map((listing) => {
                     const isSelected = listing.listing_id === selectedListingId;
                     const primaryImage = listing.images?.find(img => img.is_primary) || listing.images?.[0];
+                    const priceNum = Number(listing.price) || 0;
+                    const priceBadge = priceNum >= 1000000 
+                        ? `₱${(priceNum / 1000000).toFixed(1)}M` 
+                        : `₱${(priceNum / 1000).toFixed(0)}k`;
+
+                    const imageUrl = primaryImage?.url || 
+                        (primaryImage?.file_path?.startsWith('http') || primaryImage?.file_path?.startsWith('/') 
+                            ? primaryImage?.file_path 
+                            : primaryImage?.file_path 
+                                ? `https://pub-19475a64b9ef47b78593af8d0414d4be.r2.dev/${primaryImage.file_path}` 
+                                : '/images/aerial_land_plot.jpg');
 
                     // Custom marker icon
                     const customIcon = L.divIcon({
                         className: 'custom-map-marker',
                         html: `
-                            <div className="cursor-pointer transform transition-transform duration-200 hover:scale-110">
-                                <div className="px-2.5 py-1 rounded-full text-xs font-extrabold shadow-lg flex items-center gap-1 ${
+                            <div class="cursor-pointer transform transition-transform duration-200 hover:scale-110">
+                                <div class="px-2.5 py-1 rounded-full text-xs font-extrabold shadow-lg flex items-center gap-1 ${
                                     isSelected 
                                         ? 'bg-emerald-500 text-slate-950 ring-4 ring-emerald-400/30' 
                                         : 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
                                 }">
-                                    <span>₱${(listing.price / 1000).toFixed(0)}k</span>
+                                    <span>${priceBadge}</span>
                                 </div>
                             </div>
                         `,
@@ -98,10 +116,18 @@ export default function ListingMap({
                         iconAnchor: [30, 15]
                     });
 
+                    // Parse polygon coordinates safely
+                    const boundaryPositions = (listing.boundary_coordinates || [])
+                        .map(coord => [parseFloat(String((coord as any).lat ?? (coord as any).latitude)), parseFloat(String((coord as any).lng ?? (coord as any).longitude))])
+                        .filter(([lat, lng]) => !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0);
+
+                    const lat = parseFloat(String(listing.latitude));
+                    const lng = parseFloat(String(listing.longitude));
+
                     return (
-                        <div key={listing.listing_id}>
+                        <Fragment key={listing.listing_id}>
                             <Marker 
-                                position={[listing.latitude!, listing.longitude!]}
+                                position={[lat, lng]}
                                 icon={customIcon}
                                 eventHandlers={{
                                     click: () => onSelectListing && onSelectListing(listing.listing_id)
@@ -109,17 +135,17 @@ export default function ListingMap({
                             >
                                 <Popup className="listing-map-popup">
                                     <div className="w-56 p-1">
-                                        {primaryImage && (
+                                        {imageUrl && (
                                             <div className="w-full h-28 rounded-lg overflow-hidden mb-2">
                                                 <img 
-                                                    src={primaryImage.file_path} 
+                                                    src={imageUrl} 
                                                     alt={listing.title} 
                                                     className="w-full h-full object-cover"
                                                 />
                                             </div>
                                         )}
                                         <div className="text-xs font-bold uppercase text-emerald-600 dark:text-emerald-400 tracking-wider mb-0.5">
-                                            {listing.land_type} • {listing.area.toLocaleString()} {listing.area_unit}
+                                            {listing.land_type?.replace('_', ' ')} • {Number(listing.area || 0).toLocaleString()} {listing.area_unit || 'sqm'}
                                         </div>
                                         <h4 className="font-bold text-sm text-slate-900 leading-tight mb-1">
                                             {listing.title}
@@ -129,10 +155,10 @@ export default function ListingMap({
                                         </p>
                                         <div className="flex items-center justify-between pt-1 border-t border-slate-100">
                                             <span className="font-extrabold text-sm text-slate-900">
-                                                ₱{listing.price.toLocaleString()}
+                                                ₱{priceNum.toLocaleString()}
                                             </span>
                                             <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold">
-                                                {listing.title_status.replace('_', ' ')}
+                                                {listing.title_status?.replace('_', ' ')}
                                             </span>
                                         </div>
                                     </div>
@@ -140,9 +166,9 @@ export default function ListingMap({
                             </Marker>
 
                             {/* Optional Boundary Coordinates Polygon */}
-                            {listing.boundary_coordinates && listing.boundary_coordinates.length > 2 && (
+                            {boundaryPositions.length > 2 && (
                                 <Polygon 
-                                    positions={listing.boundary_coordinates.map(coord => [coord.lat, coord.lng])}
+                                    positions={boundaryPositions}
                                     pathOptions={{
                                         color: isSelected ? '#10b981' : '#3b82f6',
                                         fillColor: isSelected ? '#10b981' : '#3b82f6',
@@ -151,7 +177,7 @@ export default function ListingMap({
                                     }}
                                 />
                             )}
-                        </div>
+                        </Fragment>
                     );
                 })}
             </MapContainer>

@@ -2,7 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Message;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -35,11 +37,33 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        if ($user) {
+            $user->loadMissing('sellerProfile');
+        }
+
+        $userId = $user?->user_id;
+
+        $unreadNotificationsCount = $user
+            ? Cache::remember("user_{$userId}_unread_notifs", 15, fn () => $user->unreadNotifications()->count())
+            : 0;
+
+        $unreadMessagesCount = $user
+            ? Cache::remember("user_{$userId}_unread_msgs", 15, fn () => Message::where('receiver_id', $userId)->where('is_read', false)->count())
+            : 0;
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+            ],
+            'unreadNotificationsCount' => $unreadNotificationsCount,
+            'unreadMessagesCount' => $unreadMessagesCount,
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+                'info' => fn () => $request->session()->get('info'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
