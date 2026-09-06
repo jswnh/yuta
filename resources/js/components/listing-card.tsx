@@ -100,6 +100,12 @@ export default function ListingCard({ listing, isSelected, onHover }: ListingCar
                             </div>
 
                             <div className="flex items-center gap-1.5">
+                                {/* View Count Badge from main */}
+                                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950/80 text-emerald-400 text-xs font-mono font-bold backdrop-blur-md border border-slate-700 shadow-xs">
+                                    <Eye className="w-3.5 h-3.5" />
+                                    <span>{Number(listing.view_count || 0).toLocaleString()} views</span>
+                                </div>
+
                                 {/* Save / Heart Button */}
                                 <button
                                     type="button"

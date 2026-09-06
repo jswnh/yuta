@@ -17,6 +17,7 @@ class MarketplaceController extends Controller
 
         $filters = array_filter($request->only([
             'search',
+            'ai',
             'category',
             'land_type',
             'seller_type',
@@ -37,6 +38,12 @@ class MarketplaceController extends Controller
 
     public function aiSearch(Request $request, PropertyAiSearchService $aiSearchService): JsonResponse
     {
+        if (! $request->user()) {
+            return response()->json([
+                'message' => 'Authentication required to use AI property search.',
+            ], 401);
+        }
+
         $query = (string) $request->input('query', '');
         $result = $aiSearchService->search($query);
 

@@ -41,7 +41,8 @@ import {
     Tag,
     Building2,
     Briefcase,
-    CreditCard
+    CreditCard,
+    RotateCcw
 } from 'lucide-react';
 
 interface WelcomeProps {
@@ -94,10 +95,21 @@ export default function Welcome({
 
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        const params: Record<string, string> = {};
         if (searchQuery.trim()) {
-            router.get('/marketplace', { search: searchQuery.trim() });
-        } else {
-            router.get('/marketplace');
+            params.search = searchQuery.trim();
+        }
+        if (selectedCategory && selectedCategory !== 'all') {
+            params.land_type = selectedCategory;
+        }
+        router.get('/marketplace', params);
+    };
+
+    const handleCategoryClick = (catId: string) => {
+        setSelectedCategory(catId);
+        const el = document.getElementById('marketplace');
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth' });
         }
     };
 
@@ -127,19 +139,44 @@ export default function Welcome({
     // If live DB has listings, use them; otherwise fallback gracefully to mockListings for rich demo UI
     const baseListings: Listing[] = dbListings.length > 0 ? dbListings : mockListings;
 
+    // Standard human-friendly labels for property classifications
+    const landTypeLabels: Record<string, string> = {
+        residential: 'Residential Lots',
+        agricultural: 'Farm & Agricultural',
+        commercial: 'Commercial Land',
+        industrial: 'Industrial Lots',
+        raw_land: 'Raw Land',
+    };
+
+    // Extract categories directly from existing data, prioritizing types that exist in the listings
+    const existingLandTypes = Array.from(
+        new Set(baseListings.map((l) => l.land_type).filter(Boolean))
+    );
+    const standardTypes = ['residential', 'agricultural', 'commercial', 'raw_land'];
+    const allKnownTypes = Array.from(new Set([...existingLandTypes, ...standardTypes]));
+
+    const heroCategories = [
+        {
+            id: 'all',
+            name: 'All Listings',
+            count: baseListings.length,
+        },
+        ...allKnownTypes.map((type) => ({
+            id: type,
+            name: landTypeLabels[type] || type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+            count: baseListings.filter((l) => l.land_type === type || l.listing_category === type).length,
+        })),
+    ].filter((cat) => cat.id === 'all' || cat.count > 0 || ['residential', 'agricultural', 'commercial'].includes(cat.id));
+
     // Sort by view_count descending to show Most Visited Items first
     const mostVisitedListings = [...baseListings].sort(
         (a, b) => (Number(b.view_count) || 0) - (Number(a.view_count) || 0)
     );
 
-    // Filter listings based on category selection
+    // Filter listings based on category selection directly matching the data
     const filteredListings = mostVisitedListings.filter((listing) => {
         if (selectedCategory === 'all') return true;
-        if (selectedCategory === 'land_lots') return listing.land_type === 'residential' || listing.land_type === 'raw_land';
-        if (selectedCategory === 'house_and_lot') return listing.land_type === 'residential';
-        if (selectedCategory === 'farm') return listing.land_type === 'agricultural';
-        if (selectedCategory === 'commercial') return listing.land_type === 'commercial' || listing.land_type === 'industrial';
-        return true;
+        return listing.land_type === selectedCategory || listing.listing_category === selectedCategory;
     });
 
     // 2. Spotlight Listing from Live Data (priority: primaryFeatured -> first DB listing)
@@ -177,29 +214,28 @@ export default function Welcome({
             ? `${spotlightListing.title_status.replace('_', ' ').toUpperCase()} TITLE` 
             : welcomeContent.featuredPlotHud.status);
 
-    // Live Stats
+    // Live Real Database Analytics (from master)
+    const activeCount = analytics?.active_listings_count ?? allDisplayListings.length;
+    const verifiedSellers = analytics?.verified_sellers_count ?? 0;
+    const completedDeals = analytics?.completed_transactions_count ?? 0;
+    const totalDealValue = Number(analytics?.total_transaction_value ?? 0);
+
     const liveStats = [
         {
-            value: analytics?.active_listings_count && analytics.active_listings_count > 0
-                ? `${analytics.active_listings_count}+ Lots`
-                : welcomeContent.hero.stats[0].value,
-            label: 'Properties Listed',
+            value: activeCount.toLocaleString(),
+            label: 'Active Listings',
         },
         {
-            value: welcomeContent.hero.stats[1].value, // 100% Verified Titles
-            label: welcomeContent.hero.stats[1].label,
+            value: verifiedSellers.toLocaleString(),
+            label: 'Verified Sellers',
         },
         {
-            value: analytics?.total_transaction_value && Number(analytics.total_transaction_value) > 0
-                ? `₱${(Number(analytics.total_transaction_value) / 1e6).toFixed(0)}M+`
-                : welcomeContent.hero.stats[2].value,
-            label: 'Marketplace Value',
+            value: completedDeals.toLocaleString(),
+            label: 'Completed Deals',
         },
         {
-            value: analytics?.total_views_count && analytics.total_views_count > 0
-                ? `${analytics.total_views_count.toLocaleString()}+`
-                : welcomeContent.hero.stats[3].value,
-            label: 'Buyer Inquiries & Views',
+            value: `₱${totalDealValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+            label: 'Total Deal Value',
         },
     ];
 
@@ -442,17 +478,26 @@ export default function Welcome({
 
                     {/* Category Selection Filter Pills */}
                     <div className="flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto mb-10">
-                        {welcomeContent.hero.categories.map((cat) => (
+                        {heroCategories.map((cat) => (
                             <button
                                 key={cat.id}
-                                onClick={() => setSelectedCategory(cat.id)}
-                                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                                onClick={() => handleCategoryClick(cat.id)}
+                                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer inline-flex items-center gap-2 ${
                                     selectedCategory === cat.id
-                                        ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                                        : 'bg-white/80 dark:bg-slate-900/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                        ? 'bg-emerald-500 text-slate-950 shadow-sm font-bold scale-105'
+                                        : 'bg-white/80 dark:bg-slate-900/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                                 }`}
                             >
-                                {cat.name}
+                                <span>{cat.name}</span>
+                                <span
+                                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-bold leading-none ${
+                                        selectedCategory === cat.id
+                                            ? 'bg-slate-950/20 text-slate-950'
+                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                    }`}
+                                >
+                                    {cat.count}
+                                </span>
                             </button>
                         ))}
                     </div>
@@ -569,125 +614,119 @@ export default function Welcome({
                         </div>
 
                         {/* FLOATING FROSTED GLASS HUD BADGES GRID */}
-                        <div className="relative z-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16 lg:mb-0">
+                        <div className="relative z-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-14 sm:mb-12 lg:mb-8">
                             
                             {/* HUD BADGE 1: LOT AREA */}
                             <div 
                                 onClick={() => setActiveHudBadge('area')}
-                                className={`glass-hud rounded-2xl p-4.5 sm:p-5 text-white transition-all duration-300 cursor-pointer hover:border-emerald-400/60 hover:translate-y-[-3px] ${
+                                className={`glass-hud rounded-2xl p-4 sm:p-4.5 text-white transition-all duration-300 cursor-pointer hover:border-emerald-400/60 hover:translate-y-[-2px] ${
                                     activeHudBadge === 'area' ? 'ring-2 ring-emerald-400 bg-slate-900/80' : ''
                                 }`}
                             >
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase flex items-center gap-1.5">
-                                        <Maximize2 className="w-4 h-4 text-emerald-400" />
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-[11px] font-semibold tracking-wider text-slate-300 uppercase flex items-center gap-1.5">
+                                        <Maximize2 className="w-3.5 h-3.5 text-emerald-400" />
                                         {welcomeContent.featuredPlotHud.metrics.lotArea.title}
                                     </span>
                                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono uppercase">
-                                        {spotlightListing?.land_type?.replace('_', ' ') || welcomeContent.featuredPlotHud.metrics.lotArea.badge}
+                                        {spotlightListing?.land_type?.replace(/_/g, ' ') || welcomeContent.featuredPlotHud.metrics.lotArea.badge}
                                     </span>
                                 </div>
-                                <div className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-1">
+                                <div className="text-base sm:text-lg lg:text-xl font-bold text-white tracking-tight truncate mb-1">
                                     {spotlightAreaFormatted}
                                 </div>
                                 <div className="text-xs text-slate-300 font-medium flex items-center justify-between">
-                                    <span className="truncate max-w-[150px]">
+                                    <span className="truncate max-w-[130px]">
                                         {spotlightListing 
                                             ? `${spotlightListing.city_municipality}, ${spotlightListing.province}` 
                                             : welcomeContent.featuredPlotHud.metrics.lotArea.sub}
                                     </span>
-                                    <span className="text-emerald-400 font-semibold">Clean Boundary</span>
+                                    <span className="text-emerald-400 font-semibold text-[11px]">Clean Boundary</span>
                                 </div>
                             </div>
 
-                            {/* HUD BADGE 2: PRICE TREND BAR CHART */}
+                            {/* HUD BADGE 2: PROPERTY VALUE */}
                             <div 
                                 onClick={() => setActiveHudBadge('price')}
-                                className={`glass-hud rounded-2xl p-4.5 sm:p-5 text-white transition-all duration-300 cursor-pointer hover:border-emerald-400/60 hover:translate-y-[-3px] ${
+                                className={`glass-hud rounded-2xl p-4 sm:p-4.5 text-white transition-all duration-300 cursor-pointer hover:border-emerald-400/60 hover:translate-y-[-2px] ${
                                     activeHudBadge === 'price' ? 'ring-2 ring-emerald-400 bg-slate-900/80' : ''
                                 }`}
                             >
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase flex items-center gap-1.5">
-                                        <TrendingUp className="w-4 h-4 text-emerald-400" />
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-[11px] font-semibold tracking-wider text-slate-300 uppercase flex items-center gap-1.5">
+                                        <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
                                         Property Value
                                     </span>
-                                    <span className="text-xs font-bold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full">
-                                        {spotlightListing?.is_negotiable ? 'Negotiable' : welcomeContent.featuredPlotHud.metrics.priceTrend.badge}
+                                    <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full">
+                                        {spotlightListing?.is_negotiable ? 'Negotiable' : 'Verified Asking'}
                                     </span>
                                 </div>
-                                <div className="flex items-baseline gap-2 mb-2">
-                                    <span className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                                        {spotlightPriceFormatted}
-                                    </span>
+                                <div className="text-base sm:text-lg lg:text-xl font-bold text-white tracking-tight truncate mb-1">
+                                    {spotlightPriceFormatted}
                                 </div>
-                                {/* Micro Bar Chart SVG */}
-                                <div className="flex items-end gap-1.5 h-7 pt-1">
-                                    {[40, 52, 60, 68, 82, 100].map((height, i) => (
-                                        <div key={i} className="flex-1 bg-slate-700/60 rounded-t overflow-hidden h-full flex items-end">
-                                            <div 
-                                                className="w-full bg-gradient-to-t from-emerald-600 to-teal-400 rounded-t transition-all duration-500" 
-                                                style={{ height: `${height}%` }}
-                                            />
-                                        </div>
-                                    ))}
+                                <div className="text-xs text-slate-300 font-medium flex items-center justify-between">
+                                    <span className="truncate max-w-[130px]">
+                                        {spotlightListing?.price_per_unit 
+                                            ? `₱${Number(spotlightListing.price_per_unit).toLocaleString()}/sqm` 
+                                            : 'Direct Valuation'}
+                                    </span>
+                                    <span className="text-emerald-400 font-semibold text-[11px]">Escrow Ready</span>
                                 </div>
                             </div>
 
                             {/* HUD BADGE 3: SOIL & GROUND QUALITY */}
                             <div 
                                 onClick={() => setActiveHudBadge('soil')}
-                                className={`glass-hud rounded-2xl p-4.5 sm:p-5 text-white transition-all duration-300 cursor-pointer hover:border-emerald-400/60 hover:translate-y-[-3px] ${
+                                className={`glass-hud rounded-2xl p-4 sm:p-4.5 text-white transition-all duration-300 cursor-pointer hover:border-emerald-400/60 hover:translate-y-[-2px] ${
                                     activeHudBadge === 'soil' ? 'ring-2 ring-emerald-400 bg-slate-900/80' : ''
                                 }`}
                             >
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase flex items-center gap-1.5">
-                                        <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                                        Topography & Grade
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-[11px] font-semibold tracking-wider text-slate-300 uppercase flex items-center gap-1.5">
+                                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                                        Topography
                                     </span>
                                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-semibold uppercase">
-                                        {spotlightListing?.topography || welcomeContent.featuredPlotHud.metrics.soilQuality.badge}
+                                        {spotlightListing?.topography || 'Standard'}
                                     </span>
                                 </div>
-                                <div className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-2">
+                                <div className="text-base sm:text-lg lg:text-xl font-bold text-white tracking-tight capitalize truncate mb-1">
                                     {spotlightListing?.topography 
-                                        ? `${spotlightListing.topography.toUpperCase()} TERRAIN`
-                                        : welcomeContent.featuredPlotHud.metrics.soilQuality.value}
+                                        ? `${spotlightListing.topography} Terrain` 
+                                        : 'Prime Land Grade'}
                                 </div>
-                                {/* Progress gauge bar */}
-                                <div className="w-full bg-slate-700/60 h-2 rounded-full overflow-hidden mb-1.5">
-                                    <div className="bg-gradient-to-r from-teal-400 to-emerald-400 h-full rounded-full w-[98.4%]" />
-                                </div>
-                                <div className="text-xs text-slate-300 font-medium">
-                                    {spotlightListing?.is_verified ? 'Verified Ownership Record' : welcomeContent.featuredPlotHud.metrics.soilQuality.sub}
+                                <div className="text-xs text-slate-300 font-medium flex items-center justify-between">
+                                    <span>
+                                        {spotlightListing?.is_verified ? 'Cadastral Surveyed' : 'Municipal Record'}
+                                    </span>
+                                    <span className="text-emerald-400 font-semibold text-[11px]">Flood Safe</span>
                                 </div>
                             </div>
 
                             {/* HUD BADGE 4: ELEVATION & FLOOD SAFETY */}
                             <div 
                                 onClick={() => setActiveHudBadge('elevation')}
-                                className={`glass-hud rounded-2xl p-4.5 sm:p-5 text-white transition-all duration-300 cursor-pointer hover:border-emerald-400/60 hover:translate-y-[-3px] ${
+                                className={`glass-hud rounded-2xl p-4.5 sm:p-5 text-white transition-all duration-300 cursor-pointer hover:border-emerald-400/60 hover:translate-y-[-2px] ${
                                     activeHudBadge === 'elevation' ? 'ring-2 ring-emerald-400 bg-slate-900/80' : ''
                                 }`}
                             >
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase flex items-center gap-1.5">
-                                        <Mountain className="w-4 h-4 text-emerald-400" />
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-[11px] font-semibold tracking-wider text-slate-300 uppercase flex items-center gap-1.5">
+                                        <Mountain className="w-3.5 h-3.5 text-emerald-400" />
                                         Title & Safety
                                     </span>
                                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold uppercase">
-                                        {spotlightListing?.title_status?.replace('_', ' ') || welcomeContent.featuredPlotHud.metrics.elevation.badge}
+                                        {spotlightListing?.title_status?.replace(/_/g, ' ') || 'Verified'}
                                     </span>
                                 </div>
-                                <div className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-1">
+                                <div className="text-base sm:text-lg lg:text-xl font-bold text-white tracking-tight capitalize truncate mb-1">
                                     {spotlightListing?.title_status 
-                                        ? spotlightListing.title_status.replace('_', ' ').toUpperCase()
-                                        : welcomeContent.featuredPlotHud.metrics.elevation.value}
+                                        ? spotlightListing.title_status.replace(/_/g, ' ') 
+                                        : 'Clean Title Deed'}
                                 </div>
                                 <div className="text-xs text-slate-300 font-medium flex items-center justify-between">
-                                    <span>Verified Registry</span>
-                                    <span className="text-emerald-400 font-semibold">Ready to Acquire</span>
+                                    <span>Registry Cross-Checked</span>
+                                    <span className="text-emerald-400 font-semibold text-[11px]">Clear Title</span>
                                 </div>
                             </div>
 
@@ -697,21 +736,21 @@ export default function Welcome({
                         {spotlightListing ? (
                             <Link 
                                 href={`/properties/${spotlightListing.slug}`}
-                                className="absolute bottom-6 right-6 lg:bottom-10 lg:right-10 z-30 rounded-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold px-6 py-3.5 shadow-2xl hover:shadow-emerald-900/20 hover:scale-105 active:scale-95 border border-white/90 dark:border-slate-700 transition-all duration-300 cursor-pointer flex items-center gap-2.5 text-sm sm:text-base group"
+                                className="absolute bottom-3 right-3 sm:bottom-4 sm:right-5 z-30 rounded-full bg-white/95 hover:bg-white dark:bg-slate-900/95 dark:hover:bg-slate-900 text-slate-900 dark:text-white font-bold px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs shadow-xl hover:shadow-emerald-900/30 hover:scale-105 active:scale-95 border border-white/80 dark:border-slate-700 backdrop-blur-md transition-all duration-300 cursor-pointer flex items-center gap-2 group"
                             >
-                                <span>View Property Details</span>
-                                <div className="w-7 h-7 rounded-full bg-slate-900 text-white dark:bg-emerald-500 dark:text-slate-950 flex items-center justify-center group-hover:bg-emerald-600 transition-colors">
-                                    <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
+                                <span className="tracking-tight">View Property Details</span>
+                                <div className="w-5 h-5 rounded-full bg-slate-900 text-white dark:bg-emerald-500 dark:text-slate-950 flex items-center justify-center group-hover:bg-emerald-600 transition-colors shrink-0">
+                                    <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
                                 </div>
                             </Link>
                         ) : (
                             <button 
                                 onClick={() => setModalOpen(true)}
-                                className="absolute bottom-6 right-6 lg:bottom-10 lg:right-10 z-30 rounded-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold px-6 py-3.5 shadow-2xl hover:shadow-emerald-900/20 hover:scale-105 active:scale-95 border border-white/90 dark:border-slate-700 transition-all duration-300 cursor-pointer flex items-center gap-2.5 text-sm sm:text-base group"
+                                className="absolute bottom-3 right-3 sm:bottom-4 sm:right-5 z-30 rounded-full bg-white/95 hover:bg-white dark:bg-slate-900/95 dark:hover:bg-slate-900 text-slate-900 dark:text-white font-bold px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs shadow-xl hover:shadow-emerald-900/30 hover:scale-105 active:scale-95 border border-white/80 dark:border-slate-700 backdrop-blur-md transition-all duration-300 cursor-pointer flex items-center gap-2 group"
                             >
-                                <span>{welcomeContent.featuredPlotHud.ctaButtonText}</span>
-                                <div className="w-7 h-7 rounded-full bg-slate-900 text-white dark:bg-emerald-500 dark:text-slate-950 flex items-center justify-center group-hover:bg-emerald-600 transition-colors">
-                                    <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
+                                <span className="tracking-tight">{welcomeContent.featuredPlotHud.ctaButtonText}</span>
+                                <div className="w-5 h-5 rounded-full bg-slate-900 text-white dark:bg-emerald-500 dark:text-slate-950 flex items-center justify-center group-hover:bg-emerald-600 transition-colors shrink-0">
+                                    <Plus className="w-3 h-3 group-hover:rotate-90 transition-transform duration-300" />
                                 </div>
                             </button>
                         )}
@@ -735,12 +774,22 @@ export default function Welcome({
                         </div>
 
                         <div className="flex items-center gap-3">
+                            {selectedCategory !== 'all' && (
+                                <button
+                                    onClick={() => setSelectedCategory('all')}
+                                    className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                                >
+                                    <RotateCcw className="w-3 h-3" />
+                                    <span>Reset Filter</span>
+                                </button>
+                            )}
+
                             <span className="text-xs font-mono font-semibold px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                 {filteredListings.length} Active Listings
                             </span>
 
                             <Link
-                                href="/marketplace"
+                                href={selectedCategory !== 'all' ? `/marketplace?land_type=${selectedCategory}` : '/marketplace'}
                                 className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
                             >
                                 <span>View Full Marketplace</span>
@@ -769,16 +818,31 @@ export default function Welcome({
                     </div>
 
                     {/* MARKETPLACE LISTINGS GRID */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-                        {filteredListings.map((listing) => (
-                            <ListingCard 
-                                key={listing.listing_id}
-                                listing={listing}
-                                isSelected={listing.listing_id === selectedListingId}
-                                onHover={() => setSelectedListingId(listing.listing_id)}
-                            />
-                        ))}
-                    </div>
+                    {filteredListings.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+                            {filteredListings.map((listing) => (
+                                <ListingCard 
+                                    key={listing.listing_id}
+                                    listing={listing}
+                                    isSelected={listing.listing_id === selectedListingId}
+                                    onHover={() => setSelectedListingId(listing.listing_id)}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="py-16 text-center rounded-3xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-xs p-8">
+                            <p className="text-slate-600 dark:text-slate-400 font-medium mb-4">
+                                No listings currently found for this category.
+                            </p>
+                            <button
+                                onClick={() => setSelectedCategory('all')}
+                                className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-sm cursor-pointer inline-flex items-center gap-2"
+                            >
+                                <RotateCcw className="w-3.5 h-3.5" />
+                                <span>Show All Listings</span>
+                            </button>
+                        </div>
+                    )}
                 </section>
 
                 {/* SECTION: WHY YUTA WORKS BETTER / KEY ADVANTAGES */}

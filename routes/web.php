@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 // Public Welcome & Marketplace Routes
 Route::get('/', WelcomeController::class)->name('home');
 Route::match(['get', 'post'], 'marketplace', [MarketplaceController::class, 'index'])->name('marketplace.index');
-Route::post('marketplace/ai-search', [MarketplaceController::class, 'aiSearch'])->name('marketplace.ai-search');
+Route::post('marketplace/ai-search', [MarketplaceController::class, 'aiSearch'])->middleware('auth')->name('marketplace.ai-search');
 Route::get('properties/{slug}', [ListingDetailController::class, 'show'])->name('listings.show');
 
 // Authenticated User Routes (Buyer & General User Capabilities)

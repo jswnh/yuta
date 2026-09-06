@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import ListingCard from '@/components/listing-card';
@@ -12,7 +12,7 @@ import {
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useInitials } from '@/hooks/use-initials';
 import type { Listing } from '@/types/listing';
-import { Search, ChevronLeft, ChevronRight, Store, RotateCcw, Layers } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Store, RotateCcw, Layers, Sparkles, Loader2, X, Bot, Tag, Lock } from 'lucide-react';
 
 interface MarketplaceIndexProps {
     listings?: {
@@ -41,8 +41,79 @@ export default function MarketplaceIndex({ listings, filters = {} }: Marketplace
     const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
     const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
 
+    // AI Search State
+    const [aiQuery, setAiQuery] = useState(initialSearch);
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiResults, setAiResults] = useState<Listing[] | null>(null);
+    const [aiInterpretation, setAiInterpretation] = useState<string | null>(null);
+    const [aiCriteria, setAiCriteria] = useState<Record<string, any> | null>(null);
+
+    const handleAiSearch = async (queryText?: string) => {
+        if (!auth?.user) {
+            router.get('/login');
+            return;
+        }
+
+        const q = (queryText !== undefined ? queryText : aiQuery).trim();
+        if (!q) return;
+
+        setAiLoading(true);
+        setAiQuery(q);
+
+        try {
+            const csrfToken = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '';
+            const res = await fetch('/marketplace/ai-search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+                body: JSON.stringify({ query: q }),
+            });
+
+            if (res.status === 401) {
+                router.get('/login');
+                return;
+            }
+
+            if (!res.ok) {
+                throw new Error(`AI search failed: ${res.statusText}`);
+            }
+
+            const data = await res.json();
+            setAiResults(data.listings ?? []);
+            setAiInterpretation(data.interpretation ?? `Properties matching "${q}"`);
+            setAiCriteria(data.criteria ?? null);
+        } catch (err) {
+            console.error('AI search error:', err);
+            applyFilters({ search: q });
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
+    const clearAiSearch = () => {
+        setAiResults(null);
+        setAiInterpretation(null);
+        setAiCriteria(null);
+        setAiQuery('');
+    };
+
+    useEffect(() => {
+        if (filters?.ai === '1' && initialSearch.trim()) {
+            if (auth?.user) {
+                handleAiSearch(initialSearch);
+            } else {
+                applyFilters({ search: initialSearch });
+            }
+        }
+    }, []);
+
     const listData = listings?.data ?? [];
+    const displayedListings = aiResults !== null ? aiResults : listData;
     const totalCount = listings?.total ?? listData.length;
+    const displayedTotal = aiResults !== null ? aiResults.length : totalCount;
     const currentPage = listings?.current_page ?? 1;
     const lastPage = listings?.last_page ?? 1;
 
@@ -68,10 +139,11 @@ export default function MarketplaceIndex({ listings, filters = {} }: Marketplace
         setLandType('all');
         setTitleStatus('all');
         setSort('newest');
+        clearAiSearch();
         router.get('/marketplace', {}, { preserveState: true, preserveScroll: true });
     };
 
-    const hasActiveFilters = search !== '' || landType !== 'all' || titleStatus !== 'all' || sort !== 'newest';
+    const hasActiveFilters = search !== '' || landType !== 'all' || titleStatus !== 'all' || sort !== 'newest' || aiResults !== null;
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans">
@@ -154,7 +226,7 @@ export default function MarketplaceIndex({ listings, filters = {} }: Marketplace
                     <div>
                         <h1 className="text-3xl font-black text-slate-900 dark:text-white">Property Marketplace</h1>
                         <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
-                            Explore {totalCount} verified real estate lots and properties in the Philippines.
+                            Explore {displayedTotal} verified real estate lots and properties in the Philippines.
                         </p>
                     </div>
 
@@ -270,17 +342,158 @@ export default function MarketplaceIndex({ listings, filters = {} }: Marketplace
 
                     {/* LISTINGS / MAP CONTENT */}
                     <div className="lg:col-span-3">
+                        {/* AI NATURAL LANGUAGE SEARCH BANNER (MEMBERS ONLY) OR GUEST NOTICE */}
+                        {auth?.user ? (
+                            <div className="mb-6 rounded-3xl bg-gradient-to-br from-emerald-950/40 via-slate-900 to-teal-950/40 border border-emerald-500/30 p-5 sm:p-6 shadow-xl relative overflow-hidden backdrop-blur-md">
+                                {/* Ambient background glow */}
+                                <div className="absolute -right-10 -top-10 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+                                
+                                <div className="relative z-10">
+                                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold uppercase tracking-wider">
+                                            <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                                            <span>AI Property Finder</span>
+                                        </div>
+                                        <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+                                            Powered by <span className="text-emerald-400 font-semibold">Laravel AI SDK</span>
+                                        </span>
+                                    </div>
+
+                                    <form 
+                                        onSubmit={(e) => { e.preventDefault(); handleAiSearch(); }} 
+                                        className="flex flex-col sm:flex-row items-center gap-2 mb-3"
+                                    >
+                                        <div className="relative flex-1 w-full">
+                                            <input
+                                                type="text"
+                                                value={aiQuery}
+                                                onChange={(e) => setAiQuery(e.target.value)}
+                                                placeholder="Ask in plain English: e.g. Farm lot under ₱5M with clean title in Batangas..."
+                                                className="w-full bg-slate-950/80 border border-slate-700/80 focus:border-emerald-400 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all"
+                                            />
+                                            {aiQuery && (
+                                                <button
+                                                    type="button"
+                                                    onClick={clearAiSearch}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 cursor-pointer"
+                                                    title="Clear AI search"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        <button
+                                            type="submit"
+                                            disabled={aiLoading || !aiQuery.trim()}
+                                            className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 disabled:opacity-50 text-slate-950 font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                                        >
+                                            {aiLoading ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    <span>Analyzing...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Sparkles className="w-4 h-4" />
+                                                    <span>Search with AI</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </form>
+
+                                    {/* Quick Suggestion Chips */}
+                                    <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                                        <span className="text-slate-400 text-[11px] font-medium mr-1">Suggested prompts:</span>
+                                        {[
+                                            'Farm lot under ₱5M with clean title',
+                                            'Beachfront or coastal land',
+                                            'Residential lot in Cavite or Rizal',
+                                            'Commercial plot for warehouse',
+                                        ].map((preset, idx) => (
+                                            <button
+                                                key={idx}
+                                                type="button"
+                                                onClick={() => {
+                                                    setAiQuery(preset);
+                                                    handleAiSearch(preset);
+                                                }}
+                                                className="px-2.5 py-1 rounded-full bg-white/5 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-white/10 hover:border-emerald-500/30 text-[11px] transition-colors cursor-pointer"
+                                            >
+                                                {preset}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {/* AI Interpretation Result Box */}
+                                    {aiInterpretation && (
+                                        <div className="mt-4 pt-3 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in">
+                                            <div className="flex items-start sm:items-center gap-2 text-xs">
+                                                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px] uppercase shrink-0">
+                                                    AI Interpretation
+                                                </span>
+                                                <p className="text-slate-200 font-medium">
+                                                    {aiInterpretation}
+                                                </p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={clearAiSearch}
+                                                className="text-xs text-emerald-400 hover:underline font-semibold shrink-0 cursor-pointer"
+                                            >
+                                                Reset AI Filter ({aiResults?.length ?? 0} found)
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="mb-6 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 flex items-center justify-center shrink-0">
+                                        <Sparkles className="w-4 h-4 text-emerald-500" />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-bold text-slate-900 dark:text-white">AI Natural Language Search</span>
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                                                <Lock className="w-2.5 h-2.5 text-slate-400" />
+                                                Members Only
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                            Sign in to search properties with AI natural language queries. Guest browsing uses standard filters.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                    <Link
+                                        href="/login"
+                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                    >
+                                        Log In
+                                    </Link>
+                                    <Link
+                                        href="/register"
+                                        className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-xs"
+                                    >
+                                        Register
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
+
                         {viewMode === 'map' ? (
                             <ListingMap
-                                listings={listData}
+                                listings={displayedListings}
                                 selectedListingId={selectedListingId}
                                 onSelectListing={(id) => setSelectedListingId(id)}
                                 height="600px"
                             />
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                {listData.length > 0 ? (
-                                    listData.map((item) => (
+                                {displayedListings.length > 0 ? (
+                                    displayedListings.map((item) => (
                                         <ListingCard
                                             key={item.listing_id}
                                             listing={item}
@@ -293,9 +506,9 @@ export default function MarketplaceIndex({ listings, filters = {} }: Marketplace
                                         <Store className="w-12 h-12 text-slate-400 dark:text-slate-600 mx-auto mb-3" />
                                         <h4 className="text-lg font-bold text-slate-900 dark:text-white">No listings match your search</h4>
                                         <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Try changing or clearing your filters.</p>
-                                        {hasActiveFilters && (
+                                        {(hasActiveFilters || aiResults !== null) && (
                                             <button
-                                                onClick={resetFilters}
+                                                onClick={() => { resetFilters(); clearAiSearch(); }}
                                                 className="mt-4 px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-900 dark:text-white cursor-pointer"
                                             >
                                                 Clear All Filters
@@ -306,7 +519,7 @@ export default function MarketplaceIndex({ listings, filters = {} }: Marketplace
                             </div>
                         )}
 
-                        {lastPage > 1 && (
+                        {aiResults === null && lastPage > 1 && (
                             <div className="mt-10 flex items-center justify-center gap-2">
                                 {currentPage > 1 && (
                                     <Link href={`/marketplace?page=${currentPage - 1}`} className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300">
