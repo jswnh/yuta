@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useAgreements } from '@/hooks/use-agreements';
 import type { Agreement } from '@/types/agreement';
+import { getListingImageUrl } from '@/lib/utils';
 import { 
     Check, 
     X, 
@@ -190,8 +191,12 @@ export default function AgreementShow({ agreement }: AgreementShowProps) {
                             <div className="space-y-3">
                                 <div className="h-36 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
                                     <img
-                                        src={agreement.listing.images?.[0]?.file_path || '/images/aerial_land_plot.jpg'}
-                                        alt=""
+                                        src={getListingImageUrl(agreement.listing)}
+                                        alt={agreement.listing.title}
+                                        onError={(e) => {
+                                            e.currentTarget.onerror = null;
+                                            e.currentTarget.src = '/images/aerial_land_plot.jpg';
+                                        }}
                                         className="w-full h-full object-cover"
                                     />
                                 </div>

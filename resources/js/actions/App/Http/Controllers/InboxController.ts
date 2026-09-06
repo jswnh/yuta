@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\InboxController::storeMessage
- * @see app/Http/Controllers/InboxController.php:85
+ * @see app/Http/Controllers/InboxController.php:86
  * @route '/inbox/{conversation}/messages'
  */
 export const storeMessage = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ storeMessage.definition = {
 
 /**
 * @see \App\Http\Controllers\InboxController::storeMessage
- * @see app/Http/Controllers/InboxController.php:85
+ * @see app/Http/Controllers/InboxController.php:86
  * @route '/inbox/{conversation}/messages'
  */
 storeMessage.url = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions) => {
@@ -127,7 +127,7 @@ storeMessage.url = (args: { conversation: string | { id: string } } | [conversat
 
 /**
 * @see \App\Http\Controllers\InboxController::storeMessage
- * @see app/Http/Controllers/InboxController.php:85
+ * @see app/Http/Controllers/InboxController.php:86
  * @route '/inbox/{conversation}/messages'
  */
 storeMessage.post = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -137,7 +137,7 @@ storeMessage.post = (args: { conversation: string | { id: string } } | [conversa
 
     /**
 * @see \App\Http\Controllers\InboxController::storeMessage
- * @see app/Http/Controllers/InboxController.php:85
+ * @see app/Http/Controllers/InboxController.php:86
  * @route '/inbox/{conversation}/messages'
  */
     const storeMessageForm = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -147,7 +147,7 @@ storeMessage.post = (args: { conversation: string | { id: string } } | [conversa
 
             /**
 * @see \App\Http\Controllers\InboxController::storeMessage
- * @see app/Http/Controllers/InboxController.php:85
+ * @see app/Http/Controllers/InboxController.php:86
  * @route '/inbox/{conversation}/messages'
  */
         storeMessageForm.post = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -158,7 +158,7 @@ storeMessage.post = (args: { conversation: string | { id: string } } | [conversa
     storeMessage.form = storeMessageForm
 /**
 * @see \App\Http\Controllers\InboxController::startInquiry
- * @see app/Http/Controllers/InboxController.php:136
+ * @see app/Http/Controllers/InboxController.php:137
  * @route '/inbox/inquiries'
  */
 export const startInquiry = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -173,7 +173,7 @@ startInquiry.definition = {
 
 /**
 * @see \App\Http\Controllers\InboxController::startInquiry
- * @see app/Http/Controllers/InboxController.php:136
+ * @see app/Http/Controllers/InboxController.php:137
  * @route '/inbox/inquiries'
  */
 startInquiry.url = (options?: RouteQueryOptions) => {
@@ -182,7 +182,7 @@ startInquiry.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\InboxController::startInquiry
- * @see app/Http/Controllers/InboxController.php:136
+ * @see app/Http/Controllers/InboxController.php:137
  * @route '/inbox/inquiries'
  */
 startInquiry.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -192,7 +192,7 @@ startInquiry.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\InboxController::startInquiry
- * @see app/Http/Controllers/InboxController.php:136
+ * @see app/Http/Controllers/InboxController.php:137
  * @route '/inbox/inquiries'
  */
     const startInquiryForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -202,7 +202,7 @@ startInquiry.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\InboxController::startInquiry
- * @see app/Http/Controllers/InboxController.php:136
+ * @see app/Http/Controllers/InboxController.php:137
  * @route '/inbox/inquiries'
  */
         startInquiryForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

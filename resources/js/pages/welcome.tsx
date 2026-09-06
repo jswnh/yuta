@@ -973,10 +973,10 @@ export default function Welcome({
                         {/* Brand Column */}
                         <div className="md:col-span-5 flex flex-col justify-between">
                             <div>
-                                <div className="flex items-center gap-2.5 mb-4">
-                                    <AppLogoIcon className="h-8 w-auto object-contain" />
+                                <Link href="/" className="flex items-center gap-2.5 mb-4 group w-fit">
+                                    <AppLogoIcon className="h-8 w-auto object-contain transition-transform duration-200 group-hover:scale-105" />
                                     <span className="font-bold text-2xl tracking-tight text-white">Yuta</span>
-                                </div>
+                                </Link>
                                 <p className="text-slate-400 text-sm leading-relaxed max-w-sm mb-6">
                                     {welcomeContent.footer.brandDescription}
                                 </p>
