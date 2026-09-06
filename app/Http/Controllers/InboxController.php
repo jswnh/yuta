@@ -76,6 +76,7 @@ class InboxController extends Controller
         return Inertia::render('inbox/index', [
             'conversations' => $conversations,
             'activeConversation' => $activeConversation,
+            'messages' => $activeConversation?->messages ?? [],
         ]);
     }
 

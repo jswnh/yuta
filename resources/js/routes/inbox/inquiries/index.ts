@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\InboxController::store
- * @see app/Http/Controllers/InboxController.php:136
+ * @see app/Http/Controllers/InboxController.php:137
  * @route '/inbox/inquiries'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\InboxController::store
- * @see app/Http/Controllers/InboxController.php:136
+ * @see app/Http/Controllers/InboxController.php:137
  * @route '/inbox/inquiries'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\InboxController::store
- * @see app/Http/Controllers/InboxController.php:136
+ * @see app/Http/Controllers/InboxController.php:137
  * @route '/inbox/inquiries'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\InboxController::store
- * @see app/Http/Controllers/InboxController.php:136
+ * @see app/Http/Controllers/InboxController.php:137
  * @route '/inbox/inquiries'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\InboxController::store
- * @see app/Http/Controllers/InboxController.php:136
+ * @see app/Http/Controllers/InboxController.php:137
  * @route '/inbox/inquiries'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

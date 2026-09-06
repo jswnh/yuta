@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\InboxController::store
- * @see app/Http/Controllers/InboxController.php:85
+ * @see app/Http/Controllers/InboxController.php:86
  * @route '/inbox/{conversation}/messages'
  */
 export const store = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\InboxController::store
- * @see app/Http/Controllers/InboxController.php:85
+ * @see app/Http/Controllers/InboxController.php:86
  * @route '/inbox/{conversation}/messages'
  */
 store.url = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ store.url = (args: { conversation: string | { id: string } } | [conversation: st
 
 /**
 * @see \App\Http\Controllers\InboxController::store
- * @see app/Http/Controllers/InboxController.php:85
+ * @see app/Http/Controllers/InboxController.php:86
  * @route '/inbox/{conversation}/messages'
  */
 store.post = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -59,7 +59,7 @@ store.post = (args: { conversation: string | { id: string } } | [conversation: s
 
     /**
 * @see \App\Http\Controllers\InboxController::store
- * @see app/Http/Controllers/InboxController.php:85
+ * @see app/Http/Controllers/InboxController.php:86
  * @route '/inbox/{conversation}/messages'
  */
     const storeForm = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -69,7 +69,7 @@ store.post = (args: { conversation: string | { id: string } } | [conversation: s
 
             /**
 * @see \App\Http\Controllers\InboxController::store
- * @see app/Http/Controllers/InboxController.php:85
+ * @see app/Http/Controllers/InboxController.php:86
  * @route '/inbox/{conversation}/messages'
  */
         storeForm.post = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

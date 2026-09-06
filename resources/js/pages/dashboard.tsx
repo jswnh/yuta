@@ -3,6 +3,7 @@ import type { SellerDashboardAnalytics } from '@/types/analytics';
 import type { Agreement } from '@/types/agreement';
 import type { Transaction } from '@/types/transaction';
 import type { Listing } from '@/types/listing';
+import { getListingImageUrl } from '@/lib/utils';
 import { 
     Layers, 
     Eye, 
@@ -170,8 +171,12 @@ export default function Dashboard({
                                         <div className="flex items-center gap-3 min-w-0">
                                             <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-950 overflow-hidden shrink-0 border border-slate-200 dark:border-slate-800">
                                                 <img
-                                                    src={listing.images?.[0]?.file_path || '/images/aerial_land_plot.jpg'}
-                                                    alt=""
+                                                    src={getListingImageUrl(listing)}
+                                                    alt={listing.title}
+                                                    onError={(e) => {
+                                                        e.currentTarget.onerror = null;
+                                                        e.currentTarget.src = '/images/aerial_land_plot.jpg';
+                                                    }}
                                                     className="w-full h-full object-cover"
                                                 />
                                             </div>
