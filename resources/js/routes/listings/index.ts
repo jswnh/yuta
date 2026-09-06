@@ -255,7 +255,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\ListingController::newMethod
- * @see app/Http/Controllers/ListingController.php:38
+ * @see app/Http/Controllers/ListingController.php:39
  * @route '/listings/new'
  */
 export const newMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -270,7 +270,7 @@ newMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\ListingController::newMethod
- * @see app/Http/Controllers/ListingController.php:38
+ * @see app/Http/Controllers/ListingController.php:39
  * @route '/listings/new'
  */
 newMethod.url = (options?: RouteQueryOptions) => {
@@ -279,7 +279,7 @@ newMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ListingController::newMethod
- * @see app/Http/Controllers/ListingController.php:38
+ * @see app/Http/Controllers/ListingController.php:39
  * @route '/listings/new'
  */
 newMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -288,7 +288,7 @@ newMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\ListingController::newMethod
- * @see app/Http/Controllers/ListingController.php:38
+ * @see app/Http/Controllers/ListingController.php:39
  * @route '/listings/new'
  */
 newMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -298,7 +298,7 @@ newMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\ListingController::newMethod
- * @see app/Http/Controllers/ListingController.php:38
+ * @see app/Http/Controllers/ListingController.php:39
  * @route '/listings/new'
  */
     const newMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -308,7 +308,7 @@ newMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\ListingController::newMethod
- * @see app/Http/Controllers/ListingController.php:38
+ * @see app/Http/Controllers/ListingController.php:39
  * @route '/listings/new'
  */
         newMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -317,7 +317,7 @@ newMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\ListingController::newMethod
- * @see app/Http/Controllers/ListingController.php:38
+ * @see app/Http/Controllers/ListingController.php:39
  * @route '/listings/new'
  */
         newMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -333,7 +333,7 @@ newMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     newMethod.form = newMethodForm
 /**
 * @see \App\Http\Controllers\ListingController::draft
- * @see app/Http/Controllers/ListingController.php:50
+ * @see app/Http/Controllers/ListingController.php:51
  * @route '/listings/draft'
  */
 export const draft = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -348,7 +348,7 @@ draft.definition = {
 
 /**
 * @see \App\Http\Controllers\ListingController::draft
- * @see app/Http/Controllers/ListingController.php:50
+ * @see app/Http/Controllers/ListingController.php:51
  * @route '/listings/draft'
  */
 draft.url = (options?: RouteQueryOptions) => {
@@ -357,7 +357,7 @@ draft.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ListingController::draft
- * @see app/Http/Controllers/ListingController.php:50
+ * @see app/Http/Controllers/ListingController.php:51
  * @route '/listings/draft'
  */
 draft.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -367,7 +367,7 @@ draft.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\ListingController::draft
- * @see app/Http/Controllers/ListingController.php:50
+ * @see app/Http/Controllers/ListingController.php:51
  * @route '/listings/draft'
  */
     const draftForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -377,7 +377,7 @@ draft.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\ListingController::draft
- * @see app/Http/Controllers/ListingController.php:50
+ * @see app/Http/Controllers/ListingController.php:51
  * @route '/listings/draft'
  */
         draftForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -388,7 +388,7 @@ draft.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     draft.form = draftForm
 /**
 * @see \App\Http\Controllers\ListingController::store
- * @see app/Http/Controllers/ListingController.php:72
+ * @see app/Http/Controllers/ListingController.php:73
  * @route '/listings'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -403,7 +403,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\ListingController::store
- * @see app/Http/Controllers/ListingController.php:72
+ * @see app/Http/Controllers/ListingController.php:73
  * @route '/listings'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -412,7 +412,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ListingController::store
- * @see app/Http/Controllers/ListingController.php:72
+ * @see app/Http/Controllers/ListingController.php:73
  * @route '/listings'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -422,7 +422,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\ListingController::store
- * @see app/Http/Controllers/ListingController.php:72
+ * @see app/Http/Controllers/ListingController.php:73
  * @route '/listings'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -432,7 +432,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\ListingController::store
- * @see app/Http/Controllers/ListingController.php:72
+ * @see app/Http/Controllers/ListingController.php:73
  * @route '/listings'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -443,7 +443,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\ListingController::edit
- * @see app/Http/Controllers/ListingController.php:145
+ * @see app/Http/Controllers/ListingController.php:146
  * @route '/listings/{listing}/edit'
  */
 export const edit = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -458,7 +458,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\ListingController::edit
- * @see app/Http/Controllers/ListingController.php:145
+ * @see app/Http/Controllers/ListingController.php:146
  * @route '/listings/{listing}/edit'
  */
 edit.url = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions) => {
@@ -491,7 +491,7 @@ edit.url = (args: { listing: string | { listing_id: string } } | [listing: strin
 
 /**
 * @see \App\Http\Controllers\ListingController::edit
- * @see app/Http/Controllers/ListingController.php:145
+ * @see app/Http/Controllers/ListingController.php:146
  * @route '/listings/{listing}/edit'
  */
 edit.get = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -500,7 +500,7 @@ edit.get = (args: { listing: string | { listing_id: string } } | [listing: strin
 })
 /**
 * @see \App\Http\Controllers\ListingController::edit
- * @see app/Http/Controllers/ListingController.php:145
+ * @see app/Http/Controllers/ListingController.php:146
  * @route '/listings/{listing}/edit'
  */
 edit.head = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -510,7 +510,7 @@ edit.head = (args: { listing: string | { listing_id: string } } | [listing: stri
 
     /**
 * @see \App\Http\Controllers\ListingController::edit
- * @see app/Http/Controllers/ListingController.php:145
+ * @see app/Http/Controllers/ListingController.php:146
  * @route '/listings/{listing}/edit'
  */
     const editForm = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -520,7 +520,7 @@ edit.head = (args: { listing: string | { listing_id: string } } | [listing: stri
 
             /**
 * @see \App\Http\Controllers\ListingController::edit
- * @see app/Http/Controllers/ListingController.php:145
+ * @see app/Http/Controllers/ListingController.php:146
  * @route '/listings/{listing}/edit'
  */
         editForm.get = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -529,7 +529,7 @@ edit.head = (args: { listing: string | { listing_id: string } } | [listing: stri
         })
             /**
 * @see \App\Http\Controllers\ListingController::edit
- * @see app/Http/Controllers/ListingController.php:145
+ * @see app/Http/Controllers/ListingController.php:146
  * @route '/listings/{listing}/edit'
  */
         editForm.head = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -545,7 +545,7 @@ edit.head = (args: { listing: string | { listing_id: string } } | [listing: stri
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\ListingController::update
- * @see app/Http/Controllers/ListingController.php:161
+ * @see app/Http/Controllers/ListingController.php:162
  * @route '/listings/{listing}'
  */
 export const update = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -560,7 +560,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\ListingController::update
- * @see app/Http/Controllers/ListingController.php:161
+ * @see app/Http/Controllers/ListingController.php:162
  * @route '/listings/{listing}'
  */
 update.url = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions) => {
@@ -593,7 +593,7 @@ update.url = (args: { listing: string | { listing_id: string } } | [listing: str
 
 /**
 * @see \App\Http\Controllers\ListingController::update
- * @see app/Http/Controllers/ListingController.php:161
+ * @see app/Http/Controllers/ListingController.php:162
  * @route '/listings/{listing}'
  */
 update.post = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -603,7 +603,7 @@ update.post = (args: { listing: string | { listing_id: string } } | [listing: st
 
     /**
 * @see \App\Http\Controllers\ListingController::update
- * @see app/Http/Controllers/ListingController.php:161
+ * @see app/Http/Controllers/ListingController.php:162
  * @route '/listings/{listing}'
  */
     const updateForm = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -613,7 +613,7 @@ update.post = (args: { listing: string | { listing_id: string } } | [listing: st
 
             /**
 * @see \App\Http\Controllers\ListingController::update
- * @see app/Http/Controllers/ListingController.php:161
+ * @see app/Http/Controllers/ListingController.php:162
  * @route '/listings/{listing}'
  */
         updateForm.post = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -622,6 +622,184 @@ update.post = (args: { listing: string | { listing_id: string } } | [listing: st
         })
     
     update.form = updateForm
+/**
+* @see \App\Http\Controllers\ListingController::status
+ * @see app/Http/Controllers/ListingController.php:263
+ * @route '/listings/{listing}/status'
+ */
+export const status = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: status.url(args, options),
+    method: 'patch',
+})
+
+status.definition = {
+    methods: ["patch"],
+    url: '/listings/{listing}/status',
+} satisfies RouteDefinition<["patch"]>
+
+/**
+* @see \App\Http\Controllers\ListingController::status
+ * @see app/Http/Controllers/ListingController.php:263
+ * @route '/listings/{listing}/status'
+ */
+status.url = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { listing: args }
+    }
+
+            if (typeof args === 'object' && !Array.isArray(args) && 'listing_id' in args) {
+            args = { listing: args.listing_id }
+        }
+    
+    if (Array.isArray(args)) {
+        args = {
+                    listing: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        listing: typeof args.listing === 'object'
+                ? args.listing.listing_id
+                : args.listing,
+                }
+
+    return status.definition.url
+            .replace('{listing}', parsedArgs.listing.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\ListingController::status
+ * @see app/Http/Controllers/ListingController.php:263
+ * @route '/listings/{listing}/status'
+ */
+status.patch = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: status.url(args, options),
+    method: 'patch',
+})
+
+    /**
+* @see \App\Http\Controllers\ListingController::status
+ * @see app/Http/Controllers/ListingController.php:263
+ * @route '/listings/{listing}/status'
+ */
+    const statusForm = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: status.url(args, {
+                    [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                        _method: 'PATCH',
+                        ...(options?.query ?? options?.mergeQuery ?? {}),
+                    }
+                }),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\ListingController::status
+ * @see app/Http/Controllers/ListingController.php:263
+ * @route '/listings/{listing}/status'
+ */
+        statusForm.patch = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: status.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'PATCH',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'post',
+        })
+    
+    status.form = statusForm
+/**
+* @see \App\Http\Controllers\ListingController::destroy
+ * @see app/Http/Controllers/ListingController.php:285
+ * @route '/listings/{listing}'
+ */
+export const destroy = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: destroy.url(args, options),
+    method: 'delete',
+})
+
+destroy.definition = {
+    methods: ["delete"],
+    url: '/listings/{listing}',
+} satisfies RouteDefinition<["delete"]>
+
+/**
+* @see \App\Http\Controllers\ListingController::destroy
+ * @see app/Http/Controllers/ListingController.php:285
+ * @route '/listings/{listing}'
+ */
+destroy.url = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { listing: args }
+    }
+
+            if (typeof args === 'object' && !Array.isArray(args) && 'listing_id' in args) {
+            args = { listing: args.listing_id }
+        }
+    
+    if (Array.isArray(args)) {
+        args = {
+                    listing: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        listing: typeof args.listing === 'object'
+                ? args.listing.listing_id
+                : args.listing,
+                }
+
+    return destroy.definition.url
+            .replace('{listing}', parsedArgs.listing.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\ListingController::destroy
+ * @see app/Http/Controllers/ListingController.php:285
+ * @route '/listings/{listing}'
+ */
+destroy.delete = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: destroy.url(args, options),
+    method: 'delete',
+})
+
+    /**
+* @see \App\Http\Controllers\ListingController::destroy
+ * @see app/Http/Controllers/ListingController.php:285
+ * @route '/listings/{listing}'
+ */
+    const destroyForm = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: destroy.url(args, {
+                    [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                        _method: 'DELETE',
+                        ...(options?.query ?? options?.mergeQuery ?? {}),
+                    }
+                }),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\ListingController::destroy
+ * @see app/Http/Controllers/ListingController.php:285
+ * @route '/listings/{listing}'
+ */
+        destroyForm.delete = (args: { listing: string | { listing_id: string } } | [listing: string | { listing_id: string } ] | string | { listing_id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: destroy.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'DELETE',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'post',
+        })
+    
+    destroy.form = destroyForm
 const listings = {
     show: Object.assign(show, show),
 favorite: Object.assign(favorite, favorite),
@@ -631,6 +809,8 @@ draft: Object.assign(draft, draft),
 store: Object.assign(store, store),
 edit: Object.assign(edit, edit),
 update: Object.assign(update, update),
+status: Object.assign(status, status),
+destroy: Object.assign(destroy, destroy),
 }
 
 export default listings

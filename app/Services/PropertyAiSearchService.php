@@ -60,7 +60,7 @@ class PropertyAiSearchService
     {
         $openRouterKey = config('ai.providers.openrouter.key') ?: env('OPENROUTER_API_KEY');
 
-        if (! empty($openRouterKey)) {
+        if (! empty($openRouterKey) && $openRouterKey !== 'null' && str_starts_with($openRouterKey, 'sk-')) {
             try {
                 $agent = new PropertySearchAgent;
                 $response = $agent->prompt(

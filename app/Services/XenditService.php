@@ -69,7 +69,7 @@ class XenditService
         }
 
         try {
-            $client = Http::timeout(30);
+            $client = Http::timeout(10)->connectTimeout(5);
 
             if (app()->environment('local') || config('app.debug')) {
                 $client = $client->withoutVerifying();
@@ -168,7 +168,7 @@ class XenditService
         }
 
         try {
-            $client = Http::timeout(30);
+            $client = Http::timeout(10)->connectTimeout(5);
 
             if (app()->environment('local') || config('app.debug')) {
                 $client = $client->withoutVerifying();

@@ -23,6 +23,7 @@ class ListingController extends Controller
     public function index(): Response
     {
         $listings = Listing::with('images')
+            ->withCount('favorites')
             ->where('seller_id', auth()->user()->user_id)
             ->latest()
             ->get();
@@ -254,5 +255,54 @@ class ListingController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
         }
+    }
+
+    /**
+     * Update the status of the specified listing.
+     */
+    public function updateStatus(Request $request, Listing $listing): RedirectResponse
+    {
+        if ($listing->seller_id !== auth()->user()->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:draft,active,under_contract,sold,archived'],
+        ]);
+
+        $listing->update([
+            'status' => $validated['status'],
+            'sold_at' => $validated['status'] === 'sold' ? ($listing->sold_at ?: now()) : null,
+        ]);
+
+        return redirect()->route('listings.index')
+            ->with('success', "Listing status updated to {$validated['status']}.");
+    }
+
+    /**
+     * Remove the specified listing from storage.
+     */
+    public function destroy(Listing $listing): RedirectResponse
+    {
+        if ($listing->seller_id !== auth()->user()->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $disk = config('filesystems.default', 'r2');
+        foreach ($listing->images as $image) {
+            if ($image->file_path && ! str_starts_with($image->file_path, 'http')) {
+                try {
+                    Storage::disk($disk)->delete($image->file_path);
+                } catch (\Throwable) {
+                    // Ignore storage file deletion failure gracefully
+                }
+            }
+            $image->delete();
+        }
+
+        $listing->delete();
+
+        return redirect()->route('listings.index')
+            ->with('success', 'Property listing deleted successfully.');
     }
 }

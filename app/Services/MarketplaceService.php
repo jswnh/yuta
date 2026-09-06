@@ -10,89 +10,40 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class MarketplaceService
 {
     /**
-     * Get the Primary Featured Listing according to the priority algorithm.
-     * Priority 1: Admin Pinned active listing
-     * Priority 2: Explicitly featured or most viewed active listing
-     * Priority 3: Highest engagement active listing (favorites + inquiries)
-     * Priority 4: Most recent active listing (auto-pinned if only 1 listing exists)
+     * Get the Primary Featured Listing according to priority:
+     * 1. Admin Pinned active listing
+     * 2. Explicitly featured or most viewed active listing
+     * 3. Highest engagement active listing (favorites)
+     * 4. Most recent active listing (auto-pinned if only 1 listing exists)
      */
     public function getPrimaryFeaturedListing(): ?Listing
     {
-        $totalListings = Listing::whereIn('status', ['active', 'pending_review'])->count();
-
-        // Priority 1 - Admin Pinned Listing
-        $pinned = Listing::with(['images', 'seller.sellerProfile'])
-            ->withCount('favorites')
-            ->whereIn('status', ['active', 'pending_review'])
-            ->where('is_pinned', true)
-            ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
-            ->latest('published_at')
-            ->latest('created_at')
-            ->first();
-
-        if ($pinned) {
-            return $pinned;
-        }
-
-        // Priority 2 - Explicitly featured or Most Viewed Listing
-        $mostViewed = Listing::with(['images', 'seller.sellerProfile'])
+        $listing = Listing::with(['images', 'seller.sellerProfile'])
             ->withCount('favorites')
             ->whereIn('status', ['active', 'pending_review'])
             ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
+            ->orderByDesc('is_pinned')
             ->orderByDesc('is_featured')
             ->orderByDesc('view_count')
-            ->latest('published_at')
-            ->latest('created_at')
-            ->first();
-
-        if ($mostViewed && ($mostViewed->is_featured || $mostViewed->view_count > 0)) {
-            if ($totalListings <= 1) {
-                $mostViewed->is_pinned = true;
-                $mostViewed->is_featured = true;
-            }
-
-            return $mostViewed;
-        }
-
-        // Priority 3 - Trending / Engagement (Favorites + Inquiries)
-        $mostEngaged = Listing::with(['images', 'seller.sellerProfile'])
-            ->withCount('favorites')
-            ->whereIn('status', ['active', 'pending_review'])
-            ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
             ->orderByDesc('favorites_count')
             ->latest('published_at')
             ->latest('created_at')
             ->first();
 
-        if ($mostEngaged && $mostEngaged->favorites_count > 0) {
+        if ($listing && ! $listing->is_pinned) {
+            $totalListings = Listing::whereIn('status', ['active', 'pending_review'])->count();
             if ($totalListings <= 1) {
-                $mostEngaged->is_pinned = true;
-                $mostEngaged->is_featured = true;
+                $listing->is_pinned = true;
+                $listing->is_featured = true;
             }
-
-            return $mostEngaged;
         }
 
-        // Priority 4 - Most Recent Listing fallback
-        $fallback = Listing::with(['images', 'seller.sellerProfile'])
-            ->withCount('favorites')
-            ->whereIn('status', ['active', 'pending_review'])
-            ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
-            ->latest('published_at')
-            ->latest('created_at')
-            ->first();
-
-        if ($fallback && $totalListings <= 1) {
-            $fallback->is_pinned = true;
-            $fallback->is_featured = true;
-        }
-
-        return $fallback;
+        return $listing;
     }
 
     /**
@@ -123,8 +74,7 @@ class MarketplaceService
     }
 
     /**
-     * Get Trending Listings using time-aware scoring.
-     * Score = view_count * 1 + favorites_count * 3 + recency
+     * Get Trending Listings using engagement and recency.
      *
      * @return Collection<int, Listing>
      */
@@ -134,7 +84,8 @@ class MarketplaceService
             ->withCount('favorites')
             ->whereIn('status', ['active', 'pending_review'])
             ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
-            ->orderByDesc(DB::raw('(view_count + (SELECT COUNT(*) FROM listing_favorites WHERE listing_favorites.listing_id = listings.listing_id) * 3)'))
+            ->orderByDesc('view_count')
+            ->orderByDesc('favorites_count')
             ->latest('published_at')
             ->latest('created_at')
             ->take($limit)
@@ -142,7 +93,7 @@ class MarketplaceService
     }
 
     /**
-     * Get live marketplace analytics from the database.
+     * Get live marketplace analytics from the database with 60-second caching.
      *
      * @return array{
      *     active_listings_count: int,
@@ -155,21 +106,23 @@ class MarketplaceService
      */
     public function getMarketplaceAnalytics(): array
     {
-        $activeListingsCount = Listing::whereIn('status', ['active', 'pending_review'])->count();
-        $verifiedSellersCount = SellerProfile::where('verification_status', 'verified')->count();
-        $totalViewsCount = (int) Listing::whereIn('status', ['active', 'pending_review'])->sum('view_count');
-        $activeAgreementsCount = Agreement::whereIn('status', ['accepted', 'active'])->count();
-        $completedTransactionsCount = Transaction::where('payment_status', 'completed')->count();
-        $totalTransactionValue = (float) Transaction::where('payment_status', 'completed')->sum('amount');
+        return Cache::remember('marketplace_analytics', 60, function () {
+            $activeListingsCount = Listing::whereIn('status', ['active', 'pending_review'])->count();
+            $verifiedSellersCount = SellerProfile::where('verification_status', 'verified')->count();
+            $totalViewsCount = (int) Listing::whereIn('status', ['active', 'pending_review'])->sum('view_count');
+            $activeAgreementsCount = Agreement::whereIn('status', ['accepted', 'active'])->count();
+            $completedTransactionsCount = Transaction::where('payment_status', 'completed')->count();
+            $totalTransactionValue = (float) Transaction::where('payment_status', 'completed')->sum('amount');
 
-        return [
-            'active_listings_count' => $activeListingsCount,
-            'verified_sellers_count' => $verifiedSellersCount,
-            'total_views_count' => $totalViewsCount,
-            'active_agreements_count' => $activeAgreementsCount,
-            'completed_transactions_count' => $completedTransactionsCount,
-            'total_transaction_value' => $totalTransactionValue,
-        ];
+            return [
+                'active_listings_count' => $activeListingsCount,
+                'verified_sellers_count' => $verifiedSellersCount,
+                'total_views_count' => $totalViewsCount,
+                'active_agreements_count' => $activeAgreementsCount,
+                'completed_transactions_count' => $completedTransactionsCount,
+                'total_transaction_value' => $totalTransactionValue,
+            ];
+        });
     }
 
     /**

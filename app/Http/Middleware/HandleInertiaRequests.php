@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Message;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -41,8 +42,15 @@ class HandleInertiaRequests extends Middleware
             $user->loadMissing('sellerProfile');
         }
 
-        $unreadNotificationsCount = $user ? $user->unreadNotifications()->count() : 0;
-        $unreadMessagesCount = $user ? Message::where('receiver_id', $user->user_id)->where('is_read', false)->count() : 0;
+        $userId = $user?->user_id;
+
+        $unreadNotificationsCount = $user
+            ? Cache::remember("user_{$userId}_unread_notifs", 15, fn () => $user->unreadNotifications()->count())
+            : 0;
+
+        $unreadMessagesCount = $user
+            ? Cache::remember("user_{$userId}_unread_msgs", 15, fn () => Message::where('receiver_id', $userId)->where('is_read', false)->count())
+            : 0;
 
         return [
             ...parent::share($request),

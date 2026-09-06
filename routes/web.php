@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public Welcome & Marketplace Routes
 Route::get('/', WelcomeController::class)->name('home');
-Route::get('marketplace', [MarketplaceController::class, 'index'])->name('marketplace.index');
+Route::match(['get', 'post'], 'marketplace', [MarketplaceController::class, 'index'])->name('marketplace.index');
 Route::post('marketplace/ai-search', [MarketplaceController::class, 'aiSearch'])->name('marketplace.ai-search');
 Route::get('properties/{slug}', [ListingDetailController::class, 'show'])->name('listings.show');
 
@@ -70,6 +70,8 @@ Route::middleware(['auth', 'verified', 'seller'])->group(function () {
     Route::post('listings', [ListingController::class, 'store'])->name('listings.store');
     Route::get('listings/{listing}/edit', [ListingController::class, 'edit'])->name('listings.edit');
     Route::post('listings/{listing}', [ListingController::class, 'update'])->name('listings.update');
+    Route::patch('listings/{listing}/status', [ListingController::class, 'updateStatus'])->name('listings.status');
+    Route::delete('listings/{listing}', [ListingController::class, 'destroy'])->name('listings.destroy');
 });
 
 // OAuth Socialite Callbacks

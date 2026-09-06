@@ -10,9 +10,9 @@ export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 index.definition = {
-    methods: ["get","head"],
+    methods: ["get","post","head"],
     url: '/marketplace',
-} satisfies RouteDefinition<["get","head"]>
+} satisfies RouteDefinition<["get","post","head"]>
 
 /**
 * @see \App\Http\Controllers\MarketplaceController::index
@@ -31,6 +31,15 @@ index.url = (options?: RouteQueryOptions) => {
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: index.url(options),
     method: 'get',
+})
+/**
+* @see \App\Http\Controllers\MarketplaceController::index
+ * @see app/Http/Controllers/MarketplaceController.php:14
+ * @route '/marketplace'
+ */
+index.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: index.url(options),
+    method: 'post',
 })
 /**
 * @see \App\Http\Controllers\MarketplaceController::index
@@ -66,6 +75,15 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
  * @see app/Http/Controllers/MarketplaceController.php:14
  * @route '/marketplace'
  */
+        indexForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: index.url(options),
+            method: 'post',
+        })
+            /**
+* @see \App\Http\Controllers\MarketplaceController::index
+ * @see app/Http/Controllers/MarketplaceController.php:14
+ * @route '/marketplace'
+ */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: index.url({
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
@@ -79,7 +97,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\MarketplaceController::aiSearch
- * @see app/Http/Controllers/MarketplaceController.php:40
+ * @see app/Http/Controllers/MarketplaceController.php:38
  * @route '/marketplace/ai-search'
  */
 export const aiSearch = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +112,7 @@ aiSearch.definition = {
 
 /**
 * @see \App\Http\Controllers\MarketplaceController::aiSearch
- * @see app/Http/Controllers/MarketplaceController.php:40
+ * @see app/Http/Controllers/MarketplaceController.php:38
  * @route '/marketplace/ai-search'
  */
 aiSearch.url = (options?: RouteQueryOptions) => {
@@ -103,7 +121,7 @@ aiSearch.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\MarketplaceController::aiSearch
- * @see app/Http/Controllers/MarketplaceController.php:40
+ * @see app/Http/Controllers/MarketplaceController.php:38
  * @route '/marketplace/ai-search'
  */
 aiSearch.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +131,7 @@ aiSearch.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\MarketplaceController::aiSearch
- * @see app/Http/Controllers/MarketplaceController.php:40
+ * @see app/Http/Controllers/MarketplaceController.php:38
  * @route '/marketplace/ai-search'
  */
     const aiSearchForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +141,7 @@ aiSearch.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\MarketplaceController::aiSearch
- * @see app/Http/Controllers/MarketplaceController.php:40
+ * @see app/Http/Controllers/MarketplaceController.php:38
  * @route '/marketplace/ai-search'
  */
         aiSearchForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

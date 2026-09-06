@@ -21,11 +21,17 @@ import {
     MapPin, 
     Search, 
     Menu, 
-    X,
-    Flame,
-    CreditCard,
-    Pin,
-    Store
+    X, 
+    Flame, 
+    CreditCard, 
+    Pin, 
+    Store,
+    CheckCircle2,
+    FileCheck,
+    MessageSquare,
+    Sparkles,
+    Building2,
+    Lock
 } from 'lucide-react';
 
 interface WelcomeProps {
@@ -132,6 +138,13 @@ export default function Welcome({
                             <Flame className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                             Featured Lots
                         </a>
+                        <a
+                            href="#why-yuta"
+                            className="px-4 py-2 rounded-full text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800/80 transition-all flex items-center gap-1.5"
+                        >
+                            <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                            Why Yuta
+                        </a>
                         <Link
                             href="/billing"
                             className="px-4 py-2 rounded-full text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800/80 transition-all flex items-center gap-1.5"
@@ -213,6 +226,13 @@ export default function Welcome({
                         >
                             Browse Marketplace
                         </Link>
+                        <a
+                            href="#why-yuta"
+                            className="block px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-300"
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            Why Yuta
+                        </a>
                         <Link
                             href="/billing"
                             className="block px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-300"
@@ -572,6 +592,163 @@ export default function Welcome({
                 </div>
             </section>
 
+            {/* SECTION: WHY YUTA (VALUE PROPOSITION & PLATFORM ADVANTAGES) */}
+            <section id="why-yuta" className="py-20 bg-slate-100/70 dark:bg-slate-900/40 border-t border-slate-200 dark:border-slate-800/80">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider shadow-xs">
+                            <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                            <span>Why Choose Yuta</span>
+                        </div>
+
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+                            The Smarter Way to Buy & Sell Land in the <span className="bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent">Philippines</span>
+                        </h2>
+
+                        <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+                            Traditional Philippine land deals suffer from boundary disputes, hidden markups, and unverified titles. Yuta combines GIS boundary mapping, verified seller credentials, and transparent deal agreements for safe, direct transactions.
+                        </p>
+                    </div>
+
+                    {/* 6 KEY PILLARS GRID */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {/* CARD 1: GIS BOUNDARY MAPPING */}
+                        <div className="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between group">
+                            <div className="space-y-4">
+                                <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+                                    <MapPin className="w-6 h-6" />
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                    Interactive GIS Boundary Mapping
+                                </h3>
+                                <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                    Never guess property limits. Inspect exact lot perimeter polygons, GPS coordinates, road access, and satellite topography before ever traveling to the site.
+                                </p>
+                            </div>
+                            <div className="pt-6 border-t border-slate-100 dark:border-slate-800 mt-6 flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span>Exact coordinate polygons</span>
+                            </div>
+                        </div>
+
+                        {/* CARD 2: VERIFIED LAND TITLES */}
+                        <div className="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between group">
+                            <div className="space-y-4">
+                                <div className="w-12 h-12 rounded-2xl bg-teal-100 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800/80 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform">
+                                    <ShieldCheck className="w-6 h-6" />
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                                    Verified Titles & Legit Sellers
+                                </h3>
+                                <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                    Listings clearly state title status (Clean Title, Tax Declaration, Mother Title) and verified seller identity badges so you can invest with zero scam anxieties.
+                                </p>
+                            </div>
+                            <div className="pt-6 border-t border-slate-100 dark:border-slate-800 mt-6 flex items-center gap-2 text-xs font-semibold text-teal-600 dark:text-teal-400">
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span>Clean title & seller badges</span>
+                            </div>
+                        </div>
+
+                        {/* CARD 3: AUTOMATED DEAL AGREEMENTS */}
+                        <div className="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between group">
+                            <div className="space-y-4">
+                                <div className="w-12 h-12 rounded-2xl bg-cyan-100 dark:bg-cyan-950/60 border border-cyan-200 dark:border-cyan-800/80 flex items-center justify-center text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform">
+                                    <FileCheck className="w-6 h-6" />
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                                    Automated Deal Agreements
+                                </h3>
+                                <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                    Submit formal digital purchase proposals, negotiate payment terms, specify earnest deposits, and track deal stages from Proposed to Accepted and Sold.
+                                </p>
+                            </div>
+                            <div className="pt-6 border-t border-slate-100 dark:border-slate-800 mt-6 flex items-center gap-2 text-xs font-semibold text-cyan-600 dark:text-cyan-400">
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span>Digital offer & status tracker</span>
+                            </div>
+                        </div>
+
+                        {/* CARD 4: DIRECT SELLER CHAT */}
+                        <div className="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between group">
+                            <div className="space-y-4">
+                                <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/80 flex items-center justify-center text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform">
+                                    <MessageSquare className="w-6 h-6" />
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                                    Direct Inquiries, Zero Middlemen Markups
+                                </h3>
+                                <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                    Chat directly with landowners, licensed brokers, or authorized developers through an integrated real-time inbox without unauthorized agent commissions.
+                                </p>
+                            </div>
+                            <div className="pt-6 border-t border-slate-100 dark:border-slate-800 mt-6 flex items-center gap-2 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span>Direct buyer-to-seller inbox</span>
+                            </div>
+                        </div>
+
+                        {/* CARD 5: SECURE PAYMENT GATEWAYS */}
+                        <div className="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between group">
+                            <div className="space-y-4">
+                                <div className="w-12 h-12 rounded-2xl bg-violet-100 dark:bg-violet-950/60 border border-violet-200 dark:border-violet-800/80 flex items-center justify-center text-violet-600 dark:text-violet-400 group-hover:scale-110 transition-transform">
+                                    <CreditCard className="w-6 h-6" />
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                                    Secure Transactions & Invoicing
+                                </h3>
+                                <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                    Process subscription payments and property deposits securely with Xendit, direct bank transfers, and automated downloadable PDF receipt vouchers.
+                                </p>
+                            </div>
+                            <div className="pt-6 border-t border-slate-100 dark:border-slate-800 mt-6 flex items-center gap-2 text-xs font-semibold text-violet-600 dark:text-violet-400">
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span>Xendit & bank payment logging</span>
+                            </div>
+                        </div>
+
+                        {/* CARD 6: BUILT FOR OFWS & LOCAL INVESTORS */}
+                        <div className="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between group">
+                            <div className="space-y-4">
+                                <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/80 flex items-center justify-center text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform">
+                                    <Building2 className="w-6 h-6" />
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
+                                    Built for OFWs & Real Estate Investors
+                                </h3>
+                                <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                    Compare price per square meter, calculate installment schedules, and monitor property status from anywhere in the world across Luzon, Visayas, and Mindanao.
+                                </p>
+                            </div>
+                            <div className="pt-6 border-t border-slate-100 dark:border-slate-800 mt-6 flex items-center gap-2 text-xs font-semibold text-rose-600 dark:text-rose-400">
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span>Nationwide coverage & price metrics</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* COMPARISON / TRUST STATS BANNER */}
+                    <div className="mt-16 p-8 rounded-3xl bg-emerald-600 text-white shadow-xl grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                        <div className="space-y-1">
+                            <span className="text-3xl sm:text-4xl font-black">100%</span>
+                            <span className="text-emerald-100 text-xs sm:text-sm block font-medium">Direct Seller Inquiries</span>
+                        </div>
+                        <div className="space-y-1">
+                            <span className="text-3xl sm:text-4xl font-black">0%</span>
+                            <span className="text-emerald-100 text-xs sm:text-sm block font-medium">Middlemen Commission Markups</span>
+                        </div>
+                        <div className="space-y-1">
+                            <span className="text-3xl sm:text-4xl font-black">GIS</span>
+                            <span className="text-emerald-100 text-xs sm:text-sm block font-medium">Precise Polygon Boundary Maps</span>
+                        </div>
+                        <div className="space-y-1">
+                            <span className="text-3xl sm:text-4xl font-black">24/7</span>
+                            <span className="text-emerald-100 text-xs sm:text-sm block font-medium">Deal Status & Agreement Tracking</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* SELLER CTA */}
             <section className="py-20 bg-emerald-50/50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-emerald-950/20 dark:to-slate-950 border-t border-slate-200 dark:border-slate-800">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -616,6 +793,7 @@ export default function Welcome({
 
                     <div className="flex items-center gap-6">
                         <Link href="/marketplace" className="hover:text-slate-900 dark:hover:text-slate-300 transition-colors">Marketplace</Link>
+                        <a href="#why-yuta" className="hover:text-slate-900 dark:hover:text-slate-300 transition-colors">Why Yuta</a>
                         <Link href="/billing" className="hover:text-slate-900 dark:hover:text-slate-300 transition-colors">Billing</Link>
                         <Link href="/login" className="hover:text-slate-900 dark:hover:text-slate-300 transition-colors">Sign In</Link>
                     </div>

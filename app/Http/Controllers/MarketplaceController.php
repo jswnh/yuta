@@ -14,26 +14,24 @@ class MarketplaceController extends Controller
     public function index(Request $request, MarketplaceService $marketplaceService): Response
     {
         $listings = $marketplaceService->getFilteredListings($request, 12);
-        $featured = $marketplaceService->getPrimaryFeaturedListing();
-        $analytics = $marketplaceService->getMarketplaceAnalytics();
+
+        $filters = array_filter($request->only([
+            'search',
+            'category',
+            'land_type',
+            'seller_type',
+            'title_status',
+            'province',
+            'min_price',
+            'max_price',
+            'min_area',
+            'max_area',
+            'sort',
+        ]), fn ($v) => $v !== null && $v !== '');
 
         return Inertia::render('marketplace/index', [
             'listings' => $listings,
-            'featured' => $featured,
-            'analytics' => $analytics,
-            'filters' => $request->only([
-                'search',
-                'category',
-                'land_type',
-                'seller_type',
-                'title_status',
-                'province',
-                'min_price',
-                'max_price',
-                'min_area',
-                'max_area',
-                'sort',
-            ]),
+            'filters' => (object) $filters,
         ]);
     }
 
